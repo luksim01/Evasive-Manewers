@@ -4,11 +4,24 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    // inputs
     private float horizontalInput;
-    private float verticalInput;
-    private float speed = 10.0f;
+    private float forwardInput;
+    private float backwardInput;
+
+    // speed control
+    private float sidewardSpeed = 7.0f;
+    private float forwardSpeed = 9.0f;
+    private float backwardSpeed = 6.0f;
+
+    // boundary control
     private int xBoundary = 7;
     private int zBoundary = 15;
+
+    // bark control
+    public bool hasBarked = false;
+    public int barkCooldownTime = 1;
+    public ParticleSystem barkEffect;
 
     // Start is called before the first frame update
     void Start()
@@ -21,12 +34,16 @@ public class PlayerController : MonoBehaviour
     {
         // player movement
         horizontalInput = Input.GetAxis("Horizontal");
-        transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * speed);
+        transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * sidewardSpeed);
 
-        verticalInput = Input.GetAxis("Vertical");
-        transform.Translate(Vector3.forward * verticalInput * Time.deltaTime * speed);
+        // slower movement when going backwards, faster movement when going forwards
+        forwardInput = Input.GetAxis("Forward");
+        transform.Translate(Vector3.forward * forwardInput * Time.deltaTime * forwardSpeed);
 
-        // player movement boundaries
+        backwardInput = Input.GetAxis("Backward");
+        transform.Translate(Vector3.forward * backwardInput * Time.deltaTime * backwardSpeed);
+
+        // player movement boundaries - left/right
         if (transform.position.x < -xBoundary)
         {
             transform.position = new Vector3(-xBoundary, transform.position.y, transform.position.z);
@@ -35,6 +52,7 @@ public class PlayerController : MonoBehaviour
         {
             transform.position = new Vector3(xBoundary, transform.position.y, transform.position.z);
         }
+        // player movement boundaries - forwards/backwards
         if (transform.position.z < -zBoundary)
         {
             transform.position = new Vector3(transform.position.x, transform.position.y, -zBoundary);
@@ -43,5 +61,22 @@ public class PlayerController : MonoBehaviour
         {
             transform.position = new Vector3(transform.position.x, transform.position.y, zBoundary);
         }
+
+        // player bark
+        if (Input.GetKeyDown(KeyCode.Space) && !hasBarked)
+        {
+            barkEffect.Play();
+            hasBarked = true;
+            StartCoroutine(BarkCooldown());
+        }
+
+
+    }
+
+    // Coroutine to wait for bark to cool down
+    IEnumerator BarkCooldown()
+    {
+        yield return new WaitForSeconds(barkCooldownTime);
+        hasBarked = false;
     }
 }
