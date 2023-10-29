@@ -429,7 +429,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 177390634217093591}
-  - component: {fileID: 8761576027019668544}
+  - component: {fileID: 2373933236389486428}
   - component: {fileID: 8678069769569210273}
   - component: {fileID: 6636469843359623686}
   m_Layer: 0
@@ -458,7 +458,7 @@ Transform:
   - {fileID: 6330518891030642535}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8761576027019668544
+--- !u!114 &2373933236389486428
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -471,16 +471,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isBarkedAt: 0
-  forwardBurstSpeed: 5000
-  sidewardBurstSpeed: 2000
+  pastBarkState: 0
+  forwardBurstSpeed: 2000
+  sidewardBurstSpeed: 2600
   directionIndex: 0
-  trailLanes:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  alignSpeed: 1500
+  trailLanes: []
+  laneBoundsLower: []
+  laneBoundsUpper: []
+  trailLaneTargets: []
+  alignSpeed: 300
 --- !u!65 &8678069769569210273
 BoxCollider:
   m_ObjectHideFlags: 0

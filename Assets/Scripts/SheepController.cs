@@ -7,15 +7,20 @@ public class SheepController : MonoBehaviour
     // bark interaction
     private GameObject sheepDog;
     public bool isBarkedAt;
+    public bool pastBarkState;
     private Rigidbody sheepRb;
-    public float forwardBurstSpeed = 5000.0f;
-    public float sidewardBurstSpeed = 2700.0f;
+    public float forwardBurstSpeed = 2000.0f;
+    public float sidewardBurstSpeed = 2600.0f;
     private string[] fleeDirection = { "left", "right" };
     public int directionIndex;
+    public GameObject[] trailLanes;
+    public float[] laneBoundsLower;
+    public float[] laneBoundsUpper;
 
     // trail lane alignment
-    public GameObject[] trailLanes;
-    public float alignSpeed = 1000.0f;
+    public GameObject[] trailLaneTargets;
+    public float alignSpeed = 20.0f;
+    private float xBoundary;
 
 
     // Start is called before the first frame update
@@ -23,7 +28,23 @@ public class SheepController : MonoBehaviour
     {
         sheepDog = GameObject.Find("Sheepdog");
         sheepRb = GetComponent<Rigidbody>();
+        trailLaneTargets = GameObject.Find("LaneManager").GetComponent<LaneManager>().trailLaneTargets;
         trailLanes = GameObject.Find("LaneManager").GetComponent<LaneManager>().trailLanes;
+
+        // lane boundaries creation
+        laneBoundsLower = new float[trailLanes.Length];
+        laneBoundsUpper = new float[trailLanes.Length];
+
+        for (int laneIndex = 0; laneIndex < trailLanes.Length; laneIndex++)
+        {
+            float posX = trailLanes[laneIndex].transform.position.x;
+            float width = trailLanes[laneIndex].transform.localScale.x;
+            laneBoundsLower[laneIndex] = posX - (width / 2);
+            laneBoundsUpper[laneIndex] = posX + (width / 2);
+        }
+
+        xBoundary = 4.6f;
+        pastBarkState = isBarkedAt;
     }
 
     // Update is called once per frame
@@ -33,37 +54,73 @@ public class SheepController : MonoBehaviour
         //transform.Translate(Vector3.back * Time.deltaTime);
 
         // sheep realigns towards the center of the closest trail lane
-        StartCoroutine("moveTowardsLaneMiddle");
+        StartCoroutine(moveTowardsLaneMiddle());
 
-        // burst of speed after getting barked at
+        // burst of speed after getting barked at within lane
         isBarkedAt = sheepDog.GetComponent<PlayerController>().hasBarked;
-        if (isBarkedAt)
+
+
+        // check for a low to high change of bark state
+        if (isBarkedAt != pastBarkState && !pastBarkState)
         {
-            StartCoroutine("BeginFleeing", fleeDirection[directionIndex]);
-            //StartCoroutine("moveTowardsLaneMiddle");
+
+            float sheepDogPosX = sheepDog.transform.position.x;
+            float sheepDogPosZ = sheepDog.transform.position.z;
+            float sheepPosX = transform.position.x;
+            float sheepPosZ = transform.position.z;
+
+            StartCoroutine(CheckLane(sheepDogPosX, sheepPosX, sheepDogPosZ, sheepPosZ));
         }
-        else
+        else if (!isBarkedAt)
         {
             // sheep randomly decides a direction to flee from the bark
             directionIndex = Random.Range(0, fleeDirection.Length);
         }
+
+        pastBarkState = isBarkedAt;
     }
 
-    IEnumerator BeginFleeing(string direction)
+    IEnumerator CheckLane(float sheepDogPosX, float sheepPosX, float sheepDogPosZ, float sheepPosZ)
     {
-        sheepRb.AddForce(forwardBurstSpeed * Time.deltaTime * transform.forward, ForceMode.Impulse);
+        for (int laneIndex = 0; laneIndex < trailLanes.Length; laneIndex++)
+        {
+            bool isBarkWithinLane = sheepDogPosX >= laneBoundsLower[laneIndex] && sheepDogPosX <= laneBoundsUpper[laneIndex];
+            bool isSheepWithinLane = sheepPosX >= laneBoundsLower[laneIndex] && sheepPosX <= laneBoundsUpper[laneIndex];
+            bool isAheadOfBark = sheepPosZ >= sheepDogPosZ;
 
-        if (direction == "left")
-        {
-            sheepRb.AddForce(sidewardBurstSpeed * Time.deltaTime * -transform.right, ForceMode.Impulse);
+            if (isBarkWithinLane && isSheepWithinLane & isAheadOfBark)
+            {
+                StartCoroutine(Flee(fleeDirection[directionIndex], sheepPosX));
+            }
         }
-        else if (direction == "right")
-        {
-            sheepRb.AddForce(sidewardBurstSpeed * Time.deltaTime * transform.right, ForceMode.Impulse);
-        }
+
         yield return null;
     }
 
+    IEnumerator Flee(string direction, float sheepPosX)
+    {
+        sheepRb.AddForce(forwardBurstSpeed * transform.forward, ForceMode.Impulse);
+
+        if (direction == "left" && sheepPosX > -xBoundary)
+        {
+            // if furthest left lane, then move right
+            sheepRb.AddForce(sidewardBurstSpeed * -transform.right, ForceMode.Impulse);
+        }
+        else if (direction == "left" && sheepPosX < -xBoundary)
+        {
+            sheepRb.AddForce(sidewardBurstSpeed * transform.right, ForceMode.Impulse);
+        }
+        else if (direction == "right" && sheepPosX < xBoundary)
+        {
+            // if furthest right lane, then move left
+            sheepRb.AddForce(sidewardBurstSpeed * transform.right, ForceMode.Impulse);
+        }
+        else if (direction == "right" && sheepPosX > xBoundary)
+        {
+            sheepRb.AddForce(sidewardBurstSpeed * -transform.right, ForceMode.Impulse);
+        }
+        yield return null;
+    }
 
     IEnumerator moveTowardsLaneMiddle()
     {
@@ -71,10 +128,9 @@ public class SheepController : MonoBehaviour
         int nearestLaneIndex = -1;
 
         // find the closest lane to align the sheep to centrally
-        for (int laneIndex = 0; laneIndex<trailLanes.Length; laneIndex++)
+        for (int laneIndex = 0; laneIndex< trailLaneTargets.Length; laneIndex++)
         {
-            float distanceFromLaneMiddle = Mathf.Abs(trailLanes[laneIndex].transform.position.x - transform.position.x);
-            //Debug.Log("Dist from middle of lane " + laneIndex + " : " + distanceFromLaneMiddle);
+            float distanceFromLaneMiddle = Mathf.Abs(trailLaneTargets[laneIndex].transform.position.x - transform.position.x);
             if (distanceFromLaneMiddle < smallestDistanceFromLaneMiddle)
             {
                 smallestDistanceFromLaneMiddle = distanceFromLaneMiddle;
@@ -82,15 +138,9 @@ public class SheepController : MonoBehaviour
             }
         }
 
-        //float targetPosX = trailLanes[nearestLaneIndex].transform.position.x - transform.position.x;
-        //Vector3 alignPos = new Vector3(transform.position.x, transform.position.y, targetPosX);
-        //Vector3 alignDirection = (alignPos.transform.position - transform.position).normalized;
-        //sheepRb.AddForce(alignPos * alignSpeed * Time.deltaTime, ForceMode.Impulse);
-
-
-        Vector3 alignDirection = (trailLanes[nearestLaneIndex].transform.position - transform.position).normalized;
+        // sheep gradually falls behind and aligns itself centrally to the closest lane center
+        Vector3 alignDirection = (trailLaneTargets[nearestLaneIndex].transform.position - transform.position);
         sheepRb.AddForce(alignDirection * alignSpeed);
-        //Debug.Log("Alignment: " + alignDirection);
 
         yield return null;
     }

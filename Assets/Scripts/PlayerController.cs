@@ -79,4 +79,9 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(barkCooldownTime);
         hasBarked = false;
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        //Debug.Log(collision.gameObject.name);
+    }
 }
