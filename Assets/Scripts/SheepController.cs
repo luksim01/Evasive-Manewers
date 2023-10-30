@@ -21,6 +21,7 @@ public class SheepController : MonoBehaviour
     public GameObject[] trailLaneTargets;
     public float alignSpeed = 20.0f;
     private float xBoundary;
+    private int bounds = 35;
 
 
     // Start is called before the first frame update
@@ -78,6 +79,12 @@ public class SheepController : MonoBehaviour
         }
 
         pastBarkState = isBarkedAt;
+
+        // sheep is lost if ahead or behind too far
+        if (transform.position.z > bounds || transform.position.z < -bounds)
+        {
+            Destroy(gameObject);
+        }
     }
 
     IEnumerator CheckLane(float sheepDogPosX, float sheepPosX, float sheepDogPosZ, float sheepPosZ)

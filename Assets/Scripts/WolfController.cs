@@ -8,13 +8,16 @@ public class WolfController : MonoBehaviour
     private GameObject sheepDog;
     Vector3 alignDirection;
     public Vector3 sheepDogProximity;
-    public Vector3 collisionCourse;
+    public Vector3 collisionCourse = new Vector3(0, 0, 0);
+    private int bounds = 40;
+    private float wolfStartPosX;
 
 
     // Start is called before the first frame update
     void Start()
     {
         sheepDog = GameObject.Find("Sheepdog");
+        wolfStartPosX = transform.position.x;
     }
 
     // Update is called once per frame
@@ -24,20 +27,41 @@ public class WolfController : MonoBehaviour
         //Debug.Log("Proximity: x: " + Mathf.Abs(sheepDogProximity.x) + " z: " + Mathf.Abs(sheepDogProximity.z));
 
         // track player position
-        if(sheepDogProximity.x > 1.0f)
+        if(sheepDogProximity.x < -1.0f && wolfStartPosX > 0.0f)
         {
             collisionCourse = sheepDogProximity;
-            alignDirection = (sheepDogProximity).normalized;
-            transform.rotation = Quaternion.LookRotation(alignDirection);
-            transform.Translate(alignDirection * speed * Time.deltaTime);
+            TrackPlayer(sheepDogProximity);
+        }
+        else if (sheepDogProximity.x > 1.0f && wolfStartPosX < 0.0f)
+        {
+            collisionCourse = sheepDogProximity;
+            TrackPlayer(sheepDogProximity);
         }
         else
         {
             // continue collision course once close enough
-            alignDirection = (collisionCourse).normalized;
-            transform.rotation = Quaternion.LookRotation(alignDirection);
-            transform.Translate(alignDirection * speed * 1.5f * Time.deltaTime);
+            TrackPlayer(collisionCourse);
         }
-        
+
+        // destroy if out of bounds
+        if(transform.position.x > bounds || transform.position.x < -bounds)
+        {
+            Destroy(gameObject);
+        }
+        if (transform.position.z > bounds || transform.position.z < -bounds)
+        {
+            Destroy(gameObject);
+        }
+
+        void TrackPlayer(Vector3 direction)
+        {
+            alignDirection = (direction).normalized;
+            if (alignDirection != Vector3.zero)
+            {
+                transform.rotation = Quaternion.LookRotation(alignDirection);
+            }
+            transform.Translate(alignDirection * speed * Time.deltaTime);
+        }
+
     }
 }
