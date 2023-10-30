@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2955235358800521086}
   - component: {fileID: 4542131052692637793}
   - component: {fileID: 4531157021621839544}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Sheep_Tail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -117,7 +117,7 @@ GameObject:
   - component: {fileID: 3930778703757890691}
   - component: {fileID: 411773420911145060}
   - component: {fileID: 8139427286628127663}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Sheep_Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -222,7 +222,7 @@ GameObject:
   - component: {fileID: 8143366915031811010}
   - component: {fileID: 4208115109502404849}
   - component: {fileID: 7699675521666207069}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Sheep_Hair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -327,7 +327,7 @@ GameObject:
   - component: {fileID: 6958128480186365676}
   - component: {fileID: 615032820255976736}
   - component: {fileID: 686459275313701592}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Sheep_Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -432,7 +432,7 @@ GameObject:
   - component: {fileID: 2373933236389486428}
   - component: {fileID: 8678069769569210273}
   - component: {fileID: 6636469843359623686}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Sheep
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -479,7 +479,7 @@ MonoBehaviour:
   laneBoundsLower: []
   laneBoundsUpper: []
   trailLaneTargets: []
-  alignSpeed: 300
+  alignSpeed: 10
 --- !u!65 &8678069769569210273
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -493,7 +493,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
@@ -520,7 +520,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1

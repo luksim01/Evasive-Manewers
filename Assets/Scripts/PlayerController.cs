@@ -82,6 +82,9 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        //Debug.Log(collision.gameObject.name);
+        if(collision.gameObject.tag == "Wolf")
+        {
+            Debug.Log("Bitten!");
+        }
     }
 }

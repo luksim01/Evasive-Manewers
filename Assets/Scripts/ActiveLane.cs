@@ -29,7 +29,7 @@ public class ActiveLane : MonoBehaviour
     {
         if (sheepDog.transform.position.x >= laneBoundsLower && sheepDog.transform.position.x <= laneBoundsUpper)
         {
-            Debug.Log(name);
+            //Debug.Log(name);
         }
     }
 }
