@@ -151,4 +151,12 @@ public class SheepController : MonoBehaviour
 
         yield return null;
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.tag == "Obstacle")
+        {
+            Destroy(gameObject);
+        }
+    }
 }

@@ -24,7 +24,6 @@ public class WolfController : MonoBehaviour
     void Update()
     {
         sheepDogProximity = sheepDog.transform.position - transform.position;
-        //Debug.Log("Proximity: x: " + Mathf.Abs(sheepDogProximity.x) + " z: " + Mathf.Abs(sheepDogProximity.z));
 
         // track player position
         if(sheepDogProximity.x < -1.0f && wolfStartPosX > 0.0f)

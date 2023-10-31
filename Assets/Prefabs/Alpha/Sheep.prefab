@@ -432,6 +432,7 @@ GameObject:
   - component: {fileID: 2373933236389486428}
   - component: {fileID: 8678069769569210273}
   - component: {fileID: 6636469843359623686}
+  - component: {fileID: 2183582581254601738}
   m_Layer: 6
   m_Name: Sheep
   m_TagString: Untagged
@@ -473,13 +474,13 @@ MonoBehaviour:
   isBarkedAt: 0
   pastBarkState: 0
   forwardBurstSpeed: 2000
-  sidewardBurstSpeed: 2600
+  sidewardBurstSpeed: 1300
   directionIndex: 0
   trailLanes: []
   laneBoundsLower: []
   laneBoundsUpper: []
   trailLaneTargets: []
-  alignSpeed: 10
+  alignSpeed: 8
 --- !u!65 &8678069769569210273
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -523,8 +524,30 @@ Rigidbody:
     m_Bits: 8
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 116
   m_CollisionDetection: 0
+--- !u!114 &2183582581254601738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6621733594205040022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6549c0de7fd1b481caf105cafb1a20ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isBarkedAt: 0
+  pastBarkState: 0
+  forwardBurstSpeed: 2000
+  sidewardBurstSpeed: 2600
+  directionIndex: 0
+  trailLanes: []
+  laneBoundsLower: []
+  laneBoundsUpper: []
+  trailLaneTargets: []
+  alignSpeed: 10
