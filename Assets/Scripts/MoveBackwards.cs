@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MoveBackwards : MonoBehaviour
 {
-    public int speed = 8;
+    public int speed = 5;
     public int bounds = 35;
 
     // Start is called before the first frame update

@@ -10,7 +10,7 @@ public class SheepController : MonoBehaviour
     public bool pastBarkState;
     private Rigidbody sheepRb;
     public float forwardBurstSpeed = 2000.0f;
-    public float sidewardBurstSpeed = 2600.0f;
+    public float sidewardBurstSpeed = 2000.0f;
     private string[] fleeDirection = { "left", "right" };
     public int directionIndex;
     public GameObject[] trailLanes;
@@ -22,8 +22,9 @@ public class SheepController : MonoBehaviour
     // trail lane alignment
     public GameObject[] trailLaneTargets;
     public float alignSpeed = 8.0f;
-    private float xBoundary;
-    private int bounds = 35;
+    private float xFleeBoundary = 4.6f;
+    private float xBoundary = 7.3f;
+    private int zBoundary = 35;
 
 
     // Start is called before the first frame update
@@ -46,7 +47,7 @@ public class SheepController : MonoBehaviour
             laneBoundsUpper[laneIndex] = posX + (width / 2);
         }
 
-        xBoundary = 4.6f;
+        //xFleeBoundary = 4.6f;
         pastBarkState = isBarkedAt;
     }
 
@@ -86,9 +87,18 @@ public class SheepController : MonoBehaviour
         pastBarkState = isBarkedAt;
 
         // sheep is lost if ahead or behind too far
-        if (transform.position.z > bounds || transform.position.z < -bounds)
+        if (transform.position.z > zBoundary || transform.position.z < -zBoundary)
         {
             Destroy(gameObject);
+        }
+        // sheep remains within forest trail
+        if (transform.position.x > xBoundary)
+        {
+            transform.position = new Vector3(xBoundary, transform.position.y, transform.position.z);
+        }
+        else if (transform.position.x < -xBoundary)
+        {
+            transform.position = new Vector3(-xBoundary, transform.position.y, transform.position.z);
         }
     }
 
@@ -124,26 +134,27 @@ public class SheepController : MonoBehaviour
 
     IEnumerator Flee(string direction, float sheepPosX)
     {
-        sheepRb.AddForce(forwardBurstSpeed * transform.forward, ForceMode.Impulse);
-
-        if (direction == "left" && sheepPosX > -xBoundary)
+        if (direction == "left" && sheepPosX > -xFleeBoundary)
         {
             // if furthest left lane, then move right
             sheepRb.AddForce(sidewardBurstSpeed * -transform.right, ForceMode.Impulse);
         }
-        else if (direction == "left" && sheepPosX < -xBoundary)
+        else if (direction == "left" && sheepPosX < -xFleeBoundary)
         {
             sheepRb.AddForce(sidewardBurstSpeed * transform.right, ForceMode.Impulse);
         }
-        else if (direction == "right" && sheepPosX < xBoundary)
+        else if (direction == "right" && sheepPosX < xFleeBoundary)
         {
             // if furthest right lane, then move left
             sheepRb.AddForce(sidewardBurstSpeed * transform.right, ForceMode.Impulse);
         }
-        else if (direction == "right" && sheepPosX > xBoundary)
+        else if (direction == "right" && sheepPosX > xFleeBoundary)
         {
             sheepRb.AddForce(sidewardBurstSpeed * -transform.right, ForceMode.Impulse);
         }
+
+        sheepRb.AddForce(forwardBurstSpeed * transform.forward, ForceMode.Impulse);
+
         yield return null;
     }
 

@@ -474,7 +474,7 @@ MonoBehaviour:
   isBarkedAt: 0
   pastBarkState: 0
   forwardBurstSpeed: 2000
-  sidewardBurstSpeed: 1300
+  sidewardBurstSpeed: 2000
   directionIndex: 0
   trailLanes: []
   laneBoundsLower: []
