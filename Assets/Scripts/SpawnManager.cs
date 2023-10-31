@@ -15,8 +15,8 @@ public class SpawnManager : MonoBehaviour
     Vector3 wolfSpawnPos;
 
     public float wolfSpawnInterval;
-    private float wolfSpawnIntervalLower = 10.0f;
-    private float wolfSpawnIntervalUpper = 15.0f;
+    private float wolfSpawnIntervalLower = 20.0f;
+    private float wolfSpawnIntervalUpper = 30.0f;
 
     // obstacle spawn
     public GameObject[] obstacles;

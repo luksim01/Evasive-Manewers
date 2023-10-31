@@ -16,10 +16,12 @@ public class SheepController : MonoBehaviour
     public GameObject[] trailLanes;
     public float[] laneBoundsLower;
     public float[] laneBoundsUpper;
+    public bool isSlowingDown = true;
+    public int slowdownCooldownTime = 5;
 
     // trail lane alignment
     public GameObject[] trailLaneTargets;
-    public float alignSpeed = 20.0f;
+    public float alignSpeed = 8.0f;
     private float xBoundary;
     private int bounds = 35;
 
@@ -55,8 +57,11 @@ public class SheepController : MonoBehaviour
         //transform.Translate(Vector3.back * Time.deltaTime);
 
         // sheep realigns towards the center of the closest trail lane
-        StartCoroutine(moveTowardsLaneMiddle());
-
+        if (isSlowingDown)
+        {
+            StartCoroutine(moveTowardsLaneMiddle());
+        }
+        
         // burst of speed after getting barked at within lane
         isBarkedAt = sheepDog.GetComponent<PlayerController>().hasBarked;
 
@@ -87,17 +92,30 @@ public class SheepController : MonoBehaviour
         }
     }
 
+    IEnumerator SlowdownCooldown()
+    {
+        yield return new WaitForSeconds(slowdownCooldownTime);
+        isSlowingDown = true;
+    }
+
     IEnumerator CheckLane(float sheepDogPosX, float sheepPosX, float sheepDogPosZ, float sheepPosZ)
     {
+        // checks bark and sheep are in the same lane and sheep is ahead of bark
         for (int laneIndex = 0; laneIndex < trailLanes.Length; laneIndex++)
         {
             bool isBarkWithinLane = sheepDogPosX >= laneBoundsLower[laneIndex] && sheepDogPosX <= laneBoundsUpper[laneIndex];
             bool isSheepWithinLane = sheepPosX >= laneBoundsLower[laneIndex] && sheepPosX <= laneBoundsUpper[laneIndex];
             bool isAheadOfBark = sheepPosZ >= sheepDogPosZ;
 
-            if (isBarkWithinLane && isSheepWithinLane & isAheadOfBark)
+            if (isBarkWithinLane && isSheepWithinLane && isAheadOfBark)
             {
                 StartCoroutine(Flee(fleeDirection[directionIndex], sheepPosX));
+
+                isSlowingDown = false;
+                if (!isSlowingDown)
+                {
+                    StartCoroutine(SlowdownCooldown());
+                }
             }
         }
 
@@ -156,6 +174,7 @@ public class SheepController : MonoBehaviour
     {
         if(collision.gameObject.tag == "Obstacle")
         {
+            Debug.Log("Sheep Lost!");
             Destroy(gameObject);
         }
     }

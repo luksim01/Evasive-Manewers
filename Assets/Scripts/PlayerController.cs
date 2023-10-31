@@ -20,7 +20,7 @@ public class PlayerController : MonoBehaviour
 
     // bark control
     public bool hasBarked = false;
-    public int barkCooldownTime = 1;
+    public float barkCooldownTime = 0.1f;
     public ParticleSystem barkEffect;
 
     // Start is called before the first frame update
@@ -82,7 +82,6 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log(collision.gameObject.tag);
         if(collision.gameObject.tag == "Wolf")
         {
             Debug.Log("Bitten!");

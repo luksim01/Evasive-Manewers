@@ -285,7 +285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hasBarked: 0
-  barkCooldownTime: 1
+  barkCooldownTime: 0.1
   barkEffect: {fileID: 3065009106305245638}
 --- !u!54 &6685583811072752543
 Rigidbody:

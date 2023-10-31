@@ -479,8 +479,10 @@ MonoBehaviour:
   trailLanes: []
   laneBoundsLower: []
   laneBoundsUpper: []
+  isSlowingDown: 1
+  slowdownCooldownTime: 5
   trailLaneTargets: []
-  alignSpeed: 8
+  alignSpeed: 2
 --- !u!65 &8678069769569210273
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -544,10 +546,12 @@ MonoBehaviour:
   isBarkedAt: 0
   pastBarkState: 0
   forwardBurstSpeed: 2000
-  sidewardBurstSpeed: 2600
+  sidewardBurstSpeed: 2000
   directionIndex: 0
   trailLanes: []
   laneBoundsLower: []
   laneBoundsUpper: []
+  isSlowingDown: 1
+  slowdownCooldownTime: 5
   trailLaneTargets: []
-  alignSpeed: 10
+  alignSpeed: 8
