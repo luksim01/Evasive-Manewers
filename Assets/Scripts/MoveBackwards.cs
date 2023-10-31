@@ -17,7 +17,7 @@ public class MoveBackwards : MonoBehaviour
     {
         transform.Translate(Vector3.back * Time.deltaTime * speed);
 
-        if (transform.position.z < -bounds)
+        if (gameObject.tag == "Obstacle" && transform.position.z < -bounds)
         {
             Destroy(gameObject);
         }

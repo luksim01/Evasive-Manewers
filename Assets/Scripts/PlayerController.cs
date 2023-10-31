@@ -23,10 +23,16 @@ public class PlayerController : MonoBehaviour
     public float barkCooldownTime = 0.1f;
     public ParticleSystem barkEffect;
 
+    // sound effects
+    // REVISIT: Test once sound effects sourced
+    private AudioSource sheepdogAudio;
+    public AudioClip barkSound;
+    public AudioClip hurtSound;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        sheepdogAudio = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -66,6 +72,8 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && !hasBarked)
         {
             barkEffect.Play();
+            // REVISIT: Test once sound effects sourced
+            // sheepdogAudio.PlayOneShot(barkSound, 1.0f);
             hasBarked = true;
             StartCoroutine(BarkCooldown());
         }
@@ -85,10 +93,14 @@ public class PlayerController : MonoBehaviour
         if(collision.gameObject.tag == "Wolf")
         {
             Debug.Log("Bitten!");
+            // REVISIT: Test once sound effects sourced
+            // sheepdogAudio.PlayOneShot(hurtSound, 1.0f);
         }
-        if(collision.gameObject.tag == "Obstacle")
+        if (collision.gameObject.tag == "Obstacle")
         {
             Debug.Log("Collided!");
+            // REVISIT: Test once sound effects sourced
+            // sheepdogAudio.PlayOneShot(hurtSound, 1.0f);
         }
     }
 }

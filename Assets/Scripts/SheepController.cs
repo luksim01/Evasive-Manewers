@@ -26,6 +26,11 @@ public class SheepController : MonoBehaviour
     private float xBoundary = 7.3f;
     private int zBoundary = 35;
 
+    // sound effects
+    // REVISIT: Test once sound effects sourced
+    private AudioSource sheepAudio;
+    public AudioClip collisionSound;
+
 
     // Start is called before the first frame update
     void Start()
@@ -34,6 +39,7 @@ public class SheepController : MonoBehaviour
         sheepRb = GetComponent<Rigidbody>();
         trailLaneTargets = GameObject.Find("LaneManager").GetComponent<LaneManager>().trailLaneTargets;
         trailLanes = GameObject.Find("LaneManager").GetComponent<LaneManager>().trailLanes;
+        sheepAudio = GetComponent<AudioSource>();
 
         // lane boundaries creation
         laneBoundsLower = new float[trailLanes.Length];
@@ -186,6 +192,8 @@ public class SheepController : MonoBehaviour
         if(collision.gameObject.tag == "Obstacle")
         {
             Debug.Log("Sheep Lost!");
+            // REVISIT: Test once sound effects sourced
+            //sheepAudio.PlayOneShot(collisionSound, 1.0f);
             Destroy(gameObject);
         }
     }

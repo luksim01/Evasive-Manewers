@@ -9,12 +9,16 @@ public class ActiveLane : MonoBehaviour
     public float laneBoundsLower;
     public float laneBoundsUpper;
 
-    private Material objectMaterial;
+    private Material laneMaterial;
+    private Renderer rend;
+    public Color activeLaneColour;
+    
 
     // Start is called before the first frame update
     void Start()
     {
-        Renderer renderer = GetComponent<Renderer>();
+        rend = GetComponent<Renderer>();
+        laneMaterial = rend.material;
         sheepDog = GameObject.Find("Sheepdog");
 
         float posX = transform.position.x;
@@ -30,6 +34,8 @@ public class ActiveLane : MonoBehaviour
         if (sheepDog.transform.position.x >= laneBoundsLower && sheepDog.transform.position.x <= laneBoundsUpper)
         {
             //Debug.Log(name);
+            // REVISIT: Change color of the lane that is active
+            //rend.material.color = activeLaneColour;
         }
     }
 }

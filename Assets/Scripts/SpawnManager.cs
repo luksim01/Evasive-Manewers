@@ -29,11 +29,19 @@ public class SpawnManager : MonoBehaviour
     private float obstacleSpawnIntervalUpper = 8.0f;
 
 
+    // sound effects
+    // REVISIT: Test once sound effects sourced
+    private AudioSource spawnAudio;
+
+    public AudioClip obstacleAlertSound;
+    public AudioClip wolfGrowlSound;
+
     // Start is called before the first frame update
     void Start()
     {
         sheepDog = GameObject.Find("Sheepdog");
         trailLanes = GameObject.Find("LaneManager").GetComponent<LaneManager>().trailLanes;
+        spawnAudio = GetComponent<AudioSource>();
 
         trailLanesPos = new float[trailLanes.Length];
 
@@ -60,9 +68,10 @@ public class SpawnManager : MonoBehaviour
 
         obstacleSpawnPos = new Vector3(trailLanesPos[obstacleSpawnPosIndex], obstacles[obstacleIndex].transform.position.y, 45.0f);
 
-        //Debug.Log("Pos: " + trailLanesPos[obstacleSpawnPosIndex] + " and Obs: " + obstacles[obstacleIndex].name);
-
         Instantiate(obstacles[obstacleIndex], obstacleSpawnPos, obstacles[obstacleIndex].transform.rotation);
+
+        // REVISIT: Test once sound effects sourced
+        //spawnAudio.PlayOneShot(obstacleAlertSound, 1.0f);
 
         obstacleSpawnInterval = Random.Range(obstacleSpawnIntervalLower, obstacleSpawnIntervalUpper);
         Invoke("SpawnObstacle", obstacleSpawnInterval);
@@ -82,6 +91,9 @@ public class SpawnManager : MonoBehaviour
             wolfSpawnPos = new Vector3(-wolfSpawnX, 2.4f, sheepDogPosZ + Random.Range(wolfSpawnLowerZ, wolfSpawnUpperZ));
         }
         Instantiate(wolf, wolfSpawnPos, wolf.transform.rotation);
+
+        // REVISIT: Test once sound effects sourced
+        //spawnAudio.PlayOneShot(wolfGrowlSound, 1.0f);
 
         wolfSpawnInterval = Random.Range(wolfSpawnIntervalLower,wolfSpawnIntervalUpper);
         Invoke("SpawnWolf", wolfSpawnInterval);
