@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
     // bark control
     public bool hasBarked = false;
     public bool hasBarkedJump = false;
-    public float barkCooldownTime = 0.1f;
+    public float barkCooldownTime;
     public ParticleSystem barkEffect;
 
     // sound effects
@@ -39,7 +39,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // player movement
+        // horizontal player movement
         horizontalInput = Input.GetAxis("Horizontal");
         transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * sidewardSpeed);
 

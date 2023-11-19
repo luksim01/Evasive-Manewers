@@ -12,6 +12,8 @@ public class WolfController : MonoBehaviour
     private int bounds = 40;
     private float wolfStartPosX;
 
+    public float sheepDogProximityX;
+    public float sheepDogProximityZ;
 
     // Start is called before the first frame update
     void Start()
@@ -23,7 +25,9 @@ public class WolfController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        sheepDogProximity = sheepDog.transform.position - transform.position;
+        sheepDogProximityX = sheepDog.transform.position.x - transform.position.x;
+        sheepDogProximityZ = sheepDog.transform.position.z - transform.position.z;
+        sheepDogProximity = new Vector3(sheepDogProximityX, 0 , sheepDogProximityZ);
 
         // track player position
         if(sheepDogProximity.x < -1.0f && wolfStartPosX > 0.0f)

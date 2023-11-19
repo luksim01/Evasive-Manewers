@@ -8,6 +8,7 @@ TagManager:
   - Bark Lane
   - Wolf
   - Obstacle
+  - Sheep
   layers:
   - Default
   - TransparentFX

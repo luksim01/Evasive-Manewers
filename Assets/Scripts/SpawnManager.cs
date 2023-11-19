@@ -15,8 +15,8 @@ public class SpawnManager : MonoBehaviour
     Vector3 wolfSpawnPos;
 
     public float wolfSpawnInterval;
-    private float wolfSpawnIntervalLower = 20.0f;
-    private float wolfSpawnIntervalUpper = 30.0f;
+    private float wolfSpawnIntervalLower = 5.0f;
+    private float wolfSpawnIntervalUpper = 6.0f;
 
     // obstacle spawn
     public GameObject[] obstacles;
@@ -51,7 +51,7 @@ public class SpawnManager : MonoBehaviour
         }
 
         Invoke("SpawnWolf", wolfSpawnIntervalUpper);
-        Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
+        //Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
     }
 
     // Update is called once per frame

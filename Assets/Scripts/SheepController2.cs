@@ -41,6 +41,7 @@ public class SheepController2 : MonoBehaviour
     public float speedBurst = 4.0f;
     public float jumpForce = 3.5f;
 
+    public GameObject[] herd; 
 
     // Start is called before the first frame update
     void Start()
@@ -50,6 +51,13 @@ public class SheepController2 : MonoBehaviour
         sheepAudio = GetComponent<AudioSource>();
 
         pastBarkState = isBarkedAt;
+
+        herd = GameObject.FindGameObjectsWithTag("Sheep");
+
+        foreach (GameObject sheep in herd)
+        {
+            Debug.Log("Sheep: " + sheep.name);
+        }
     }
 
     // Update is called once per frame
@@ -64,12 +72,12 @@ public class SheepController2 : MonoBehaviour
         sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
         if( Mathf.Abs(sheepDogProximityX) < 2.5f && Mathf.Abs(sheepDogProximityZ) < 7.0f)
         {
-            AvoidPlayer(sheepDogProximity);
+            Avoid(sheepDogProximity);
         }
         else
         {
             // sheep gradually falls behind
-            //transform.Translate(Vector3.back * 0.5f * Time.deltaTime);
+            transform.Translate(Vector3.back * 0.5f * Time.deltaTime);
         }
         if (isBarkedAt && Mathf.Abs(sheepDogProximityX) < 6.0f && Mathf.Abs(sheepDogProximityZ) < 10.0f)
         {
@@ -79,7 +87,19 @@ public class SheepController2 : MonoBehaviour
 
         if (isBarkedJumpAt)
         {
-            sheepRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            sheepRb.AddForce(new Vector3(0, 1, 0.05f) * jumpForce, ForceMode.Impulse);
+        }
+
+        // sheep try to keep a small distance from each other
+        foreach (GameObject sheep in herd)
+        {
+            float sheepProximityX = transform.position.x - sheep.transform.position.x;
+            float sheepProximityZ = transform.position.z - sheep.transform.position.z;
+            Vector3 sheepProximity = new Vector3(sheepProximityX, 0, sheepProximityZ);
+            if (Mathf.Abs(sheepProximityX) < 1.5f && Mathf.Abs(sheepProximityZ) < 2.5f)
+            {
+                Avoid(sheepProximity);
+            }
         }
 
         // sheep remains within forest trail
@@ -109,7 +129,7 @@ public class SheepController2 : MonoBehaviour
     }
 
 
-    void AvoidPlayer(Vector3 direction)
+    void Avoid(Vector3 direction)
     {
         Vector3 alignDirection = (direction).normalized;
         transform.Translate(alignDirection * 2 * Time.deltaTime);

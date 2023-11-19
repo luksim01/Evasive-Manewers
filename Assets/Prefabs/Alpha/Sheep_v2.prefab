@@ -435,7 +435,7 @@ GameObject:
   - component: {fileID: 3995002926548173830}
   m_Layer: 6
   m_Name: Sheep_v2
-  m_TagString: Untagged
+  m_TagString: Sheep
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -634,4 +634,4 @@ MonoBehaviour:
   sheepDogProximityZ: 0
   fleeDirection: {x: 0, y: 0, z: 0}
   speedBurst: 4
-  jumpForce: 5
+  jumpForce: 8.7
