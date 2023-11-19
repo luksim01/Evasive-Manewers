@@ -66,7 +66,7 @@ public class SheepController : MonoBehaviour
         // sheep realigns towards the center of the closest trail lane
         if (isSlowingDown)
         {
-            StartCoroutine(moveTowardsLaneMiddle());
+            //StartCoroutine(moveTowardsLaneMiddle());
         }
         
         // burst of speed after getting barked at within lane
@@ -82,7 +82,7 @@ public class SheepController : MonoBehaviour
             float sheepPosX = transform.position.x;
             float sheepPosZ = transform.position.z;
 
-            StartCoroutine(CheckLane(sheepDogPosX, sheepPosX, sheepDogPosZ, sheepPosZ));
+            //StartCoroutine(CheckLane(sheepDogPosX, sheepPosX, sheepDogPosZ, sheepPosZ));
         }
         else if (!isBarkedAt)
         {
@@ -143,23 +143,32 @@ public class SheepController : MonoBehaviour
         if (direction == "left" && sheepPosX > -xFleeBoundary)
         {
             // if furthest left lane, then move right
-            sheepRb.AddForce(sidewardBurstSpeed * -transform.right, ForceMode.Impulse);
+            //sheepRb.AddForce(sidewardBurstSpeed * -Vector3.right, ForceMode.Impulse);
+            //sheepRb.AddForce(sidewardBurstSpeed * -transform.right, ForceMode.Impulse);
+            transform.Translate(new Vector3(-3.1f, 0, 1));// * Time.deltaTime);
         }
         else if (direction == "left" && sheepPosX < -xFleeBoundary)
         {
-            sheepRb.AddForce(sidewardBurstSpeed * transform.right, ForceMode.Impulse);
+            //sheepRb.AddForce(sidewardBurstSpeed * Vector3.right, ForceMode.Impulse);
+            //sheepRb.AddForce(sidewardBurstSpeed * transform.right, ForceMode.Impulse);
+            transform.Translate(new Vector3(3.1f, 0, 1));// * Time.deltaTime);
         }
         else if (direction == "right" && sheepPosX < xFleeBoundary)
         {
             // if furthest right lane, then move left
-            sheepRb.AddForce(sidewardBurstSpeed * transform.right, ForceMode.Impulse);
+            //sheepRb.AddForce(sidewardBurstSpeed * Vector3.right, ForceMode.Impulse);
+            //sheepRb.AddForce(sidewardBurstSpeed * transform.right, ForceMode.Impulse);
+            transform.Translate(new Vector3(3.1f, 0, 1));// * Time.deltaTime);
         }
         else if (direction == "right" && sheepPosX > xFleeBoundary)
         {
-            sheepRb.AddForce(sidewardBurstSpeed * -transform.right, ForceMode.Impulse);
+            //sheepRb.AddForce(sidewardBurstSpeed * -Vector3.right, ForceMode.Impulse);
+            //sheepRb.AddForce(sidewardBurstSpeed * -transform.right, ForceMode.Impulse);
+            transform.Translate(new Vector3(-3.1f, 0, 1));// * Time.deltaTime);
         }
 
-        sheepRb.AddForce(forwardBurstSpeed * transform.forward, ForceMode.Impulse);
+        //transform.Translate(new Vector3(0, 0, 3.1f));// * Time.deltaTime);
+        //sheepRb.AddForce(forwardBurstSpeed * transform.forward, ForceMode.Impulse);
 
         yield return null;
     }

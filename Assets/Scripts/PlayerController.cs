@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviour
 
     // bark control
     public bool hasBarked = false;
+    public bool hasBarkedJump = false;
     public float barkCooldownTime = 0.1f;
     public ParticleSystem barkEffect;
 
@@ -78,7 +79,11 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(BarkCooldown());
         }
 
-
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            hasBarkedJump = true;
+            StartCoroutine(BarkJumpCooldown());
+        }
     }
 
     // Coroutine to wait for bark to cool down
@@ -87,6 +92,14 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(barkCooldownTime);
         hasBarked = false;
     }
+
+    // Coroutine to wait for bark to cool down
+    IEnumerator BarkJumpCooldown()
+    {
+        yield return new WaitForSeconds(barkCooldownTime);
+        hasBarkedJump = false;
+    }
+
 
     private void OnCollisionEnter(Collision collision)
     {
