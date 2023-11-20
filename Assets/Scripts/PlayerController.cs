@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour
     public bool hasBarked = false;
     public bool hasBarkedJump = false;
     public float barkCooldownTime;
+    public float barkJumpCooldownTime;
     public ParticleSystem barkEffect;
 
     // sound effects
@@ -29,6 +30,8 @@ public class PlayerController : MonoBehaviour
     private AudioSource sheepdogAudio;
     public AudioClip barkSound;
     public AudioClip hurtSound;
+
+    public GameObject[] herd;
 
     // Start is called before the first frame update
     void Start()
@@ -69,6 +72,10 @@ public class PlayerController : MonoBehaviour
             transform.position = new Vector3(transform.position.x, transform.position.y, zBoundary);
         }
 
+
+        // keep track of herd
+        herd = GameObject.FindGameObjectsWithTag("Sheep");
+
         // player bark
         if (Input.GetKeyDown(KeyCode.Space) && !hasBarked)
         {
@@ -79,7 +86,7 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(BarkCooldown());
         }
 
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(KeyCode.Tab) && !hasBarkedJump && CheckSheepGrounded(herd))
         {
             hasBarkedJump = true;
             StartCoroutine(BarkJumpCooldown());
@@ -96,8 +103,19 @@ public class PlayerController : MonoBehaviour
     // Coroutine to wait for bark to cool down
     IEnumerator BarkJumpCooldown()
     {
-        yield return new WaitForSeconds(barkCooldownTime);
+        Debug.Log("Bark jump cooldown");
+        yield return new WaitForSeconds(barkJumpCooldownTime);
         hasBarkedJump = false;
+    }
+
+    private bool CheckSheepGrounded(GameObject[] herd)
+    {
+        bool allGrounded = true;
+        foreach (GameObject sheep in herd)
+        {
+            allGrounded &= sheep.GetComponent<SheepController2>().isGrounded;
+        }
+        return allGrounded;
     }
 
 

@@ -8,15 +8,10 @@ public class SheepController2 : MonoBehaviour
     private GameObject sheepDog;
     public bool isBarkedAt;
     public bool isBarkedJumpAt;
-    public bool pastBarkState;
+    public bool pastBarkJumpState;
     private Rigidbody sheepRb;
-    public float forwardBurstSpeed = 2000.0f;
-    public float sidewardBurstSpeed = 2000.0f;
-    public int directionIndex;
-    public GameObject[] trailLanes;
-    public float[] laneBoundsLower;
-    public float[] laneBoundsUpper;
-    public bool isSlowingDown = true;
+
+    public bool isSlowingDown = false;
     public int slowdownCooldownTime = 5;
 
     // trail lane alignment
@@ -39,9 +34,13 @@ public class SheepController2 : MonoBehaviour
 
     public Vector3 fleeDirection;
     public float speedBurst = 4.0f;
-    public float jumpForce = 3.5f;
+    public float jumpForce = 8.0f;
+    public float jumpDelay;
 
-    public GameObject[] herd; 
+    public GameObject[] herd;
+
+    public bool isGrounded = true;
+    public float jumpDelayModifier = 7.5f;
 
     // Start is called before the first frame update
     void Start()
@@ -50,19 +49,16 @@ public class SheepController2 : MonoBehaviour
         sheepRb = GetComponent<Rigidbody>();
         sheepAudio = GetComponent<AudioSource>();
 
-        pastBarkState = isBarkedAt;
-
-        herd = GameObject.FindGameObjectsWithTag("Sheep");
-
-        foreach (GameObject sheep in herd)
-        {
-            Debug.Log("Sheep: " + sheep.name);
-        }
+        pastBarkJumpState = isBarkedJumpAt;
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
+        // keep track of herd
+        herd = GameObject.FindGameObjectsWithTag("Sheep");
+
+        // keep track of barks
         isBarkedAt = sheepDog.GetComponent<PlayerController>().hasBarked;
         isBarkedJumpAt = sheepDog.GetComponent<PlayerController>().hasBarkedJump;
 
@@ -70,25 +66,44 @@ public class SheepController2 : MonoBehaviour
         sheepDogProximityX = transform.position.x - sheepDog.transform.position.x;
         sheepDogProximityZ = transform.position.z - sheepDog.transform.position.z;
         sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
+
         if( Mathf.Abs(sheepDogProximityX) < 2.5f && Mathf.Abs(sheepDogProximityZ) < 7.0f)
         {
-            Avoid(sheepDogProximity);
+            //Avoid(sheepDogProximity);
         }
-        else
+        else if(isSlowingDown)
         {
             // sheep gradually falls behind
             transform.Translate(Vector3.back * 0.5f * Time.deltaTime);
         }
+
         if (isBarkedAt && Mathf.Abs(sheepDogProximityX) < 6.0f && Mathf.Abs(sheepDogProximityZ) < 10.0f)
         {
-            //Debug.Log("Bark detected within proximity");
-            FleeBark(sheepDogProximity, sheepDog.transform.position.x);
+            //FleeBark(sheepDogProximity, sheepDog.transform.position.x);
         }
 
-        if (isBarkedJumpAt)
+        // stagger jump of sheep
+        //if (isBarkedJumpAt && isGrounded)
+        if (isBarkedJumpAt != pastBarkJumpState && !pastBarkJumpState)
+        //if(Input.GetKeyDown(KeyCode.Tab) && isGrounded)
         {
-            sheepRb.AddForce(new Vector3(0, 1, 0.05f) * jumpForce, ForceMode.Impulse);
+            float originZ = zBackwardBoundary;
+            float furthestForwardSheepPosZ = transform.position.z - originZ;
+
+            foreach (GameObject sheep in herd)
+            {
+                if ((sheep.transform.position.z - originZ) > furthestForwardSheepPosZ)
+                {
+                    furthestForwardSheepPosZ = sheep.transform.position.z - originZ;
+                }
+            }
+
+            float jumpDelay = jumpDelayModifier * (furthestForwardSheepPosZ - (transform.position.z - originZ)) / (furthestForwardSheepPosZ);
+
+            StartCoroutine(SheepJump(jumpDelay));
         }
+
+        pastBarkJumpState = isBarkedJumpAt;
 
         // sheep try to keep a small distance from each other
         foreach (GameObject sheep in herd)
@@ -122,6 +137,19 @@ public class SheepController2 : MonoBehaviour
         }
     }
 
+    void Jump()
+    {
+        sheepRb.AddForce(new Vector3(0, 1, 0.05f) * jumpForce, ForceMode.Impulse);
+        isGrounded = false;
+    }
+
+    IEnumerator SheepJump(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        sheepRb.AddForce(new Vector3(0, 1, 0.05f) * jumpForce, ForceMode.Impulse);
+        isGrounded = false;
+    }
+
     IEnumerator SlowdownCooldown()
     {
         yield return new WaitForSeconds(slowdownCooldownTime);
@@ -151,6 +179,10 @@ public class SheepController2 : MonoBehaviour
             // REVISIT: Test once sound effects sourced
             //sheepAudio.PlayOneShot(collisionSound, 1.0f);
             Destroy(gameObject);
+        }
+        if (collision.gameObject.tag == "Trail Lane")
+        {
+            isGrounded = true;
         }
     }
 }
