@@ -177,7 +177,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1948990356703278721, guid: 9423e96ecddd441f9b3e9e3f16f0f2d3, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -360,7 +360,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1948990356703278721, guid: 9423e96ecddd441f9b3e9e3f16f0f2d3, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -405,8 +405,12 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 3995002926548173830, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
-      propertyPath: isSlowingDown
+      propertyPath: isGrounded
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3995002926548173830, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
+      propertyPath: isSlowingDown
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3995002926548173830, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
       propertyPath: gravityModifier
@@ -434,7 +438,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7662357296197777518, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -18.49
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7662357296197777518, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
       propertyPath: m_LocalRotation.w
@@ -489,13 +493,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1286110994868368875, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 3995002926548173830, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
       propertyPath: jumpForce
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 3995002926548173830, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
-      propertyPath: isSlowingDown
+      propertyPath: isGrounded
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3995002926548173830, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
+      propertyPath: isSlowingDown
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3995002926548173830, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
       propertyPath: gravityModifier
@@ -523,7 +535,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7662357296197777518, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.08
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 7662357296197777518, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
       propertyPath: m_LocalRotation.w
@@ -592,7 +604,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &701812727
 Transform:
   m_ObjectHideFlags: 0
@@ -781,7 +793,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1948990356703278721, guid: 9423e96ecddd441f9b3e9e3f16f0f2d3, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1098,7 +1110,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1948990356703278721, guid: 9423e96ecddd441f9b3e9e3f16f0f2d3, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1307,8 +1319,12 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 3995002926548173830, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
-      propertyPath: isSlowingDown
+      propertyPath: isGrounded
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3995002926548173830, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
+      propertyPath: isSlowingDown
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3995002926548173830, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
       propertyPath: gravityModifier
@@ -1336,7 +1352,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7662357296197777518, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 4.96
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 7662357296197777518, guid: 5eff2f491e0cc4f21b681954b43ca220, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1587,7 +1603,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1948990356703278721, guid: 9423e96ecddd441f9b3e9e3f16f0f2d3, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2104,7 +2120,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3981041869233514431, guid: f9d38ada266854f18b513a1508b528db, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -13.200001
+      value: -8
       objectReference: {fileID: 0}
     - target: {fileID: 3981041869233514431, guid: f9d38ada266854f18b513a1508b528db, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2148,7 +2164,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8364013858340089448, guid: f9d38ada266854f18b513a1508b528db, type: 3}
       propertyPath: barkCooldownTime
-      value: 3
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8364013858340089448, guid: f9d38ada266854f18b513a1508b528db, type: 3}
+      propertyPath: barkJumpCooldownTime
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
