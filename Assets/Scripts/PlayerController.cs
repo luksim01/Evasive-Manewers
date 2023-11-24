@@ -32,11 +32,21 @@ public class PlayerController : MonoBehaviour
     public AudioClip hurtSound;
 
     public GameObject[] herd;
+    private Rigidbody sheepdogRb;
+
+    public float jumpForce;
+    public bool isGrounded = false;
+    public float jumpSpeed = 0.4f;
+    public float backJumpSpeed = 0.2f;
+
+    public float thrownSpeed = 2.0f;
+    public float heightTrigger = 0.5f;
 
     // Start is called before the first frame update
     void Start()
     {
         sheepdogAudio = GetComponent<AudioSource>();
+        sheepdogRb = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -44,14 +54,35 @@ public class PlayerController : MonoBehaviour
     {
         // horizontal player movement
         horizontalInput = Input.GetAxis("Horizontal");
-        transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * sidewardSpeed);
+        if (isGrounded)
+        {
+            transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * sidewardSpeed);
+        }
+        else
+        {
+            transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * sidewardSpeed * jumpSpeed);
+        }
 
         // slower movement when going backwards, faster movement when going forwards
         forwardInput = Input.GetAxis("Forward");
-        transform.Translate(Vector3.forward * forwardInput * Time.deltaTime * forwardSpeed);
+        if (isGrounded)
+        {
+            transform.Translate(Vector3.forward * forwardInput * Time.deltaTime * forwardSpeed);
+        }
+        else
+        {
+            transform.Translate(Vector3.forward * forwardInput * Time.deltaTime * forwardSpeed * jumpSpeed);
+        }
 
         backwardInput = Input.GetAxis("Backward");
-        transform.Translate(Vector3.forward * backwardInput * Time.deltaTime * backwardSpeed);
+        if (isGrounded)
+        {
+            transform.Translate(Vector3.forward * backwardInput * Time.deltaTime * backwardSpeed);
+        }
+        else
+        {
+            transform.Translate(Vector3.forward * backwardInput * Time.deltaTime * backwardSpeed * backJumpSpeed);
+        }
 
         // player movement boundaries - left/right
         if (transform.position.x < -xBoundary)
@@ -91,6 +122,17 @@ public class PlayerController : MonoBehaviour
             hasBarkedJump = true;
             StartCoroutine(BarkJumpCooldown());
         }
+
+        if (Input.GetKeyDown(KeyCode.J) && isGrounded)
+        {
+            Jump();
+        }
+    }
+
+    private void Jump()
+    {
+        isGrounded = false;
+        sheepdogRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 
     // Coroutine to wait for bark to cool down
@@ -132,6 +174,16 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Collided!");
             // REVISIT: Test once sound effects sourced
             // sheepdogAudio.PlayOneShot(hurtSound, 1.0f);
+        }
+
+        if (collision.gameObject.tag == "Trail Lane")
+        {
+            isGrounded = true;
+        }
+
+        if (collision.gameObject.tag == "Sheep" && (transform.position.y - collision.gameObject.transform.position.y) > heightTrigger)
+        {
+            sheepdogRb.AddForce(Vector3.up * thrownSpeed, ForceMode.Impulse);
         }
     }
 }

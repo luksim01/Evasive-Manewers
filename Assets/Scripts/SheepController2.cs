@@ -9,6 +9,7 @@ public class SheepController2 : MonoBehaviour
     public bool isBarkedAt;
     public bool isBarkedJumpAt;
     public bool pastBarkJumpState;
+    public bool sheepDogGrounded;
     private Rigidbody sheepRb;
 
     public bool isSlowingDown = true;
@@ -37,6 +38,7 @@ public class SheepController2 : MonoBehaviour
     private Vector3 fleeDirection;
     private float speedBurst = 4.0f;
     private float jumpForce = 8.0f;
+    public float throwForce = 4.0f;
     private float jumpDelay;
 
     public GameObject[] herd;
@@ -50,8 +52,8 @@ public class SheepController2 : MonoBehaviour
     private float sheepDogBarkProximityXLimit = 6.0f;
     private float sheepDogBarkProximityZLimit = 10.0f;
 
-    private float sheepProximityXLimit = 1.5f;
-    private float sheepProximityZLimit = 2.5f;
+    private float sheepProximityXLimit = 1.7f;
+    private float sheepProximityZLimit = 2.7f;
 
     private float heightBoundary = 2.0f;
 
@@ -66,6 +68,8 @@ public class SheepController2 : MonoBehaviour
 
     private Vector3 jumpDirection = new Vector3(0, 1, 0.05f);
 
+    public float heightTrigger = 0.5f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -74,6 +78,7 @@ public class SheepController2 : MonoBehaviour
         sheepAudio = GetComponent<AudioSource>();
 
         pastBarkJumpState = isBarkedJumpAt;
+
     }
 
     // Update is called once per frame
@@ -85,6 +90,7 @@ public class SheepController2 : MonoBehaviour
         // keep track of barks
         isBarkedAt = sheepDog.GetComponent<PlayerController>().hasBarked;
         isBarkedJumpAt = sheepDog.GetComponent<PlayerController>().hasBarkedJump;
+        sheepDogGrounded = sheepDog.GetComponent<PlayerController>().isGrounded;
 
         // move away from the player
         sheepDogProximityX = transform.position.x - sheepDog.transform.position.x;
@@ -180,10 +186,10 @@ public class SheepController2 : MonoBehaviour
         }
     }
 
-    void Hop()
+    void Hop(float force)
     {
         hopDirectionX = Random.Range(-0.2f, 0.2f);
-        sheepRb.AddForce(new Vector3(hopDirectionX, hopDirectionY, hopDirectionZ) * jumpForce, ForceMode.Impulse);
+        sheepRb.AddForce(new Vector3(hopDirectionX, hopDirectionY, hopDirectionZ) * force, ForceMode.Impulse);
         isGrounded = false;
     }
 
@@ -228,10 +234,16 @@ public class SheepController2 : MonoBehaviour
         {
             isGrounded = true;
         }
-        // hop away if landed on top of another sheep
-        if (collision.gameObject.tag == "Sheep" && (transform.position.y - collision.gameObject.transform.position.y) > 0.5f )
+        // hop away if landed on top of another sheep or player
+        if ((collision.gameObject.tag == "Sheep" || collision.gameObject.tag == "Player") && (transform.position.y - collision.gameObject.transform.position.y) > heightTrigger )
         {
-            Hop();
+            Hop(jumpForce);
+        }
+
+        //hope away if player lands ontop of sheep
+        if (collision.gameObject.tag == "Player" && (collision.gameObject.transform.position.y - transform.position.y) > heightTrigger && isGrounded)
+        {
+            Hop(throwForce);
         }
     }
 }
