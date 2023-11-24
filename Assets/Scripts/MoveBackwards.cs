@@ -7,6 +7,8 @@ public class MoveBackwards : MonoBehaviour
     public int speed = 5;
     public int bounds = 35;
 
+    public bool hasHitPlayer = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -22,4 +24,5 @@ public class MoveBackwards : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
 }

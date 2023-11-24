@@ -50,8 +50,8 @@ public class SpawnManager : MonoBehaviour
             trailLanesPos[laneIndex] = trailLanes[laneIndex].transform.position.x;
         }
 
-        Invoke("SpawnWolf", wolfSpawnIntervalUpper);
-        //Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
+        //Invoke("SpawnWolf", wolfSpawnIntervalUpper);
+        Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
     }
 
     // Update is called once per frame

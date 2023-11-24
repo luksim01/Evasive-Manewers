@@ -15,6 +15,8 @@ public class WolfController : MonoBehaviour
     public float sheepDogProximityX;
     public float sheepDogProximityZ;
 
+    public bool hasBitten = false;
+
     // Start is called before the first frame update
     void Start()
     {

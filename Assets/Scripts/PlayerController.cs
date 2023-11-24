@@ -42,6 +42,9 @@ public class PlayerController : MonoBehaviour
     public float thrownSpeed = 2.0f;
     public float heightTrigger = 0.5f;
 
+    // health
+    public int health = 5;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -145,7 +148,6 @@ public class PlayerController : MonoBehaviour
     // Coroutine to wait for bark to cool down
     IEnumerator BarkJumpCooldown()
     {
-        Debug.Log("Bark jump cooldown");
         yield return new WaitForSeconds(barkJumpCooldownTime);
         hasBarkedJump = false;
     }
@@ -163,15 +165,20 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject.tag == "Wolf")
+        if(collision.gameObject.tag == "Wolf" && !collision.gameObject.GetComponent<WolfController>().hasBitten)
         {
             Debug.Log("Bitten!");
+            collision.gameObject.GetComponent<WolfController>().hasBitten = true;
+            health -= 1;
             // REVISIT: Test once sound effects sourced
             // sheepdogAudio.PlayOneShot(hurtSound, 1.0f);
         }
-        if (collision.gameObject.tag == "Obstacle")
+
+        if (collision.gameObject.tag == "Obstacle" && !collision.gameObject.GetComponent<MoveBackwards>().hasHitPlayer)
         {
             Debug.Log("Collided!");
+            collision.gameObject.GetComponent<MoveBackwards>().hasHitPlayer = true;
+            health -= 1;
             // REVISIT: Test once sound effects sourced
             // sheepdogAudio.PlayOneShot(hurtSound, 1.0f);
         }
