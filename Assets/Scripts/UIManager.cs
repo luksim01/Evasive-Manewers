@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    public TextMeshProUGUI titleScreenText;
     public TextMeshProUGUI healthText;
     public TextMeshProUGUI timeRemainingText;
     public TextMeshProUGUI herdMultiplierText;
@@ -37,7 +38,14 @@ public class UIManager : MonoBehaviour
         herdSize = 4;
         score = 0;
         isGameActive = true;
-        StartCoroutine(TimeCountdown());
+        StartCoroutine(FadeOutTitle());
+
+        healthText.CrossFadeAlpha(0.0f, 0.0f, false);
+        timeRemainingText.CrossFadeAlpha(0.0f, 0.0f, false);
+        herdMultiplierText.CrossFadeAlpha(0.0f, 0.0f, false);
+        scoreText.CrossFadeAlpha(0.0f, 0.0f, false);
+
+        StartCoroutine(FadeInHUD());
     }
 
     private void FixedUpdate()
@@ -57,6 +65,24 @@ public class UIManager : MonoBehaviour
                 GameOver();
             }
         }
+    }
+
+    IEnumerator FadeOutTitle()
+    {
+        yield return new WaitForSeconds(2);
+        titleScreenText.CrossFadeAlpha(0.0f, 1.0f, false);
+    }
+
+    IEnumerator FadeInHUD()
+    {
+        yield return new WaitForSeconds(2);
+
+        healthText.CrossFadeAlpha(1.0f, 1.0f, false);
+        timeRemainingText.CrossFadeAlpha(1.0f, 1.0f, false);
+        herdMultiplierText.CrossFadeAlpha(1.0f, 1.0f, false);
+        scoreText.CrossFadeAlpha(1.0f, 1.0f, false);
+        
+        StartCoroutine(TimeCountdown());
     }
 
     IEnumerator TimeCountdown()
@@ -89,7 +115,7 @@ public class UIManager : MonoBehaviour
         isGameActive = false;
     }
 
-    public void ReplayGame()
+    public void BeginGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
