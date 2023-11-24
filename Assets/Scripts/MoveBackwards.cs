@@ -9,19 +9,26 @@ public class MoveBackwards : MonoBehaviour
 
     public bool hasHitPlayer = false;
 
+    private bool isGameActive;
+
     // Start is called before the first frame update
     void Start()
     {
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        transform.Translate(Vector3.back * Time.deltaTime * speed);
+        isGameActive = GameObject.Find("UIManager").GetComponent<UIManager>().isGameActive;
 
-        if (gameObject.tag == "Obstacle" && transform.position.z < -bounds)
+        if (isGameActive)
         {
-            Destroy(gameObject);
+            transform.Translate(Vector3.back * Time.deltaTime * speed);
+
+            if (gameObject.tag == "Obstacle" && transform.position.z < -bounds)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 

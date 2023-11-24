@@ -45,6 +45,8 @@ public class PlayerController : MonoBehaviour
     // health
     public int health = 5;
 
+    private bool isGameActive;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -53,82 +55,92 @@ public class PlayerController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        // horizontal player movement
-        horizontalInput = Input.GetAxis("Horizontal");
-        if (isGrounded)
-        {
-            transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * sidewardSpeed);
-        }
-        else
-        {
-            transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * sidewardSpeed * jumpSpeed);
-        }
+        isGameActive = GameObject.Find("UIManager").GetComponent<UIManager>().isGameActive;
 
-        // slower movement when going backwards, faster movement when going forwards
-        forwardInput = Input.GetAxis("Forward");
-        if (isGrounded)
+        if (isGameActive)
         {
-            transform.Translate(Vector3.forward * forwardInput * Time.deltaTime * forwardSpeed);
-        }
-        else
-        {
-            transform.Translate(Vector3.forward * forwardInput * Time.deltaTime * forwardSpeed * jumpSpeed);
-        }
+            // horizontal player movement
+            horizontalInput = Input.GetAxis("Horizontal");
+            if (isGrounded)
+            {
+                transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * sidewardSpeed);
+            }
+            else
+            {
+                transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * sidewardSpeed * jumpSpeed);
+            }
 
-        backwardInput = Input.GetAxis("Backward");
-        if (isGrounded)
-        {
-            transform.Translate(Vector3.forward * backwardInput * Time.deltaTime * backwardSpeed);
-        }
-        else
-        {
-            transform.Translate(Vector3.forward * backwardInput * Time.deltaTime * backwardSpeed * backJumpSpeed);
-        }
+            // slower movement when going backwards, faster movement when going forwards
+            forwardInput = Input.GetAxis("Forward");
+            if (isGrounded)
+            {
+                transform.Translate(Vector3.forward * forwardInput * Time.deltaTime * forwardSpeed);
+            }
+            else
+            {
+                transform.Translate(Vector3.forward * forwardInput * Time.deltaTime * forwardSpeed * jumpSpeed);
+            }
 
-        // player movement boundaries - left/right
-        if (transform.position.x < -xBoundary)
-        {
-            transform.position = new Vector3(-xBoundary, transform.position.y, transform.position.z);
-        }
-        if (transform.position.x > xBoundary)
-        {
-            transform.position = new Vector3(xBoundary, transform.position.y, transform.position.z);
-        }
-        // player movement boundaries - forwards/backwards
-        if (transform.position.z < -zBoundary)
-        {
-            transform.position = new Vector3(transform.position.x, transform.position.y, -zBoundary);
-        }
-        if (transform.position.z > zBoundary)
-        {
-            transform.position = new Vector3(transform.position.x, transform.position.y, zBoundary);
-        }
+            backwardInput = Input.GetAxis("Backward");
+            if (isGrounded)
+            {
+                transform.Translate(Vector3.forward * backwardInput * Time.deltaTime * backwardSpeed);
+            }
+            else
+            {
+                transform.Translate(Vector3.forward * backwardInput * Time.deltaTime * backwardSpeed * backJumpSpeed);
+            }
+
+            // player movement boundaries - left/right
+            if (transform.position.x < -xBoundary)
+            {
+                transform.position = new Vector3(-xBoundary, transform.position.y, transform.position.z);
+            }
+            if (transform.position.x > xBoundary)
+            {
+                transform.position = new Vector3(xBoundary, transform.position.y, transform.position.z);
+            }
+            // player movement boundaries - forwards/backwards
+            if (transform.position.z < -zBoundary)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, -zBoundary);
+            }
+            if (transform.position.z > zBoundary)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, zBoundary);
+            }
 
 
-        // keep track of herd
-        herd = GameObject.FindGameObjectsWithTag("Sheep");
+            // keep track of herd
+            herd = GameObject.FindGameObjectsWithTag("Sheep");
 
-        // player bark
-        if (Input.GetKeyDown(KeyCode.Space) && !hasBarked)
-        {
-            barkEffect.Play();
-            // REVISIT: Test once sound effects sourced
-            // sheepdogAudio.PlayOneShot(barkSound, 1.0f);
-            hasBarked = true;
-            StartCoroutine(BarkCooldown());
-        }
+            // player bark
+            if (Input.GetKeyDown(KeyCode.Space) && !hasBarked)
+            {
+                barkEffect.Play();
+                // REVISIT: Test once sound effects sourced
+                // sheepdogAudio.PlayOneShot(barkSound, 1.0f);
+                hasBarked = true;
+                StartCoroutine(BarkCooldown());
+            }
 
-        if (Input.GetKeyDown(KeyCode.Tab) && !hasBarkedJump && CheckSheepGrounded(herd))
-        {
-            hasBarkedJump = true;
-            StartCoroutine(BarkJumpCooldown());
-        }
+            if (Input.GetKeyDown(KeyCode.Tab) && !hasBarkedJump && CheckSheepGrounded(herd))
+            {
+                hasBarkedJump = true;
+                StartCoroutine(BarkJumpCooldown());
+            }
 
-        if (Input.GetKeyDown(KeyCode.J) && isGrounded)
-        {
-            Jump();
+            if (Input.GetKeyDown(KeyCode.J) && isGrounded)
+            {
+                Jump();
+            }
+
+            if (health <= 0)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 

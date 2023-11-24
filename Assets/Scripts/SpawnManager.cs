@@ -36,6 +36,9 @@ public class SpawnManager : MonoBehaviour
     public AudioClip obstacleAlertSound;
     public AudioClip wolfGrowlSound;
 
+
+    private bool isGameActive;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -50,52 +53,60 @@ public class SpawnManager : MonoBehaviour
             trailLanesPos[laneIndex] = trailLanes[laneIndex].transform.position.x;
         }
 
-        //Invoke("SpawnWolf", wolfSpawnIntervalUpper);
+        Invoke("SpawnWolf", wolfSpawnIntervalUpper);
         Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        
+        isGameActive = GameObject.Find("UIManager").GetComponent<UIManager>().isGameActive;
     }
 
     void SpawnObstacle()
     {
-        int obstacleIndex = Random.Range(0, obstacles.Length);
+        if (isGameActive)
+        {
+            int obstacleIndex = Random.Range(0, obstacles.Length);
 
-        int obstacleSpawnPosIndex = Random.Range(0, trailLanesPos.Length);
+            int obstacleSpawnPosIndex = Random.Range(0, trailLanesPos.Length);
 
-        obstacleSpawnPos = new Vector3(trailLanesPos[obstacleSpawnPosIndex], obstacles[obstacleIndex].transform.position.y, 45.0f);
+            obstacleSpawnPos = new Vector3(trailLanesPos[obstacleSpawnPosIndex], obstacles[obstacleIndex].transform.position.y, 45.0f);
 
-        Instantiate(obstacles[obstacleIndex], obstacleSpawnPos, obstacles[obstacleIndex].transform.rotation);
+            Instantiate(obstacles[obstacleIndex], obstacleSpawnPos, obstacles[obstacleIndex].transform.rotation);
 
-        // REVISIT: Test once sound effects sourced
-        //spawnAudio.PlayOneShot(obstacleAlertSound, 1.0f);
+            // REVISIT: Test once sound effects sourced
+            //spawnAudio.PlayOneShot(obstacleAlertSound, 1.0f);
 
-        obstacleSpawnInterval = Random.Range(obstacleSpawnIntervalLower, obstacleSpawnIntervalUpper);
-        Invoke("SpawnObstacle", obstacleSpawnInterval);
+            obstacleSpawnInterval = Random.Range(obstacleSpawnIntervalLower, obstacleSpawnIntervalUpper);
+
+            Invoke("SpawnObstacle", obstacleSpawnInterval);
+        }
     }
 
     void SpawnWolf()
     {
-        int wolfOriginIndex = Random.Range(0, wolfOrigin.Length);
-        sheepDogPosZ = sheepDog.transform.position.z;
-
-        if (wolfOrigin[wolfOriginIndex] == "right")
+        if (isGameActive)
         {
-            wolfSpawnPos = new Vector3(wolfSpawnX, 2.4f, sheepDogPosZ + Random.Range(wolfSpawnLowerZ, wolfSpawnUpperZ));
-        }
-        if (wolfOrigin[wolfOriginIndex] == "left")
-        {
-            wolfSpawnPos = new Vector3(-wolfSpawnX, 2.4f, sheepDogPosZ + Random.Range(wolfSpawnLowerZ, wolfSpawnUpperZ));
-        }
-        Instantiate(wolf, wolfSpawnPos, wolf.transform.rotation);
+            int wolfOriginIndex = Random.Range(0, wolfOrigin.Length);
+            sheepDogPosZ = sheepDog.transform.position.z;
 
-        // REVISIT: Test once sound effects sourced
-        //spawnAudio.PlayOneShot(wolfGrowlSound, 1.0f);
+            if (wolfOrigin[wolfOriginIndex] == "right")
+            {
+                wolfSpawnPos = new Vector3(wolfSpawnX, 2.4f, sheepDogPosZ + Random.Range(wolfSpawnLowerZ, wolfSpawnUpperZ));
+            }
+            if (wolfOrigin[wolfOriginIndex] == "left")
+            {
+                wolfSpawnPos = new Vector3(-wolfSpawnX, 2.4f, sheepDogPosZ + Random.Range(wolfSpawnLowerZ, wolfSpawnUpperZ));
+            }
+            Instantiate(wolf, wolfSpawnPos, wolf.transform.rotation);
 
-        wolfSpawnInterval = Random.Range(wolfSpawnIntervalLower,wolfSpawnIntervalUpper);
-        Invoke("SpawnWolf", wolfSpawnInterval);
+            // REVISIT: Test once sound effects sourced
+            //spawnAudio.PlayOneShot(wolfGrowlSound, 1.0f);
+
+            wolfSpawnInterval = Random.Range(wolfSpawnIntervalLower,wolfSpawnIntervalUpper);
+
+            Invoke("SpawnWolf", wolfSpawnInterval);
+        }
     }
 }

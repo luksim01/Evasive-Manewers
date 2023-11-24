@@ -42,13 +42,21 @@ public class UIManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        sheepdogHealth = sheepDog.GetComponent<PlayerController>().health;
-        if (sheepdogHealth >= 0)
+        if (isGameActive)
         {
-            healthText.text = "Health " + new string('O', sheepdogHealth);
+            sheepdogHealth = sheepDog.GetComponent<PlayerController>().health;
+            if (sheepdogHealth >= 0)
+            {
+                healthText.text = "Health " + new string('O', sheepdogHealth);
+            }
+            herd = GameObject.FindGameObjectsWithTag("Sheep");
+            herdSize = herd.Length;
+
+            if (herdSize == 0 || sheepdogHealth == 0)
+            {
+                GameOver();
+            }
         }
-        herd = GameObject.FindGameObjectsWithTag("Sheep");
-        herdSize = herd.Length;
     }
 
     IEnumerator TimeCountdown()
@@ -75,9 +83,6 @@ public class UIManager : MonoBehaviour
 
     public void GameOver()
     {
-        //gameOverText.gameObject.SetActive(true);
-        //finalScoreText.gameObject.SetActive(true);
-        //replayButton.gameObject.SetActive(true);
         finalScoreText.text = "Final Score " + score;
         hudScreen.SetActive(false);
         gameOverScreen.SetActive(true);

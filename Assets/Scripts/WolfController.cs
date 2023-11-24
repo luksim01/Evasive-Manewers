@@ -16,6 +16,7 @@ public class WolfController : MonoBehaviour
     public float sheepDogProximityZ;
 
     public bool hasBitten = false;
+    private bool isGameActive;
 
     // Start is called before the first frame update
     void Start()
@@ -25,48 +26,52 @@ public class WolfController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        sheepDogProximityX = sheepDog.transform.position.x - transform.position.x;
-        sheepDogProximityZ = sheepDog.transform.position.z - transform.position.z;
-        sheepDogProximity = new Vector3(sheepDogProximityX, 0 , sheepDogProximityZ);
+        isGameActive = GameObject.Find("UIManager").GetComponent<UIManager>().isGameActive;
 
-        // track player position
-        if(sheepDogProximity.x < -1.0f && wolfStartPosX > 0.0f)
+        if (isGameActive)
         {
-            collisionCourse = sheepDogProximity;
-            TrackPlayer(sheepDogProximity);
-        }
-        else if (sheepDogProximity.x > 1.0f && wolfStartPosX < 0.0f)
-        {
-            collisionCourse = sheepDogProximity;
-            TrackPlayer(sheepDogProximity);
-        }
-        else
-        {
-            // continue collision course once close enough
-            TrackPlayer(collisionCourse);
-        }
+            sheepDogProximityX = sheepDog.transform.position.x - transform.position.x;
+            sheepDogProximityZ = sheepDog.transform.position.z - transform.position.z;
+            sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
 
-        // destroy if out of bounds
-        if(transform.position.x > bounds || transform.position.x < -bounds)
-        {
-            Destroy(gameObject);
-        }
-        if (transform.position.z > bounds || transform.position.z < -bounds)
-        {
-            Destroy(gameObject);
-        }
-
-        void TrackPlayer(Vector3 direction)
-        {
-            alignDirection = (direction).normalized;
-            if (alignDirection != Vector3.zero)
+            // track player position
+            if (sheepDogProximity.x < -1.0f && wolfStartPosX > 0.0f)
             {
-                transform.rotation = Quaternion.LookRotation(alignDirection);
+                collisionCourse = sheepDogProximity;
+                TrackPlayer(sheepDogProximity);
             }
-            transform.Translate(alignDirection * speed * Time.deltaTime);
-        }
+            else if (sheepDogProximity.x > 1.0f && wolfStartPosX < 0.0f)
+            {
+                collisionCourse = sheepDogProximity;
+                TrackPlayer(sheepDogProximity);
+            }
+            else
+            {
+                // continue collision course once close enough
+                TrackPlayer(collisionCourse);
+            }
 
+            // destroy if out of bounds
+            if (transform.position.x > bounds || transform.position.x < -bounds)
+            {
+                Destroy(gameObject);
+            }
+            if (transform.position.z > bounds || transform.position.z < -bounds)
+            {
+                Destroy(gameObject);
+            }
+        }
+    }
+
+    void TrackPlayer(Vector3 direction)
+    {
+        alignDirection = (direction).normalized;
+        if (alignDirection != Vector3.zero)
+        {
+            transform.rotation = Quaternion.LookRotation(alignDirection);
+        }
+        transform.Translate(alignDirection * speed * Time.deltaTime);
     }
 }

@@ -31,11 +31,11 @@ public class ActiveLane : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (sheepDog.transform.position.x >= laneBoundsLower && sheepDog.transform.position.x <= laneBoundsUpper)
-        {
-            //Debug.Log(name);
-            // REVISIT: Change color of the lane that is active
-            //rend.material.color = activeLaneColour;
-        }
+        //if (sheepDog.transform.position.x >= laneBoundsLower && sheepDog.transform.position.x <= laneBoundsUpper)
+        //{
+        //    //Debug.Log(name);
+        //    // REVISIT: Change color of the lane that is active
+        //    //rend.material.color = activeLaneColour;
+        //}
     }
 }
