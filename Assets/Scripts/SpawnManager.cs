@@ -28,6 +28,7 @@ public class SpawnManager : MonoBehaviour
     private float obstacleSpawnIntervalLower = 5.0f;
     private float obstacleSpawnIntervalUpper = 8.0f;
 
+    public GameObject backgroundTree;
 
     // sound effects
     // REVISIT: Test once sound effects sourced
@@ -38,6 +39,7 @@ public class SpawnManager : MonoBehaviour
 
 
     private bool isGameActive;
+    private int timeRemaining;
 
     // Start is called before the first frame update
     void Start()
@@ -53,14 +55,29 @@ public class SpawnManager : MonoBehaviour
             trailLanesPos[laneIndex] = trailLanes[laneIndex].transform.position.x;
         }
 
-        //Invoke("SpawnWolf", wolfSpawnIntervalUpper);
-        //Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
+        Invoke("SpawnWolf", wolfSpawnIntervalUpper);
+        Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
+        Invoke("SpawnBackground", 1);
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
         isGameActive = GameObject.Find("UIManager").GetComponent<UIManager>().isGameActive;
+        timeRemaining = GameObject.Find("UIManager").GetComponent<UIManager>().timeRemaining;
+    }
+
+    void SpawnBackground()
+    {
+        if (isGameActive)
+        {
+            Instantiate(backgroundTree, new Vector3(14, 0, 40), backgroundTree.transform.rotation);
+            Instantiate(backgroundTree, new Vector3(-9, 0, 40), backgroundTree.transform.rotation);
+            if(timeRemaining > 10)
+            {
+                Invoke("SpawnBackground", 1);
+            }
+        }
     }
 
     void SpawnObstacle()

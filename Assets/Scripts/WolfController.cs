@@ -44,10 +44,6 @@ public class WolfController : MonoBehaviour
                 collisionCourse = sheepDogProximity;
                 TrackPlayer(sheepDogProximity);
             }
-            //if (sheepDogProximity.x >= 0 && wolfStartPosX > 0)
-            //{
-            //    isCharging = true;
-            //}
 
             if (wolfStartPosX < 0 && !isCharging)
             {
@@ -55,7 +51,7 @@ public class WolfController : MonoBehaviour
                 TrackPlayer(sheepDogProximity);
             }
 
-            if (sheepDogProximity.z <= 7.5f && transform.position.x < 7.7f && transform.position.x > -7.7f)
+            if (sheepDogProximity.z <= 9 && transform.position.x < 7.7f && transform.position.x > -7.7f)
             {
                 isCharging = true;
             }
