@@ -14,6 +14,7 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI scoreText;
 
     public TextMeshProUGUI finalScoreText;
+    public TextMeshProUGUI reasonText;
 
     public GameObject gameOverScreen;
     public GameObject hudScreen;
@@ -48,20 +49,26 @@ public class UIManager : MonoBehaviour
         StartCoroutine(FadeInHUD());
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (isGameActive)
         {
             sheepdogHealth = sheepDog.GetComponent<PlayerController>().health;
             if (sheepdogHealth >= 0)
             {
-                healthText.text = "Health " + new string('O', sheepdogHealth);
+                healthText.text = "Health " + new string('■', sheepdogHealth) + new string('□', 5-sheepdogHealth);
             }
             herd = GameObject.FindGameObjectsWithTag("Sheep");
             herdSize = herd.Length;
 
-            if (herdSize == 0 || sheepdogHealth == 0)
+            if (herdSize == 0)
             {
+                reasonText.text = "The herd was lost...";
+                GameOver();
+            }
+            if(sheepdogHealth == 0)
+            {
+                reasonText.text = "The dog is too weak to continue...";
                 GameOver();
             }
         }
@@ -91,14 +98,17 @@ public class UIManager : MonoBehaviour
         {
             if (timeRemaining < 0)
             {
+                reasonText.text = "You have escaped the forest!";
                 GameOver();
                 isGameActive = false;
             }
             timeRemainingText.text = "Time " + timeRemaining;
             scoreText.text = "Score " + score;
             herdMultiplierText.text = "Herd x" + herdSize;
+
             yield return new WaitForSeconds(1);
-            if(timeRemaining > 0)
+
+            if (timeRemaining > 0)
             {
                 score += (10 * herdSize);
             }

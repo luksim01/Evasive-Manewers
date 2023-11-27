@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class SheepController2 : MonoBehaviour
 {
@@ -39,7 +40,6 @@ public class SheepController2 : MonoBehaviour
     private float speedBurst = 4.0f;
     private float jumpForce = 8.0f;
     public float throwForce = 4.0f;
-    private float jumpDelay;
 
     public GameObject[] herd;
 
@@ -72,6 +72,8 @@ public class SheepController2 : MonoBehaviour
 
     private bool isGameActive;
 
+    private GameObject uiManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -81,12 +83,13 @@ public class SheepController2 : MonoBehaviour
 
         pastBarkJumpState = isBarkedJumpAt;
 
+        uiManager = GameObject.Find("UIManager");
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
-        isGameActive = GameObject.Find("UIManager").GetComponent<UIManager>().isGameActive;
+        isGameActive = uiManager.GetComponent<UIManager>().isGameActive;
 
         if (isGameActive)
         {
@@ -122,24 +125,12 @@ public class SheepController2 : MonoBehaviour
             // stagger jump of herd
             if (isBarkedJumpAt != pastBarkJumpState && !pastBarkJumpState)
             {
-                float originZ = zBackwardBoundary;
-                float frontSheepPosZ = transform.position.z - originZ;
-
-                // largest distance to generate delays for staggered jump
-                foreach (GameObject sheep in herd)
-                {
-                    if ((sheep.transform.position.z - originZ) > frontSheepPosZ)
-                    {
-                        frontSheepPosZ = sheep.transform.position.z - originZ;
-                    }
-                }
-
-                float jumpDelay = jumpDelayModifier * (frontSheepPosZ - (transform.position.z - originZ)) / (frontSheepPosZ);
-
+                float jumpDelay = CalculateDelay(herd);
                 StartCoroutine(SheepJump(jumpDelay));
             }
 
             pastBarkJumpState = isBarkedJumpAt;
+
 
             // sheep try to keep a small distance from each other
             foreach (GameObject sheep in herd)
@@ -191,6 +182,24 @@ public class SheepController2 : MonoBehaviour
                 Destroy(gameObject);
             }
         }
+    }
+
+    private float CalculateDelay(GameObject[] herd)
+    {
+        float originZ = zBackwardBoundary;
+        float frontSheepPosZ = transform.position.z - originZ;
+
+        // largest distance to generate delays for staggered jump
+        foreach (GameObject sheep in herd)
+        {
+            if ((sheep.transform.position.z - originZ) > frontSheepPosZ)
+            {
+                frontSheepPosZ = sheep.transform.position.z - originZ;
+            }
+        }
+
+        float delay = jumpDelayModifier * (frontSheepPosZ - (transform.position.z - originZ)) / (frontSheepPosZ);
+        return delay;
     }
 
     void Hop(float force)

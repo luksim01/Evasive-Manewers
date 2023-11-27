@@ -10,13 +10,15 @@ public class WolfController : MonoBehaviour
     public Vector3 sheepDogProximity;
     public Vector3 collisionCourse = new Vector3(0, 0, 0);
     private int bounds = 40;
-    private float wolfStartPosX;
+    public float wolfStartPosX;
 
     public float sheepDogProximityX;
     public float sheepDogProximityZ;
 
     public bool hasBitten = false;
     private bool isGameActive;
+
+    public bool isCharging = false;
 
     // Start is called before the first frame update
     void Start()
@@ -37,19 +39,29 @@ public class WolfController : MonoBehaviour
             sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
 
             // track player position
-            if (sheepDogProximity.x < -1.0f && wolfStartPosX > 0.0f)
+            if (wolfStartPosX > 0 && !isCharging)
             {
                 collisionCourse = sheepDogProximity;
                 TrackPlayer(sheepDogProximity);
             }
-            else if (sheepDogProximity.x > 1.0f && wolfStartPosX < 0.0f)
+            //if (sheepDogProximity.x >= 0 && wolfStartPosX > 0)
+            //{
+            //    isCharging = true;
+            //}
+
+            if (wolfStartPosX < 0 && !isCharging)
             {
                 collisionCourse = sheepDogProximity;
                 TrackPlayer(sheepDogProximity);
             }
-            else
+
+            if (sheepDogProximity.z <= 7.5f && transform.position.x < 7.7f && transform.position.x > -7.7f)
             {
-                // continue collision course once close enough
+                isCharging = true;
+            }
+
+            if (isCharging)
+            {
                 TrackPlayer(collisionCourse);
             }
 
@@ -68,7 +80,7 @@ public class WolfController : MonoBehaviour
     void TrackPlayer(Vector3 direction)
     {
         alignDirection = (direction).normalized;
-        if (alignDirection != Vector3.zero)
+        if (alignDirection != Vector3.zero && !hasBitten)
         {
             transform.rotation = Quaternion.LookRotation(alignDirection);
         }

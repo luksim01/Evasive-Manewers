@@ -15,8 +15,8 @@ public class SpawnManager : MonoBehaviour
     Vector3 wolfSpawnPos;
 
     public float wolfSpawnInterval;
-    private float wolfSpawnIntervalLower = 5.0f;
-    private float wolfSpawnIntervalUpper = 6.0f;
+    private float wolfSpawnIntervalLower = 15.0f;
+    private float wolfSpawnIntervalUpper = 18.0f;
 
     // obstacle spawn
     public GameObject[] obstacles;
@@ -53,7 +53,7 @@ public class SpawnManager : MonoBehaviour
             trailLanesPos[laneIndex] = trailLanes[laneIndex].transform.position.x;
         }
 
-        Invoke("SpawnWolf", wolfSpawnIntervalUpper);
+        //Invoke("SpawnWolf", wolfSpawnIntervalUpper);
         Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
     }
 
@@ -68,12 +68,23 @@ public class SpawnManager : MonoBehaviour
         if (isGameActive)
         {
             int obstacleIndex = Random.Range(0, obstacles.Length);
+            GameObject obstacle = obstacles[obstacleIndex];
 
-            int obstacleSpawnPosIndex = Random.Range(0, trailLanesPos.Length);
+            int obstacleSpawnPosIndex;
 
-            obstacleSpawnPos = new Vector3(trailLanesPos[obstacleSpawnPosIndex], obstacles[obstacleIndex].transform.position.y, 45.0f);
+            if (obstacle.name.Contains("Long"))
+            {
+                // middle lane
+                obstacleSpawnPosIndex = 2;
+            }
+            else
+            {
+                // pick random lane
+                obstacleSpawnPosIndex = Random.Range(0, trailLanesPos.Length); 
+            }
+            obstacleSpawnPos = new Vector3(trailLanesPos[obstacleSpawnPosIndex], obstacle.transform.position.y, 45.0f);
 
-            Instantiate(obstacles[obstacleIndex], obstacleSpawnPos, obstacles[obstacleIndex].transform.rotation);
+            Instantiate(obstacle, obstacleSpawnPos, obstacle.transform.rotation);
 
             // REVISIT: Test once sound effects sourced
             //spawnAudio.PlayOneShot(obstacleAlertSound, 1.0f);

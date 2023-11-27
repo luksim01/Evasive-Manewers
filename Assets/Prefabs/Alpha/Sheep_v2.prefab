@@ -618,18 +618,12 @@ MonoBehaviour:
   isBarkedAt: 0
   isBarkedJumpAt: 0
   pastBarkJumpState: 0
-  isSlowingDown: 0
+  sheepDogGrounded: 0
+  isSlowingDown: 1
   slowdownCooldownTime: 5
   trailLaneTargets: []
-  alignSpeed: 8
   collisionSound: {fileID: 0}
-  sheepDogProximity: {x: 0, y: 0, z: 0}
-  sheepDogProximityX: 0
-  sheepDogProximityZ: 0
-  fleeDirection: {x: 0, y: 0, z: 0}
-  speedBurst: 4
-  jumpForce: 10
-  jumpDelay: 0
+  throwForce: 8
   herd: []
-  isGrounded: 1
-  jumpDelayModifier: 7
+  isGrounded: 0
+  heightTrigger: 0.5

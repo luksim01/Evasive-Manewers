@@ -55,7 +55,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         isGameActive = GameObject.Find("UIManager").GetComponent<UIManager>().isGameActive;
 
