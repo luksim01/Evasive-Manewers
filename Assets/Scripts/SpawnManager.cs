@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class SpawnManager : MonoBehaviour
 {
@@ -26,7 +27,7 @@ public class SpawnManager : MonoBehaviour
     Vector3 obstacleSpawnPos;
     public float obstacleSpawnInterval;
     private float obstacleSpawnIntervalLower = 5.0f;
-    private float obstacleSpawnIntervalUpper = 8.0f;
+    private float obstacleSpawnIntervalUpper = 6.0f;
 
     public GameObject backgroundTree;
 
@@ -40,6 +41,9 @@ public class SpawnManager : MonoBehaviour
 
     private bool isGameActive;
     private int timeRemaining;
+
+    public GameObject[] laneWarningsText;
+    public int obstacleSpawnPosIndex;
 
     // Start is called before the first frame update
     void Start()
@@ -55,6 +59,11 @@ public class SpawnManager : MonoBehaviour
             trailLanesPos[laneIndex] = trailLanes[laneIndex].transform.position.x;
         }
 
+        //for (int laneIndex = 0; laneIndex < laneWarningsText.Length; laneIndex++)
+        //{
+        //    //laneWarningsText[laneIndex].CrossFadeAlpha(0.0f, 0.0f, false); ;
+        //}
+
         Invoke("SpawnWolf", wolfSpawnIntervalUpper);
         Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
         Invoke("SpawnBackground", 1);
@@ -65,6 +74,33 @@ public class SpawnManager : MonoBehaviour
     {
         isGameActive = GameObject.Find("UIManager").GetComponent<UIManager>().isGameActive;
         timeRemaining = GameObject.Find("UIManager").GetComponent<UIManager>().timeRemaining;
+    }
+
+    IEnumerator DisplayLaneWarning(int singleLaneIndex, string noOfLanes)
+    {
+        if(noOfLanes == "Single")
+        {
+            Debug.Log("lane warn pos i: " + singleLaneIndex);
+            laneWarningsText[singleLaneIndex].SetActive(true);
+            //laneWarningsText[singleLaneIndex].CrossFadeAlpha(1.0f, 0.4f, false);
+            yield return new WaitForSeconds(2);
+            laneWarningsText[singleLaneIndex].SetActive(false);
+            //laneWarningsText[singleLaneIndex].CrossFadeAlpha(0.0f, 0.4f, false);
+        }
+        else if (noOfLanes == "All")
+        {
+            for (int laneIndex = 0; laneIndex < laneWarningsText.Length; laneIndex++)
+            {
+                laneWarningsText[laneIndex].SetActive(true);
+                //laneWarningsText[laneIndex].CrossFadeAlpha(1.0f, 0.4f, false);
+            }
+            yield return new WaitForSeconds(2);
+            for (int laneIndex = 0; laneIndex < laneWarningsText.Length; laneIndex++)
+            {
+                laneWarningsText[laneIndex].SetActive(false);
+                //laneWarningsText[laneIndex].CrossFadeAlpha(0.0f, 0.4f, false);
+            }
+        }
     }
 
     void SpawnBackground()
@@ -87,17 +123,20 @@ public class SpawnManager : MonoBehaviour
             int obstacleIndex = Random.Range(0, obstacles.Length);
             GameObject obstacle = obstacles[obstacleIndex];
 
-            int obstacleSpawnPosIndex;
+            //int obstacleSpawnPosIndex;
 
             if (obstacle.name.Contains("Long"))
             {
                 // middle lane
                 obstacleSpawnPosIndex = 2;
+                StartCoroutine(DisplayLaneWarning(obstacleSpawnPosIndex, "All"));
             }
             else
             {
                 // pick random lane
-                obstacleSpawnPosIndex = Random.Range(0, trailLanesPos.Length); 
+                obstacleSpawnPosIndex = Random.Range(0, trailLanesPos.Length);
+                Debug.Log("obstacle spawn pos i: " + obstacleSpawnPosIndex);
+                StartCoroutine(DisplayLaneWarning(obstacleSpawnPosIndex, "Single"));
             }
             obstacleSpawnPos = new Vector3(trailLanesPos[obstacleSpawnPosIndex], obstacle.transform.position.y, 45.0f);
 
