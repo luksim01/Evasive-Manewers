@@ -54,7 +54,7 @@ public class SpawnManager : MonoBehaviour
         }
 
         //Invoke("SpawnWolf", wolfSpawnIntervalUpper);
-        Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
+        //Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
     }
 
     // Update is called once per frame

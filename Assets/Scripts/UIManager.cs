@@ -35,7 +35,7 @@ public class UIManager : MonoBehaviour
     {
         sheepDog = GameObject.Find("Sheepdog");
         sheepdogHealth = 5;
-        timeRemaining = 60;
+        timeRemaining = 600;
         herdSize = 4;
         score = 0;
         isGameActive = true;
