@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 1831063641096797154}
   - component: {fileID: 576477390159508086}
   - component: {fileID: 2111265898536889158}
-  - component: {fileID: 6422159578135063871}
   m_Layer: 0
   m_Name: Forest Trail
   m_TagString: Trail Lane
@@ -100,23 +99,9 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6422159578135063871
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4741692865841329026}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: edb3e6053a54d4831b1d3a1730141b94, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  laneBoundsLower: 0
-  laneBoundsUpper: 0

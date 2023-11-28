@@ -7,44 +7,40 @@ public class SpawnManager : MonoBehaviour
 {
     // wolf spawn
     public GameObject wolf;
-    private GameObject sheepDog;
     private float wolfSpawnUpperZ = -5.0f;
     private float wolfSpawnLowerZ = -15.0f;
     private float wolfSpawnX = 30.0f;
-    private float sheepDogPosZ;
     private string[] wolfOrigin = { "left", "right" };
     Vector3 wolfSpawnPos;
-
     public float wolfSpawnInterval;
     private float wolfSpawnIntervalLower = 15.0f;
     private float wolfSpawnIntervalUpper = 18.0f;
 
+    // wolf tracking
+    private GameObject sheepDog;
+    private float sheepDogPosZ;
+
     // obstacle spawn
     public GameObject[] obstacles;
-    public GameObject[] trailLanes;
-    public float[] trailLanesPos;
+    private GameObject[] trailLanes;
+    private float[] trailLanesPos;
 
     Vector3 obstacleSpawnPos;
-    public float obstacleSpawnInterval;
+    private float obstacleSpawnInterval;
     private float obstacleSpawnIntervalLower = 5.0f;
     private float obstacleSpawnIntervalUpper = 6.0f;
 
+    public GameObject[] laneWarningsText;
+    private int obstacleSpawnPosIndex;
+
+    // background 
     public GameObject backgroundTree;
 
-    // sound effects
-    // REVISIT: Test once sound effects sourced
-    private AudioSource spawnAudio;
-
-    public AudioClip obstacleAlertSound;
-    public AudioClip wolfGrowlSound;
-
-
+    // UI
     private bool isGameActive;
     private int timeRemaining;
 
-    public GameObject[] laneWarningsText;
-    public int obstacleSpawnPosIndex;
-
+    // audio
     private GameObject audioManager;
 
     // Start is called before the first frame update
@@ -52,19 +48,13 @@ public class SpawnManager : MonoBehaviour
     {
         sheepDog = GameObject.Find("Sheepdog");
         trailLanes = GameObject.Find("LaneManager").GetComponent<LaneManager>().trailLanes;
-        spawnAudio = GetComponent<AudioSource>();
 
+        // spawn position array
         trailLanesPos = new float[trailLanes.Length];
-
         for (int laneIndex = 0; laneIndex < trailLanes.Length; laneIndex++)
         {
             trailLanesPos[laneIndex] = trailLanes[laneIndex].transform.position.x;
         }
-
-        //for (int laneIndex = 0; laneIndex < laneWarningsText.Length; laneIndex++)
-        //{
-        //    //laneWarningsText[laneIndex].CrossFadeAlpha(0.0f, 0.0f, false); ;
-        //}
 
         audioManager = GameObject.Find("AudioManager");
 
@@ -73,7 +63,6 @@ public class SpawnManager : MonoBehaviour
         Invoke("SpawnBackground", 1);
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         isGameActive = GameObject.Find("UIManager").GetComponent<UIManager>().isGameActive;
@@ -86,10 +75,8 @@ public class SpawnManager : MonoBehaviour
         {
             audioManager.GetComponent<AudioManager>().hasDetectedWarnSingle = true;
             laneWarningsText[singleLaneIndex].SetActive(true);
-            //laneWarningsText[singleLaneIndex].CrossFadeAlpha(1.0f, 0.4f, false);
             yield return new WaitForSeconds(2);
             laneWarningsText[singleLaneIndex].SetActive(false);
-            //laneWarningsText[singleLaneIndex].CrossFadeAlpha(0.0f, 0.4f, false);
         }
         else if (noOfLanes == "All")
         {
@@ -97,13 +84,11 @@ public class SpawnManager : MonoBehaviour
             for (int laneIndex = 0; laneIndex < laneWarningsText.Length; laneIndex++)
             {
                 laneWarningsText[laneIndex].SetActive(true);
-                //laneWarningsText[laneIndex].CrossFadeAlpha(1.0f, 0.4f, false);
             }
             yield return new WaitForSeconds(2);
             for (int laneIndex = 0; laneIndex < laneWarningsText.Length; laneIndex++)
             {
                 laneWarningsText[laneIndex].SetActive(false);
-                //laneWarningsText[laneIndex].CrossFadeAlpha(0.0f, 0.4f, false);
             }
         }
     }
@@ -130,23 +115,19 @@ public class SpawnManager : MonoBehaviour
 
             if (obstacle.name.Contains("Long"))
             {
-                // middle lane
+                // spawn in middle lane
                 obstacleSpawnPosIndex = 2;
                 StartCoroutine(DisplayLaneWarning(obstacleSpawnPosIndex, "All"));
             }
             else
             {
-                // pick random lane
+                // spawn in random lane
                 obstacleSpawnPosIndex = Random.Range(0, trailLanesPos.Length);
-                Debug.Log("obstacle spawn pos i: " + obstacleSpawnPosIndex);
                 StartCoroutine(DisplayLaneWarning(obstacleSpawnPosIndex, "Single"));
             }
             obstacleSpawnPos = new Vector3(trailLanesPos[obstacleSpawnPosIndex], obstacle.transform.position.y, 45.0f);
 
             Instantiate(obstacle, obstacleSpawnPos, obstacle.transform.rotation);
-
-            // REVISIT: Test once sound effects sourced
-            //spawnAudio.PlayOneShot(obstacleAlertSound, 1.0f);
 
             obstacleSpawnInterval = Random.Range(obstacleSpawnIntervalLower, obstacleSpawnIntervalUpper);
 
@@ -158,6 +139,7 @@ public class SpawnManager : MonoBehaviour
     {
         if (isGameActive)
         {
+            //spawn wolf to come from either right or left side of trail 
             int wolfOriginIndex = Random.Range(0, wolfOrigin.Length);
             sheepDogPosZ = sheepDog.transform.position.z;
 
@@ -170,9 +152,6 @@ public class SpawnManager : MonoBehaviour
                 wolfSpawnPos = new Vector3(-wolfSpawnX, 2.4f, sheepDogPosZ + Random.Range(wolfSpawnLowerZ, wolfSpawnUpperZ));
             }
             Instantiate(wolf, wolfSpawnPos, wolf.transform.rotation);
-
-            // REVISIT: Test once sound effects sourced
-            //spawnAudio.PlayOneShot(wolfGrowlSound, 1.0f);
 
             wolfSpawnInterval = Random.Range(wolfSpawnIntervalLower,wolfSpawnIntervalUpper);
 

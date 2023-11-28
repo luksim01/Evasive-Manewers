@@ -14,7 +14,6 @@ public class AudioManager : MonoBehaviour
 
     public bool hasDetectedCollision;
     public bool hasDetectedLostSheep;
-
     public bool hasDetectedWarnSingle;
     public bool hasDetectedWarnAll;
 

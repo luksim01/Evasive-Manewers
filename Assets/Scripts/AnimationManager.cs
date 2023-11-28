@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Animation : MonoBehaviour
+public class AnimationManager : MonoBehaviour
 {
     public Animator sheepdogAnim;
+
     // Start is called before the first frame update
     void Start()
     {

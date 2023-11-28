@@ -33,6 +33,7 @@ public class UIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // initialise 
         sheepDog = GameObject.Find("Sheepdog");
         sheepdogHealth = 5;
         timeRemaining = 90;
@@ -41,6 +42,7 @@ public class UIManager : MonoBehaviour
         isGameActive = true;
         StartCoroutine(FadeOutTitle());
 
+        // make GUI invisible initially
         healthText.CrossFadeAlpha(0.0f, 0.0f, false);
         timeRemainingText.CrossFadeAlpha(0.0f, 0.0f, false);
         herdMultiplierText.CrossFadeAlpha(0.0f, 0.0f, false);

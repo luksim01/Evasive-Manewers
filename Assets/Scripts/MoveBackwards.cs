@@ -4,17 +4,11 @@ using UnityEngine;
 
 public class MoveBackwards : MonoBehaviour
 {
-    public int speed = 5;
-    public int bounds = 35;
-
+    private int speed = 5;
+    private int bounds = 35;
     public bool hasHitPlayer = false;
 
     private bool isGameActive;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
 
     // Update is called once per frame
     void FixedUpdate()

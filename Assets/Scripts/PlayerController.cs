@@ -21,32 +21,36 @@ public class PlayerController : MonoBehaviour
     // bark control
     public bool hasBarked = false;
     public bool hasBarkedJump = false;
-    public float barkCooldownTime;
-    public float barkJumpCooldownTime;
+    private float barkCooldownTime = 1.0f;
+    private float barkJumpCooldownTime = 1.0f;
     public ParticleSystem barkEffect;
 
     // sound effects
-    // REVISIT: Test once sound effects sourced
     private AudioSource sheepdogAudio;
     public AudioClip barkMoveSound;
     public AudioClip barkJumpSound;
 
-    public GameObject[] herd;
+    // herd 
+    private GameObject[] herd;
     private Rigidbody sheepdogRb;
 
-    public float jumpForce;
+    // jump
+    private float jumpForce = 9.0f;
     public bool isGrounded = false;
-    public float jumpSpeed = 0.4f;
-    public float backJumpSpeed = 0.2f;
+    private float jumpSpeed = 0.4f;
+    private float backJumpSpeed = 0.2f;
 
-    public float thrownSpeed = 2.0f;
-    public float heightTrigger = 0.5f;
+    // sheep collision
+    private float thrownSpeed = 4.0f;
+    private float heightTrigger = 2.2f;
 
     // health
     public int health = 5;
 
+    // UI
     private bool isGameActive;
 
+    // audio
     private GameObject audioManager;
 
     // Start is called before the first frame update
@@ -54,7 +58,6 @@ public class PlayerController : MonoBehaviour
     {
         sheepdogAudio = GetComponent<AudioSource>();
         sheepdogRb = GetComponent<Rigidbody>();
-
         audioManager = GameObject.Find("AudioManager");
     }
 
@@ -123,9 +126,9 @@ public class PlayerController : MonoBehaviour
             // player bark move command
             if (Input.GetKeyDown(KeyCode.Space) && !hasBarked)
             {
+                hasBarked = true;
                 barkEffect.Play();
                 sheepdogAudio.PlayOneShot(barkMoveSound, 1.0f);
-                hasBarked = true;
                 StartCoroutine(BarkCooldown());
             }
 
@@ -133,6 +136,7 @@ public class PlayerController : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Tab) && !hasBarkedJump && CheckSheepGrounded(herd))
             {
                 hasBarkedJump = true;
+                barkEffect.Play();
                 sheepdogAudio.PlayOneShot(barkJumpSound, 1.0f);
                 StartCoroutine(BarkJumpCooldown());
             }
@@ -143,6 +147,7 @@ public class PlayerController : MonoBehaviour
                 Jump();
             }
 
+            // player death
             if (health <= 0)
             {
                 Destroy(gameObject);
@@ -175,7 +180,7 @@ public class PlayerController : MonoBehaviour
         bool allGrounded = true;
         foreach (GameObject sheep in herd)
         {
-            allGrounded &= sheep.GetComponent<SheepController2>().isGrounded;
+            allGrounded &= sheep.GetComponent<SheepController>().isGrounded;
         }
         return allGrounded;
     }
@@ -204,6 +209,7 @@ public class PlayerController : MonoBehaviour
             isGrounded = true;
         }
 
+        // player thrown off by sheep if land on top of them
         if (collision.gameObject.tag == "Sheep" && (transform.position.y - collision.gameObject.transform.position.y) > heightTrigger)
         {
             sheepdogRb.AddForce(Vector3.up * thrownSpeed, ForceMode.Impulse);

@@ -4,21 +4,21 @@ using UnityEngine;
 
 public class WolfController : MonoBehaviour
 {
-    public float speed = 3000.0f;
+    private float speed = 10.0f;
     private GameObject sheepDog;
-    Vector3 alignDirection;
-    public Vector3 sheepDogProximity;
-    public Vector3 collisionCourse = new Vector3(0, 0, 0);
+    private Vector3 alignDirection;
+    private Vector3 sheepDogProximity;
+    private Vector3 collisionCourse = new Vector3(0, 0, 0);
     private int bounds = 40;
-    public float wolfStartPosX;
+    private float wolfStartPosX;
 
-    public float sheepDogProximityX;
-    public float sheepDogProximityZ;
+    private float sheepDogProximityX;
+    private float sheepDogProximityZ;
 
     public bool hasBitten = false;
     private bool isGameActive;
 
-    public bool isCharging = false;
+    private bool isCharging = false;
 
     // Start is called before the first frame update
     void Start()
@@ -51,11 +51,11 @@ public class WolfController : MonoBehaviour
                 TrackPlayer(sheepDogProximity);
             }
 
+            // once close enough, charge at player in one direction
             if (sheepDogProximity.z <= 9 && transform.position.x < 7.7f && transform.position.x > -7.7f)
             {
                 isCharging = true;
             }
-
             if (isCharging)
             {
                 TrackPlayer(collisionCourse);
