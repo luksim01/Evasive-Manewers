@@ -26,12 +26,6 @@ public class SheepController2 : MonoBehaviour
     private int zAvoidDistance = 5;
     private int zBackwardBoundary = -32;
 
-    // sound effects
-    // REVISIT: Test once sound effects sourced
-    private AudioSource sheepAudio;
-    public AudioClip collisionSound;
-
-
     private Vector3 sheepDogProximity;
     private float sheepDogProximityX;
     private float sheepDogProximityZ;
@@ -74,16 +68,19 @@ public class SheepController2 : MonoBehaviour
 
     private GameObject uiManager;
 
+    private GameObject audioManager;
+
     // Start is called before the first frame update
     void Start()
     {
         sheepDog = GameObject.Find("Sheepdog");
         sheepRb = GetComponent<Rigidbody>();
-        sheepAudio = GetComponent<AudioSource>();
 
         pastBarkJumpState = isBarkedJumpAt;
 
         uiManager = GameObject.Find("UIManager");
+
+        audioManager = GameObject.Find("AudioManager");
     }
 
     // Update is called once per frame
@@ -179,6 +176,8 @@ public class SheepController2 : MonoBehaviour
             // sheep is lost if allowed to drift back too far
             if (transform.position.z < zBackwardBoundary)
             {
+                audioManager.GetComponent<AudioManager>().hasDetectedLostSheep = true;
+                Debug.Log("Sheep Lost!");
                 Destroy(gameObject);
             }
         }
@@ -241,9 +240,9 @@ public class SheepController2 : MonoBehaviour
     {
         if (collision.gameObject.tag == "Obstacle")
         {
+            audioManager.GetComponent<AudioManager>().hasDetectedCollision = true;
+            audioManager.GetComponent<AudioManager>().hasDetectedLostSheep = true;
             Debug.Log("Sheep Lost!");
-            // REVISIT: Test once sound effects sourced
-            //sheepAudio.PlayOneShot(collisionSound, 1.0f);
             Destroy(gameObject);
         }
         if (collision.gameObject.tag == "Trail Lane")

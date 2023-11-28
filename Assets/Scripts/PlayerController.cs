@@ -28,8 +28,8 @@ public class PlayerController : MonoBehaviour
     // sound effects
     // REVISIT: Test once sound effects sourced
     private AudioSource sheepdogAudio;
-    public AudioClip barkSound;
-    public AudioClip hurtSound;
+    public AudioClip barkMoveSound;
+    public AudioClip barkJumpSound;
 
     public GameObject[] herd;
     private Rigidbody sheepdogRb;
@@ -47,11 +47,15 @@ public class PlayerController : MonoBehaviour
 
     private bool isGameActive;
 
+    private GameObject audioManager;
+
     // Start is called before the first frame update
     void Start()
     {
         sheepdogAudio = GetComponent<AudioSource>();
         sheepdogRb = GetComponent<Rigidbody>();
+
+        audioManager = GameObject.Find("AudioManager");
     }
 
     // Update is called once per frame
@@ -116,22 +120,24 @@ public class PlayerController : MonoBehaviour
             // keep track of herd
             herd = GameObject.FindGameObjectsWithTag("Sheep");
 
-            // player bark
+            // player bark move command
             if (Input.GetKeyDown(KeyCode.Space) && !hasBarked)
             {
                 barkEffect.Play();
-                // REVISIT: Test once sound effects sourced
-                // sheepdogAudio.PlayOneShot(barkSound, 1.0f);
+                sheepdogAudio.PlayOneShot(barkMoveSound, 1.0f);
                 hasBarked = true;
                 StartCoroutine(BarkCooldown());
             }
 
+            // player bark jump command
             if (Input.GetKeyDown(KeyCode.Tab) && !hasBarkedJump && CheckSheepGrounded(herd))
             {
                 hasBarkedJump = true;
+                sheepdogAudio.PlayOneShot(barkJumpSound, 1.0f);
                 StartCoroutine(BarkJumpCooldown());
             }
 
+            // player jump
             if (Input.GetKeyDown(KeyCode.J) && isGrounded)
             {
                 Jump();
@@ -179,20 +185,18 @@ public class PlayerController : MonoBehaviour
     {
         if(collision.gameObject.tag == "Wolf" && !collision.gameObject.GetComponent<WolfController>().hasBitten)
         {
+            audioManager.GetComponent<AudioManager>().hasDetectedCollision = true;
             Debug.Log("Bitten!");
             collision.gameObject.GetComponent<WolfController>().hasBitten = true;
             health -= 1;
-            // REVISIT: Test once sound effects sourced
-            // sheepdogAudio.PlayOneShot(hurtSound, 1.0f);
         }
 
         if (collision.gameObject.tag == "Obstacle" && !collision.gameObject.GetComponent<MoveBackwards>().hasHitPlayer)
         {
+            audioManager.GetComponent<AudioManager>().hasDetectedCollision = true;
             Debug.Log("Collided!");
             collision.gameObject.GetComponent<MoveBackwards>().hasHitPlayer = true;
             health -= 1;
-            // REVISIT: Test once sound effects sourced
-            // sheepdogAudio.PlayOneShot(hurtSound, 1.0f);
         }
 
         if (collision.gameObject.tag == "Trail Lane")

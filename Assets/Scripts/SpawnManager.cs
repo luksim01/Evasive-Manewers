@@ -45,6 +45,8 @@ public class SpawnManager : MonoBehaviour
     public GameObject[] laneWarningsText;
     public int obstacleSpawnPosIndex;
 
+    private GameObject audioManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -64,6 +66,8 @@ public class SpawnManager : MonoBehaviour
         //    //laneWarningsText[laneIndex].CrossFadeAlpha(0.0f, 0.0f, false); ;
         //}
 
+        audioManager = GameObject.Find("AudioManager");
+
         Invoke("SpawnWolf", wolfSpawnIntervalUpper);
         Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
         Invoke("SpawnBackground", 1);
@@ -80,7 +84,7 @@ public class SpawnManager : MonoBehaviour
     {
         if(noOfLanes == "Single")
         {
-            Debug.Log("lane warn pos i: " + singleLaneIndex);
+            audioManager.GetComponent<AudioManager>().hasDetectedWarnSingle = true;
             laneWarningsText[singleLaneIndex].SetActive(true);
             //laneWarningsText[singleLaneIndex].CrossFadeAlpha(1.0f, 0.4f, false);
             yield return new WaitForSeconds(2);
@@ -89,6 +93,7 @@ public class SpawnManager : MonoBehaviour
         }
         else if (noOfLanes == "All")
         {
+            audioManager.GetComponent<AudioManager>().hasDetectedWarnAll = true;
             for (int laneIndex = 0; laneIndex < laneWarningsText.Length; laneIndex++)
             {
                 laneWarningsText[laneIndex].SetActive(true);
@@ -122,8 +127,6 @@ public class SpawnManager : MonoBehaviour
         {
             int obstacleIndex = Random.Range(0, obstacles.Length);
             GameObject obstacle = obstacles[obstacleIndex];
-
-            //int obstacleSpawnPosIndex;
 
             if (obstacle.name.Contains("Long"))
             {
