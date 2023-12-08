@@ -11,6 +11,8 @@ TagManager:
   - Sheep
   - Sheep Points
   - Background Tree
+  - Stray
+  - Boundary Lane
   layers:
   - Default
   - TransparentFX

@@ -61,9 +61,10 @@ public class UIManager : MonoBehaviour
                 healthText.text = "Health " + new string('■', sheepdogHealth) + new string('□', 5-sheepdogHealth);
             }
             herd = GameObject.FindGameObjectsWithTag("Sheep");
+            GameObject straySheep = GameObject.FindGameObjectWithTag("Stray");
             herdSize = herd.Length;
 
-            if (herdSize == 0)
+            if (herdSize == 0 && !straySheep)
             {
                 reasonText.text = "The herd was lost...";
                 GameOver();

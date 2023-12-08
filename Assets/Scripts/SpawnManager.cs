@@ -33,6 +33,13 @@ public class SpawnManager : MonoBehaviour
     public GameObject[] laneWarningsText;
     private int obstacleSpawnPosIndex;
 
+    // sheep spawn
+    public GameObject straySheep;
+    public int timeSinceLostSheep;
+    private GameObject[] herd;
+    public Vector3 straySheepSpawnPosition;
+    public Vector3 straySheepTargetPosition;
+
     // background 
     public GameObject backgroundTree;
 
@@ -61,12 +68,18 @@ public class SpawnManager : MonoBehaviour
         Invoke("SpawnWolf", wolfSpawnIntervalUpper);
         Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
         Invoke("SpawnBackground", 1);
+
+        timeSinceLostSheep = 0;
+        Invoke("SpawnStraySheep", 3);
     }
 
-    void FixedUpdate()
+    void Update()
     {
         isGameActive = GameObject.Find("UIManager").GetComponent<UIManager>().isGameActive;
         timeRemaining = GameObject.Find("UIManager").GetComponent<UIManager>().timeRemaining;
+
+        // keep track of herd
+        herd = GameObject.FindGameObjectsWithTag("Sheep");
     }
 
     IEnumerator DisplayLaneWarning(int singleLaneIndex, string noOfLanes)
@@ -103,6 +116,54 @@ public class SpawnManager : MonoBehaviour
             {
                 Invoke("SpawnBackground", 1);
             }
+        }
+    }
+
+    bool CheckTimeSinceLostSheep(int targetSeconds)
+    {
+        timeSinceLostSheep += 1;
+        if (timeSinceLostSheep >= targetSeconds)
+        {
+            timeSinceLostSheep = 0;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void SpawnStraySheep()
+    {
+        if (isGameActive)
+        {
+            if (CheckTimeSinceLostSheep(15))
+            {
+                string[] spawnSide = { "left", "right" };
+                int sideIndex = Random.Range(0, spawnSide.Length);
+
+                int straySheepSpawnPositionZ = Random.Range(0, 5);
+
+                if (spawnSide[sideIndex] == "left")
+                {
+                    straySheepSpawnPosition = new Vector3(-12, 1, straySheepSpawnPositionZ);
+                    straySheepTargetPosition = new Vector3(11, 1, straySheepSpawnPositionZ + 6);
+                    Instantiate(straySheep, straySheepSpawnPosition, straySheep.transform.rotation);
+                }
+                else if (spawnSide[sideIndex] == "right")
+                {
+                    straySheepSpawnPosition = new Vector3(12, 1, straySheepSpawnPositionZ);
+                    straySheepTargetPosition = new Vector3(-11, 1, straySheepSpawnPositionZ + 6);
+                    Instantiate(straySheep, straySheepSpawnPosition, straySheep.transform.rotation);
+                }
+
+                foreach (GameObject sheep in herd)
+                {
+                    sheep.GetComponent<SheepController>().hasAvoidedStray = false;
+                    sheep.GetComponent<SheepController>().hasEnteredStraySpace = false;
+                }
+            }
+            Invoke("SpawnStraySheep", 1);
         }
     }
 
