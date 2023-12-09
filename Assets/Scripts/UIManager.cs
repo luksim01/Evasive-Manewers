@@ -37,7 +37,7 @@ public class UIManager : MonoBehaviour
         sheepDog = GameObject.Find("Sheepdog");
         sheepdogHealth = 5;
         timeRemaining = 90;
-        herdSize = 4;
+        herdSize = 3;
         score = 0;
         isGameActive = true;
         StartCoroutine(FadeOutTitle());
@@ -62,7 +62,8 @@ public class UIManager : MonoBehaviour
             }
             herd = GameObject.FindGameObjectsWithTag("Sheep");
             GameObject straySheep = GameObject.FindGameObjectWithTag("Stray");
-            herdSize = herd.Length;
+            GameObject huntedSheep = GameObject.FindGameObjectWithTag("Hunted");
+            herdSize = herd.Length + (huntedSheep ? 1 : 0);
 
             if (herdSize == 0 && !straySheep)
             {

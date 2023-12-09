@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1329031246476159001}
   - component: {fileID: 5415736581388993071}
   - component: {fileID: 395768376421590635}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Wolf_Ear_Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -117,7 +117,7 @@ GameObject:
   - component: {fileID: 3299765184679834913}
   - component: {fileID: 7921595935492255187}
   - component: {fileID: 1799216638786492355}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Wolf_Ear_Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -222,7 +222,7 @@ GameObject:
   - component: {fileID: 1396140766098609585}
   - component: {fileID: 5517866457487797903}
   - component: {fileID: 8636982298241398964}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Wolf_Nose
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -327,7 +327,7 @@ GameObject:
   - component: {fileID: 1197539542957842743}
   - component: {fileID: 8668680255647376676}
   - component: {fileID: 2136198013630353370}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Wolf_Forwards
   m_TagString: Wolf
   m_Icon: {fileID: 0}
@@ -415,9 +415,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af75feeaf1fa240c5887113062d249ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
-  sheepDogProximity: {x: 0, y: 0, z: 0}
-  collisionCourse: {x: 0, y: 0, z: 0}
+  hasBitten: 0
+  hasTargetedSheepdog: 0
+  hasTargetedHerd: 0
+  hasTargetedSheep: 0
 --- !u!1 &6785577395133551008
 GameObject:
   m_ObjectHideFlags: 0
@@ -430,7 +431,7 @@ GameObject:
   - component: {fileID: 5961203929882312325}
   - component: {fileID: 3482424198011747529}
   - component: {fileID: 9085652945973610598}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Wolf_Tail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -535,7 +536,7 @@ GameObject:
   - component: {fileID: 3043048069043369137}
   - component: {fileID: 2732921582772105618}
   - component: {fileID: 6829845015135071630}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Wolf_Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -640,7 +641,7 @@ GameObject:
   - component: {fileID: 6484959356117145245}
   - component: {fileID: 3765582656614289444}
   - component: {fileID: 802712926455394656}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Wolf_Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}

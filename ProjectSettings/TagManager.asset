@@ -13,6 +13,7 @@ TagManager:
   - Background Tree
   - Stray
   - Boundary Lane
+  - Hunted
   layers:
   - Default
   - TransparentFX

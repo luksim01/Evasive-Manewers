@@ -62,6 +62,9 @@ public class SheepController : MonoBehaviour
     private float straySheepProximityXLimit = 2.7f;
     private float straySheepProximityZLimit = 3.7f;
 
+    private float wolfProximityXLimit = 2.5f;
+    private float wolfProximityZLimit = 7.0f;
+
     // UI
     private bool isGameActive;
     private GameObject uiManager;
@@ -73,14 +76,11 @@ public class SheepController : MonoBehaviour
     private GameObject spawnManager;
 
     // stray sheep
-    //private Vector3 spawnPosition = new Vector3(13, 1, 0);
-    //private Vector3 targetPosition = new Vector3(-10, 1, 4);
-
     public bool isHerdSheep;
-    public GameObject[] allSheep;
 
-    public bool hasEnteredStraySpace;
-    public bool hasAvoidedStray;
+    // wolf 
+    public bool hasEnteredWolfSpace;
+    public bool hasAvoidedWolf;
 
     private float xDistanceFromBoundary = 1.5f;
 
@@ -100,29 +100,23 @@ public class SheepController : MonoBehaviour
     {
         isGameActive = uiManager.GetComponent<UIManager>().isGameActive;
 
-        // keep track of barks
-        isBarkedAt = sheepDog.GetComponent<PlayerController>().hasBarked;
-        isBarkedJumpAt = sheepDog.GetComponent<PlayerController>().hasBarkedJump;
-        sheepDogGrounded = sheepDog.GetComponent<PlayerController>().isGrounded;
-
-        // player proximity
-        sheepDogProximityX = transform.position.x - sheepDog.transform.position.x;
-        sheepDogProximityZ = transform.position.z - sheepDog.transform.position.z;
-        sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
-
         if (isGameActive)
         {
+            // keep track of barks
+            isBarkedAt = sheepDog.GetComponent<PlayerController>().hasBarked;
+            isBarkedJumpAt = sheepDog.GetComponent<PlayerController>().hasBarkedJump;
+            sheepDogGrounded = sheepDog.GetComponent<PlayerController>().isGrounded;
+
+            // player proximity
+            sheepDogProximityX = transform.position.x - sheepDog.transform.position.x;
+            sheepDogProximityZ = transform.position.z - sheepDog.transform.position.z;
+            sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
+
             // keep track of herd
             herd = GameObject.FindGameObjectsWithTag("Sheep");
 
-            if (CheckSheepTypeIsHerd())
-            {
-                HerdSheepBehaviour();
-            }
-            else
-            {
-                StraySheepBehaviour();
-            }
+            // sheep behaviour based on tag
+            CheckSheepTypeIsHerd();
         }
     }
 
@@ -134,8 +128,6 @@ public class SheepController : MonoBehaviour
             sheepRb.isKinematic = false;
             if (isGrounded)
             {
-                //StartCoroutine(SheepJump(0));
-                //Hop(4);
                 sheepRb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
                 isGrounded = false;
             }
@@ -198,6 +190,9 @@ public class SheepController : MonoBehaviour
     {
         // keep track of stray sheep
         GameObject straySheep = GameObject.FindGameObjectWithTag("Stray");
+
+        // keep track of wolf
+        GameObject wolf = GameObject.FindGameObjectWithTag("Wolf");
         
         // avoid player
         if (Mathf.Abs(sheepDogProximityX) < sheepDogProximityXLimit && Mathf.Abs(sheepDogProximityZ) < sheepDogProximityZLimit)
@@ -243,27 +238,47 @@ public class SheepController : MonoBehaviour
         }
 
 
-        // REVISIT: Reuse for bark, wolf hunting sheep or wolf running towards sheep
-        // sheep avoid any active stray sheep even more
-        //if (straySheep)
+        // sheep avoid any active wolf
+        //if (wolf)
         //{
-        //    float straySheepProximityX = transform.position.x - straySheep.transform.position.x;
-        //    float straySheepProximityY = transform.position.y - straySheep.transform.position.y;
-        //    float straySheepProximityZ = transform.position.z - straySheep.transform.position.z;
+        //    float wolfProximityX = transform.position.x - wolf.transform.position.x;
+        //    float wolfProximityY = transform.position.y - wolf.transform.position.y;
+        //    float wolfProximityZ = transform.position.z - wolf.transform.position.z;
 
-        //    Vector3 straySheepProximity = new Vector3(0, 0, straySheepProximityZ);
+        //    Vector3 wolfProximity = new Vector3(wolfProximityX, 0, 0);
 
-        //    if (!hasAvoidedStray && Mathf.Abs(straySheepProximityX) < sheepProximityXLimit + 2 && Mathf.Abs(straySheepProximityZ) < sheepProximityZLimit + 1)
+        //    if (!hasAvoidedWolf && Mathf.Abs(wolfProximityX) < sheepProximityXLimit + 3 && Mathf.Abs(wolfProximityZ) < sheepProximityZLimit + 4)
         //    {
-        //        Avoid(straySheepProximity, avoidSpeed*2);
-        //        hasEnteredStraySpace = true;
-        //    }
-
-        //    if(hasEnteredStraySpace && Mathf.Abs(straySheepProximityZ) > sheepProximityZLimit + 1)
-        //    {
-        //        hasAvoidedStray = true;
+        //        Avoid(wolfProximity, avoidSpeed);
+        //        hasEnteredWolfSpace = true;
         //    }
         //}
+
+        // REVISIT: Reuse for bark, wolf hunting sheep or wolf running towards sheep
+        if (wolf)
+        {
+            float wolfProximityX = transform.position.x - wolf.transform.position.x;
+            float wolfProximityY = transform.position.y - wolf.transform.position.y;
+            float wolfProximityZ = transform.position.z - wolf.transform.position.z;
+
+            Vector3 wolfProximity = new Vector3(wolfProximityX, 0, 0);
+
+            if (!hasAvoidedWolf && Mathf.Abs(wolfProximityX) < sheepProximityXLimit + 3 && Mathf.Abs(wolfProximityZ) < sheepProximityZLimit + 4)
+            {
+                if (isGrounded)
+                {
+                    sheepRb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
+                    isGrounded = false;
+                }
+                Avoid(wolfProximity, avoidSpeed);
+                hasEnteredWolfSpace = true;
+            }
+
+            if (hasEnteredWolfSpace && Mathf.Abs(wolfProximityZ) > sheepProximityZLimit + 4)
+            {
+                hasAvoidedWolf = true;
+            }
+        }
 
 
         // sheep remains within forest trail, and tries to move away from the forest trail boundary
@@ -304,17 +319,70 @@ public class SheepController : MonoBehaviour
         }
     }
 
-    private bool CheckSheepTypeIsHerd()
+    void HuntedSheepBehaviour()
     {
-        if(tag == "Sheep")
+        //unaffected by physics while outside of trail
+        if (transform.position.x < xBoundary + xDistanceFromBoundary && transform.position.x > -xBoundary - xDistanceFromBoundary)
         {
-            isHerdSheep = true;
+            sheepRb.isKinematic = false;
         }
-        else if (tag == "Stray")
+        else
         {
-            isHerdSheep = false;
+            sheepRb.isKinematic = true;
         }
-        return isHerdSheep;
+
+        // keep track of wolf
+        GameObject wolf = GameObject.FindGameObjectWithTag("Wolf");
+
+        if (wolf)
+        {
+            float wolfProximityX = transform.position.x - wolf.transform.position.x;
+            float wolfProximityY = transform.position.y - wolf.transform.position.y;
+            float wolfProximityZ = transform.position.z - wolf.transform.position.z;
+
+            Vector3 wolfProximity = new Vector3(wolfProximityX, 0, wolfProximityZ);
+
+            // flee wolf
+            if (Mathf.Abs(wolfProximityX) < wolfProximityXLimit + 2 && Mathf.Abs(wolfProximityZ) < wolfProximityZLimit + 2)
+            {
+                Avoid(wolfProximity, avoidSpeed*2);
+            }
+        }
+        else
+        {
+            Boundaries(12, -13, 30, -30);
+        }
+    }
+
+    void Boundaries(float xBoundRight, float xBoundLeft, float zBoundForward, float zBoundBack)
+    {
+        // destroy if out of bounds
+        if (transform.position.x > xBoundRight || transform.position.x < xBoundLeft)
+        {
+            Destroy(gameObject);
+        }
+        if (transform.position.z > zBoundForward || transform.position.z < zBoundBack)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    void CheckSheepTypeIsHerd()
+    {
+        switch (tag)
+        {
+            case "Sheep":
+                HerdSheepBehaviour();
+                break;
+            case "Stray":
+                StraySheepBehaviour();
+                break;
+            case "Hunted":
+                HuntedSheepBehaviour();
+                break;
+            default:
+                break;
+        }
     }
 
     private float CalculateDelay(GameObject[] herd)

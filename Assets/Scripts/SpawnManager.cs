@@ -12,9 +12,9 @@ public class SpawnManager : MonoBehaviour
     private float wolfSpawnX = 30.0f;
     private string[] wolfOrigin = { "left", "right" };
     Vector3 wolfSpawnPos;
-    public float wolfSpawnInterval;
-    private float wolfSpawnIntervalLower = 15.0f;
-    private float wolfSpawnIntervalUpper = 18.0f;
+
+    public bool hasTargetedSheepdog = false;
+    public bool hasTargetedHerd = false;
 
     // wolf tracking
     private GameObject sheepDog;
@@ -26,9 +26,6 @@ public class SpawnManager : MonoBehaviour
     private float[] trailLanesPos;
 
     Vector3 obstacleSpawnPos;
-    private float obstacleSpawnInterval;
-    private float obstacleSpawnIntervalLower = 5.0f;
-    private float obstacleSpawnIntervalUpper = 6.0f;
 
     public GameObject[] laneWarningsText;
     private int obstacleSpawnPosIndex;
@@ -65,12 +62,29 @@ public class SpawnManager : MonoBehaviour
 
         audioManager = GameObject.Find("AudioManager");
 
-        Invoke("SpawnWolf", wolfSpawnIntervalUpper);
-        Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
-        Invoke("SpawnBackground", 1);
+        //Invoke("SpawnWolf", wolfSpawnIntervalUpper);
+        //Invoke("SpawnObstacle", obstacleSpawnIntervalUpper);
 
+        InvokeEncounter(8);
+        Invoke("SpawnBackground", 1);
         timeSinceLostSheep = 0;
         Invoke("SpawnStraySheep", 3);
+    }
+
+    void InvokeEncounter(float encounterInterval)
+    {
+        switch (Random.Range(0, 2))
+        {
+            case 0:
+                Invoke("SpawnWolf", encounterInterval);
+                break;
+            case 1:
+                //Invoke("SpawnWolf", encounterInterval);
+                Invoke("SpawnObstacle", encounterInterval);
+                break;
+            default:
+                break;
+        }
     }
 
     void Update()
@@ -137,7 +151,7 @@ public class SpawnManager : MonoBehaviour
     {
         if (isGameActive)
         {
-            if (CheckTimeSinceLostSheep(15))
+            if (CheckTimeSinceLostSheep(20))
             {
                 string[] spawnSide = { "left", "right" };
                 int sideIndex = Random.Range(0, spawnSide.Length);
@@ -155,12 +169,6 @@ public class SpawnManager : MonoBehaviour
                     straySheepSpawnPosition = new Vector3(12, 1, straySheepSpawnPositionZ);
                     straySheepTargetPosition = new Vector3(-11, 1, straySheepSpawnPositionZ + 6);
                     Instantiate(straySheep, straySheepSpawnPosition, straySheep.transform.rotation);
-                }
-
-                foreach (GameObject sheep in herd)
-                {
-                    sheep.GetComponent<SheepController>().hasAvoidedStray = false;
-                    sheep.GetComponent<SheepController>().hasEnteredStraySpace = false;
                 }
             }
             Invoke("SpawnStraySheep", 1);
@@ -190,9 +198,7 @@ public class SpawnManager : MonoBehaviour
 
             Instantiate(obstacle, obstacleSpawnPos, obstacle.transform.rotation);
 
-            obstacleSpawnInterval = Random.Range(obstacleSpawnIntervalLower, obstacleSpawnIntervalUpper);
-
-            Invoke("SpawnObstacle", obstacleSpawnInterval);
+            InvokeEncounter(8);
         }
     }
 
@@ -200,23 +206,72 @@ public class SpawnManager : MonoBehaviour
     {
         if (isGameActive)
         {
-            //spawn wolf to come from either right or left side of trail 
-            int wolfOriginIndex = Random.Range(0, wolfOrigin.Length);
-            sheepDogPosZ = sheepDog.transform.position.z;
-
-            if (wolfOrigin[wolfOriginIndex] == "right")
+            if (herd.Length > 0)
             {
-                wolfSpawnPos = new Vector3(wolfSpawnX, 2.4f, sheepDogPosZ + Random.Range(wolfSpawnLowerZ, wolfSpawnUpperZ));
-            }
-            if (wolfOrigin[wolfOriginIndex] == "left")
-            {
-                wolfSpawnPos = new Vector3(-wolfSpawnX, 2.4f, sheepDogPosZ + Random.Range(wolfSpawnLowerZ, wolfSpawnUpperZ));
-            }
-            Instantiate(wolf, wolfSpawnPos, wolf.transform.rotation);
 
-            wolfSpawnInterval = Random.Range(wolfSpawnIntervalLower,wolfSpawnIntervalUpper);
+                //spawn wolf to come from either right or left side of trail 
+                int wolfOriginIndex = Random.Range(0, wolfOrigin.Length);
+                sheepDogPosZ = sheepDog.transform.position.z;
 
-            Invoke("SpawnWolf", wolfSpawnInterval);
+                int targetIndex;
+                string[] huntTarget = { "player", "sheep" };
+
+                if (herd.Length > 0)
+                {
+                    targetIndex = Random.Range(0, huntTarget.Length);
+                }
+                else
+                {
+                    targetIndex = 0;
+                }
+
+
+                if (huntTarget[targetIndex] == "player")
+                {
+                    hasTargetedSheepdog = true;
+                    hasTargetedHerd = false;
+                }
+                else if (huntTarget[targetIndex] == "sheep")
+                {
+                    hasTargetedHerd = true;
+                    hasTargetedSheepdog = false;
+                }
+
+
+                // wolf spawns based on hunt target
+                if (wolfOrigin[wolfOriginIndex] == "right")
+                {
+                    if (hasTargetedSheepdog)
+                    {
+                        wolfSpawnPos = new Vector3(wolfSpawnX, 2.4f, sheepDogPosZ + Random.Range(wolfSpawnLowerZ, wolfSpawnUpperZ));
+                    }
+                    else if (hasTargetedHerd)
+                    {
+                        wolfSpawnPos = new Vector3(11, 2.4f, Random.Range(-5, 0));
+                    }
+                }
+                if (wolfOrigin[wolfOriginIndex] == "left")
+                {
+                    if (hasTargetedSheepdog)
+                    {
+                        wolfSpawnPos = new Vector3(-wolfSpawnX, 2.4f, sheepDogPosZ + Random.Range(wolfSpawnLowerZ, wolfSpawnUpperZ));
+                    }
+                    else if (hasTargetedHerd)
+                    {
+                        wolfSpawnPos = new Vector3(-12, 2.4f, Random.Range(-5, 0));
+                    }
+                }
+
+                Instantiate(wolf, wolfSpawnPos, wolf.transform.rotation);
+
+                foreach (GameObject sheep in herd)
+                {
+                    sheep.GetComponent<SheepController>().hasAvoidedWolf = false;
+                    sheep.GetComponent<SheepController>().hasEnteredWolfSpace = false;
+                }
+            }
+
+            InvokeEncounter(8);
         }
     }
 }
