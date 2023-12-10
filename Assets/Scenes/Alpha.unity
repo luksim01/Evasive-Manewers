@@ -1048,12 +1048,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 599874443}
-  - component: {fileID: 599874442}
   - component: {fileID: 599874445}
   - component: {fileID: 599874444}
   - component: {fileID: 599874448}
   - component: {fileID: 599874447}
   - component: {fileID: 599874446}
+  - component: {fileID: 599874449}
   m_Layer: 0
   m_Name: Sheepdog
   m_TagString: Player
@@ -1061,25 +1061,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &599874442
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 599874441}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22c584d3614024658bdea4ca436901d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hasBarked: 0
-  hasBarkedJump: 0
-  barkEffect: {fileID: 209910417}
-  barkMoveSound: {fileID: 8300000, guid: 704b99b394c414457bbe7f293903cb1d, type: 3}
-  barkJumpSound: {fileID: 8300000, guid: 21a093ebe9b1941048508182108e2ef4, type: 3}
-  isGrounded: 0
-  health: 5
 --- !u!4 &599874443
 Transform:
   m_ObjectHideFlags: 0
@@ -1434,6 +1415,30 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &599874449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 599874441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22c584d3614024658bdea4ca436901d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  forwardSpeed: 9
+  backwardSpeed: 6
+  sidewardSpeed: 7
+  jumpSpeed: 0.4
+  backwardJumpSpeed: 0.2
+  hasBarked: 0
+  hasBarkedJump: 0
+  barkEffect: {fileID: 209910417}
+  barkMoveSound: {fileID: 8300000, guid: 704b99b394c414457bbe7f293903cb1d, type: 3}
+  barkJumpSound: {fileID: 8300000, guid: 21a093ebe9b1941048508182108e2ef4, type: 3}
+  isGrounded: 0
+  health: 5
 --- !u!1001 &610568277
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1582,7 +1587,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wolf: {fileID: 4897083688053073134, guid: 2dd6363aa2ca344399bfee0a457f0aed, type: 3}
-  wolfSpawnInterval: 0
+  hasTargetedSheepdog: 0
+  hasTargetedHerd: 0
   obstacles:
   - {fileID: 2010263351298102562, guid: df152f3cc56184a44b2c3ab4a1ba6ca7, type: 3}
   - {fileID: 4789974030367437874, guid: 4ca33aa4920524d1e9f78e6e843d6678, type: 3}

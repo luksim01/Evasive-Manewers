@@ -15,7 +15,7 @@ public class AnimationManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.J))
+        if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             sheepdogAnim.Play("Sheepdog Jump");
         }

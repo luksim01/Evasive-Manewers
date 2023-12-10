@@ -35,7 +35,6 @@ public class UIManager : MonoBehaviour
     {
         // initialise 
         sheepDog = GameObject.Find("Sheepdog");
-        sheepdogHealth = 5;
         timeRemaining = 90;
         herdSize = 3;
         score = 0;

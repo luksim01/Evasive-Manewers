@@ -4,39 +4,26 @@ using UnityEngine;
 
 public class WolfController : MonoBehaviour
 {
-    private float speed = 10.0f;
-    private GameObject sheepDog;
-    private Vector3 alignDirection;
-    private Vector3 sheepDogProximity;
-    private Vector3 collisionCourse = new Vector3(0, 0, 0);
-    private int bounds = 40;
+    // wolf 
     private float wolfStartPosX;
-
-    private float sheepDogProximityX;
-    private float sheepDogProximityZ;
-
     public bool hasBitten = false;
-    private bool isGameActive;
-
-    private bool isCharging = false;
-
-    private GameObject[] herd;
 
     // hunt target
-    string[] huntTarget = { "player", "sheep" };
-    int targetIndex;
+    private GameObject[] herd;
     private GameObject targetSheep;
     public bool hasTargetedSheepdog = false;
     public bool hasTargetedHerd = false;
     public bool hasTargetedSheep = false;
     private GameObject spawnManager;
 
+    // track player 
+    private GameObject sheepDog;
     private bool isBarkedAt;
-    private float sheepDogBarkProximityXLimit = 6.0f;
-    private float sheepDogBarkProximityZLimit = 10.0f;
-    // interaction boundaries
-    private float xBoundary = 7.6f;
-    private float xAvoidDistance = 1.2f;
+    private Vector3 collisionCourse;
+    private bool isCharging = false;
+
+    // UI
+    private bool isGameActive;
 
 
     // Start is called before the first frame update
@@ -71,39 +58,44 @@ public class WolfController : MonoBehaviour
         }
     }
 
-    void Boundaries(float xBoundRight, float xBoundLeft, float zBoundForward, float zBoundBack)
+    private void DestroyBoundaries(float xBoundaryRight, float xBoundaryLeft, float zBoundaryForward, float zBoundaryBackward)
     {
         // destroy if out of bounds
-        if (transform.position.x > xBoundRight || transform.position.x < xBoundLeft)
+        if (transform.position.x > xBoundaryRight || transform.position.x < xBoundaryLeft)
         {
             Destroy(gameObject);
         }
-        if (transform.position.z > zBoundForward || transform.position.z < zBoundBack)
+        if (transform.position.z > zBoundaryForward || transform.position.z < zBoundaryBackward)
         {
             Destroy(gameObject);
         }
     }
 
-    void HuntSheep()
+    int IdentifyClosestSheepIndex()
     {
-        // keep track of barks
-        isBarkedAt = sheepDog.GetComponent<PlayerController>().hasBarked;
+        int targetIndex = -1;
+        float closestSheep = 80;
 
+        for (int i = 0; i < herd.Length; i++)
+        {
+            if (Mathf.Abs(herd[i].transform.position.x - transform.position.x) < closestSheep)
+            {
+                closestSheep = Mathf.Abs(herd[i].transform.position.x - transform.position.x);
+                targetIndex = i;
+            }
+        }
+        return targetIndex;
+    }
+
+    private void HuntSheep()
+    {
+        // keep track of bark
+        isBarkedAt = sheepDog.GetComponent<PlayerController>().hasBarkedMove;
+
+        // target one sheep
         if (!hasTargetedSheep)
         {
-            int targetIndex = -1;
-            float closestSheep = bounds*2;
-
-            for (int i = 0; i < herd.Length; i++)
-            {
-                if(Mathf.Abs(herd[i].transform.position.x - transform.position.x) < closestSheep)
-                {
-                    closestSheep = Mathf.Abs(herd[i].transform.position.x - transform.position.x);
-                    targetIndex = i;
-                }
-            }
-
-            targetSheep = herd[targetIndex];
+            targetSheep = herd[IdentifyClosestSheepIndex()];
             hasTargetedSheep = true;
             targetSheep.tag = "Hunted";
         }
@@ -117,45 +109,45 @@ public class WolfController : MonoBehaviour
 
             if (Mathf.Abs(sheepProximityX) > 2 || Mathf.Abs(sheepProximityZ) > 4)
             {
-                alignDirection = (sheepProximity).normalized;
-                transform.Translate(alignDirection * speed * 0.8f * Time.deltaTime);
+                TravelTowards(sheepProximity, 8.0f);
             }
 
-            sheepDogProximityX = sheepDog.transform.position.x - transform.position.x;
-            sheepDogProximityZ = sheepDog.transform.position.z - transform.position.z;
-            sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
+            // player proximity
+            float sheepDogProximityX = sheepDog.transform.position.x - transform.position.x;
+            float sheepDogProximityZ = sheepDog.transform.position.z - transform.position.z;
 
             // wolf hunt sequence can be interrupted
             if (isBarkedAt &&
-                Mathf.Abs(sheepDogProximityX) < sheepDogBarkProximityXLimit / 2 &&
-                Mathf.Abs(sheepDogProximityZ) < sheepDogBarkProximityZLimit / 2 &&
-                transform.position.x < xBoundary - xAvoidDistance &&
-                transform.position.x > -xBoundary + xAvoidDistance)
+                Mathf.Abs(sheepDogProximityX) < 3 &&
+                Mathf.Abs(sheepDogProximityZ) < 5 &&
+                transform.position.x < 5.4 &&
+                transform.position.x > -5.4)
             {
                 targetSheep.tag = "Sheep";
             }
 
             if (targetSheep.tag == "Sheep")
             {
-                alignDirection = (new Vector3(0, 0, 50 - transform.position.x)).normalized;
-                transform.Translate(alignDirection * speed * 2 * Time.deltaTime);
+                TravelTowards(new Vector3(transform.position.x, 0, 50 - transform.position.z), 18.0f);
             }
         }
         else
         {
-            alignDirection = (new Vector3(0, 0, 50 - transform.position.x)).normalized;
-            transform.Translate(alignDirection * speed * 2 * Time.deltaTime);
+            TravelTowards(new Vector3(transform.position.x, 0, 50 - transform.position.z), 18.0f);
         }
-       
 
-        Boundaries(12, -13, bounds, -bounds);
-    }
+        float xBoundaryLeft = 12.0f;
+        float xBoundaryRight = -13.0f;
+        float zBoundary = 40.0f;
 
-    void HuntPlayer()
+        DestroyBoundaries(xBoundaryLeft, xBoundaryRight, zBoundary, -zBoundary);
+}
+
+    private void HuntPlayer()
     {
-        sheepDogProximityX = sheepDog.transform.position.x - transform.position.x;
-        sheepDogProximityZ = sheepDog.transform.position.z - transform.position.z;
-        sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
+        float sheepDogProximityX = sheepDog.transform.position.x - transform.position.x;
+        float sheepDogProximityZ = sheepDog.transform.position.z - transform.position.z;
+        Vector3 sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
 
         // track player position
         if (wolfStartPosX > 0 && !isCharging)
@@ -180,17 +172,27 @@ public class WolfController : MonoBehaviour
             Track(collisionCourse);
         }
 
-        // destroy if out of bounds
-        Boundaries(bounds, -bounds, bounds, -bounds);
+        float xBoundaryLeft = 40.0f;
+        float xBoundaryRight = -40.0f;
+        float zBoundary = 40.0f;
+
+        DestroyBoundaries(xBoundaryLeft, xBoundaryRight, zBoundary, -zBoundary);
     }
 
-    void Track(Vector3 direction)
+    private void Track(Vector3 direction)
     {
-        alignDirection = (direction).normalized;
+        Vector3 alignDirection = (direction).normalized;
         if (alignDirection != Vector3.zero && !hasBitten)
         {
             transform.rotation = Quaternion.LookRotation(alignDirection);
         }
+        transform.Translate(alignDirection * 10.0f * Time.deltaTime);
+    }
+
+
+    private void TravelTowards(Vector3 direction, float speed)
+    {
+        Vector3 alignDirection = (direction).normalized;
         transform.Translate(alignDirection * speed * Time.deltaTime);
     }
 }

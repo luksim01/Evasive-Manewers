@@ -8,41 +8,43 @@ public class PlayerController : MonoBehaviour
     private float horizontalInput;
     private float forwardInput;
     private float backwardInput;
-
-    // speed control
-    private float sidewardSpeed = 7.0f;
-    private float forwardSpeed = 9.0f;
-    private float backwardSpeed = 6.0f;
+    private bool jumpInput;
+    private bool barkMoveInput;
+    private bool barkJumpInput;
 
     // boundary control
-    private int xBoundary = 7;
-    private int zBoundary = 15;
+    private readonly float xBoundary = 7.0f;
+    private readonly float zBoundary = 15.0f;
+
+    // movement settings : ground
+    private readonly float forwardSpeed = 9.0f;
+    private readonly float backwardSpeed = 6.0f;
+    private readonly float sidewardSpeed = 7.0f;
+    // movement settings : jump
+    private Rigidbody sheepdogRb;
+    private readonly float jumpForce = 9.0f;
+    private readonly float jumpMovementSpeed = 0.4f;
+    [SerializeField] private bool isGrounded = false;
 
     // bark control
-    public bool hasBarked = false;
+    public bool hasBarkedMove = false;
     public bool hasBarkedJump = false;
-    private float barkCooldownTime = 1.0f;
-    private float barkJumpCooldownTime = 1.0f;
-    public ParticleSystem barkEffect;
 
-    // sound effects
+    // bark particle and audio
     private AudioSource sheepdogAudio;
     public AudioClip barkMoveSound;
     public AudioClip barkJumpSound;
+    public ParticleSystem barkEffect;
 
-    // herd 
+    // global audio
+    private GameObject audioManager;
+
+    // herd
     private GameObject[] herd;
-    private Rigidbody sheepdogRb;
 
-    // jump
-    private float jumpForce = 9.0f;
-    public bool isGrounded = false;
-    private float jumpSpeed = 0.4f;
-    private float backJumpSpeed = 0.2f;
-
-    // sheep collision
-    private float thrownSpeed = 4.0f;
-    private float heightTrigger = 2.2f;
+    // collision with top of sheep
+    [SerializeField] private float thrownSpeed = 4.0f;
+    [SerializeField] private float heightTrigger = 2.2f;
 
     // health
     public int health = 5;
@@ -50,8 +52,6 @@ public class PlayerController : MonoBehaviour
     // UI
     private bool isGameActive;
 
-    // audio
-    private GameObject audioManager;
 
     // Start is called before the first frame update
     void Start()
@@ -68,108 +68,110 @@ public class PlayerController : MonoBehaviour
 
         if (isGameActive)
         {
-            // horizontal player movement
-            horizontalInput = Input.GetAxis("Horizontal");
-            if (isGrounded)
-            {
-                transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * sidewardSpeed);
-            }
-            else
-            {
-                transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * sidewardSpeed * jumpSpeed);
-            }
+            MovementBoundaries(xBoundary, zBoundary);
 
-            // slower movement when going backwards, faster movement when going forwards
-            forwardInput = Input.GetAxis("Forward");
-            if (isGrounded)
-            {
-                transform.Translate(Vector3.forward * forwardInput * Time.deltaTime * forwardSpeed);
-            }
-            else
-            {
-                transform.Translate(Vector3.forward * forwardInput * Time.deltaTime * forwardSpeed * jumpSpeed);
-            }
+            MovementControl(forwardSpeed, backwardSpeed, sidewardSpeed, jumpForce, jumpMovementSpeed);
 
-            backwardInput = Input.GetAxis("Backward");
-            if (isGrounded)
-            {
-                transform.Translate(Vector3.forward * backwardInput * Time.deltaTime * backwardSpeed);
-            }
-            else
-            {
-                transform.Translate(Vector3.forward * backwardInput * Time.deltaTime * backwardSpeed * backJumpSpeed);
-            }
+            CheckBarkCommand();
 
-            // player movement boundaries - left/right
-            if (transform.position.x < -xBoundary)
-            {
-                transform.position = new Vector3(-xBoundary, transform.position.y, transform.position.z);
-            }
-            if (transform.position.x > xBoundary)
-            {
-                transform.position = new Vector3(xBoundary, transform.position.y, transform.position.z);
-            }
-            // player movement boundaries - forwards/backwards
-            if (transform.position.z < -zBoundary)
-            {
-                transform.position = new Vector3(transform.position.x, transform.position.y, -zBoundary);
-            }
-            if (transform.position.z > zBoundary)
-            {
-                transform.position = new Vector3(transform.position.x, transform.position.y, zBoundary);
-            }
-
-
-            // keep track of herd
-            herd = GameObject.FindGameObjectsWithTag("Sheep");
-
-            // player bark move command
-            if (Input.GetKeyDown(KeyCode.Space) && !hasBarked)
-            {
-                hasBarked = true;
-                barkEffect.Play();
-                sheepdogAudio.PlayOneShot(barkMoveSound, 1.0f);
-                StartCoroutine(BarkCooldown());
-            }
-
-            // player bark jump command
-            if (Input.GetKeyDown(KeyCode.Tab) && !hasBarkedJump && CheckSheepGrounded(herd))
-            {
-                hasBarkedJump = true;
-                barkEffect.Play();
-                sheepdogAudio.PlayOneShot(barkJumpSound, 1.0f);
-                StartCoroutine(BarkJumpCooldown());
-            }
-
-            // player jump
-            if (Input.GetKeyDown(KeyCode.J) && isGrounded)
-            {
-                Jump();
-            }
-
-            // player death
-            if (health <= 0)
-            {
-                Destroy(gameObject);
-            }
+            CheckPlayerDeath();
         }
     }
 
-    private void Jump()
+    private void MovementControl(float forwardSpeed, float backwardSpeed, float sidewardSpeed, float jumpForce, float jumpMovementSpeed)
+    {
+        // horizontal movement, slower movement while jumping
+        horizontalInput = Input.GetAxis("Horizontal");
+        transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * sidewardSpeed * (isGrounded ? 1 : jumpMovementSpeed));
+
+        // forwards movement, slower movement while jumping
+        forwardInput = Input.GetAxis("Forward");
+        transform.Translate(Vector3.forward * forwardInput * Time.deltaTime * forwardSpeed * (isGrounded ? 1 : jumpMovementSpeed));
+
+        // backwards movement, slower movement while jumping
+        backwardInput = Input.GetAxis("Backward");
+        transform.Translate(Vector3.forward * backwardInput * Time.deltaTime * backwardSpeed * (isGrounded ? 1 : jumpMovementSpeed));
+
+        // jump
+        jumpInput = Input.GetKeyDown(KeyCode.LeftShift);
+        if (jumpInput && isGrounded)
+        {
+            Jump(jumpForce);
+        }
+    }
+
+    private void MovementBoundaries(float xBoundary, float zBoundary)
+    {
+        // player movement boundaries - left/right
+        if (transform.position.x < -xBoundary)
+        {
+            transform.position = new Vector3(-xBoundary, transform.position.y, transform.position.z);
+        }
+        if (transform.position.x > xBoundary)
+        {
+            transform.position = new Vector3(xBoundary, transform.position.y, transform.position.z);
+        }
+        // player movement boundaries - forwards/backwards
+        if (transform.position.z < -zBoundary)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, -zBoundary);
+        }
+        if (transform.position.z > zBoundary)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, zBoundary);
+        }
+    }
+
+    private void CheckBarkCommand()
+    {
+        // player bark move command
+        barkMoveInput = Input.GetKeyDown(KeyCode.Space);
+
+        if (barkMoveInput && !hasBarkedMove)
+        {
+            hasBarkedMove = true;
+            barkEffect.Play();
+            sheepdogAudio.PlayOneShot(barkMoveSound, 1.0f);
+            StartCoroutine(BarkMoveCooldown(1.0f));
+        }
+
+        // player bark jump command
+        barkJumpInput = Input.GetKeyDown(KeyCode.Tab);
+        // keep track of herd to check they're grounded to trigger jump
+        herd = GameObject.FindGameObjectsWithTag("Sheep");
+        if (barkJumpInput && !hasBarkedJump && CheckSheepGrounded(herd))
+        {
+            hasBarkedJump = true;
+            barkEffect.Play();
+            sheepdogAudio.PlayOneShot(barkJumpSound, 1.0f);
+            StartCoroutine(BarkJumpCooldown(1.0f));
+        }
+    }
+
+    private void CheckPlayerDeath()
+    {
+        // player death
+        if (health <= 0)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void Jump(float jumpForce)
     {
         isGrounded = false;
         sheepdogRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 
     // Coroutine to wait for bark to cool down
-    IEnumerator BarkCooldown()
+    IEnumerator BarkMoveCooldown(float barkCooldownTime)
     {
         yield return new WaitForSeconds(barkCooldownTime);
-        hasBarked = false;
+        hasBarkedMove = false;
     }
 
     // Coroutine to wait for bark to cool down
-    IEnumerator BarkJumpCooldown()
+    IEnumerator BarkJumpCooldown(float barkJumpCooldownTime)
     {
         yield return new WaitForSeconds(barkJumpCooldownTime);
         hasBarkedJump = false;
@@ -185,9 +187,9 @@ public class PlayerController : MonoBehaviour
         return allGrounded;
     }
 
-
     private void OnCollisionEnter(Collision collision)
     {
+        // bitten by wolf
         if(collision.gameObject.tag == "Wolf" && !collision.gameObject.GetComponent<WolfController>().hasBitten)
         {
             audioManager.GetComponent<AudioManager>().hasDetectedCollision = true;
@@ -196,6 +198,7 @@ public class PlayerController : MonoBehaviour
             health -= 1;
         }
 
+        // collided with obstacle
         if (collision.gameObject.tag == "Obstacle" && !collision.gameObject.GetComponent<MoveBackwards>().hasHitPlayer)
         {
             audioManager.GetComponent<AudioManager>().hasDetectedCollision = true;
@@ -204,12 +207,13 @@ public class PlayerController : MonoBehaviour
             health -= 1;
         }
 
+        // is grounded
         if (collision.gameObject.tag == "Trail Lane")
         {
             isGrounded = true;
         }
 
-        // player thrown off by sheep if land on top of them
+        // player thrown off by sheep if they land on top of them
         if (collision.gameObject.tag == "Sheep" && (transform.position.y - collision.gameObject.transform.position.y) > heightTrigger)
         {
             sheepdogRb.AddForce(Vector3.up * thrownSpeed, ForceMode.Impulse);
