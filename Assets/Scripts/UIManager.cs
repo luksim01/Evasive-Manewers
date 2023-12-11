@@ -30,9 +30,13 @@ public class UIManager : MonoBehaviour
     private GameObject sheepDog;
     private int sheepdogHealth;
 
+    //private GameObject memoryManager;
+
     // Start is called before the first frame update
     void Start()
     {
+        //memoryManager = GameObject.Find("MemoryManger");
+
         // initialise 
         sheepDog = GameObject.Find("Sheepdog");
         timeRemaining = 90;
@@ -123,6 +127,7 @@ public class UIManager : MonoBehaviour
     public void GameOver()
     {
         finalScoreText.text = "Final Score " + score;
+        MemoryManager.instance.score = score;
         hudScreen.SetActive(false);
         gameOverScreen.SetActive(true);
         isGameActive = false;
@@ -130,6 +135,11 @@ public class UIManager : MonoBehaviour
 
     public void BeginGame()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        SceneManager.LoadScene(0);
+    }
+
+    public void SubmitScore()
+    {
+        SceneManager.LoadScene(1);
     }
 }

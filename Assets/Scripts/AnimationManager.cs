@@ -14,11 +14,11 @@ public class AnimationManager : MonoBehaviour
 
     // sheep animation
     public string sheepId;
-    public bool playSheepJumpAnimation;
+    public bool playSheepJumpAnimation = false;
 
     // wolf animation
     public string wolfId;
-    public bool playWolfBiteAnimation;
+    public bool playWolfBiteAnimation = false;
 
 
     // Start is called before the first frame update

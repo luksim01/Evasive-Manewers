@@ -200,7 +200,6 @@ public class PlayerController : MonoBehaviour
         if(collision.gameObject.tag == "Wolf" && !collision.gameObject.GetComponent<WolfController>().hasBitten)
         {
             audioManager.GetComponent<AudioManager>().hasDetectedCollision = true;
-            Debug.Log("Bitten!");
             collision.gameObject.GetComponent<WolfController>().hasBitten = true;
             health -= 1;
         }
@@ -209,7 +208,6 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.tag == "Obstacle" && !collision.gameObject.GetComponent<MoveBackwards>().hasHitPlayer)
         {
             audioManager.GetComponent<AudioManager>().hasDetectedCollision = true;
-            Debug.Log("Collided!");
             collision.gameObject.GetComponent<MoveBackwards>().hasHitPlayer = true;
             health -= 1;
         }

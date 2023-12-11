@@ -422,8 +422,6 @@ public class SheepController : MonoBehaviour
             audioManager.GetComponent<AudioManager>().hasDetectedCollision = true;
             audioManager.GetComponent<AudioManager>().hasDetectedLostSheep = true;
             spawnManager.GetComponent<SpawnManager>().timeSinceLostSheep = 0;
-
-            Debug.Log("Sheep Lost!");
             Destroy(gameObject);
         }
 

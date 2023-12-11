@@ -171,12 +171,15 @@ public class WolfController : MonoBehaviour
         // once close enough, charge at player in one direction
         if (sheepDogProximity.z <= 8 && transform.position.x < 7.7f && transform.position.x > -7.7f)
         {
-            animationManager.GetComponent<AnimationManager>().playWolfBiteAnimation = true;
-            animationManager.GetComponent<AnimationManager>().wolfId = name;
             isCharging = true;
         }
         if (isCharging)
         {
+            if (Mathf.Abs(sheepDogProximityZ) < 6)
+            {
+                animationManager.GetComponent<AnimationManager>().playWolfBiteAnimation = true;
+                animationManager.GetComponent<AnimationManager>().wolfId = name;
+            }
             Track(collisionCourse);
         }
 

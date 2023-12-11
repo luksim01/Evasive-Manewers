@@ -100,7 +100,6 @@ public class SpawnManager : MonoBehaviour
                 laneWarningsText[laneIndex].SetActive(false);
             }
         }
-        Debug.Log("warning: index: " + singleLaneIndex + " name: " + laneWarningsText[singleLaneIndex].name);
     }
 
     private void SpawnBackground()
@@ -181,7 +180,6 @@ public class SpawnManager : MonoBehaviour
                 obstacleSpawnPosIndex = Random.Range(0, trailLanesPos.Length);
                 StartCoroutine(DisplayLaneWarning(obstacleSpawnPosIndex, "Single"));
             }
-            Debug.Log("obstacle: index: " + obstacleSpawnPosIndex + " pos: " +trailLanesPos[obstacleSpawnPosIndex]);
 
             Vector3 obstacleSpawnPos = new Vector3(trailLanesPos[obstacleSpawnPosIndex], obstacle.transform.position.y, 40.0f);
 
