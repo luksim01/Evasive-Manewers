@@ -68,6 +68,9 @@ public class SheepController : MonoBehaviour
 
     private float xDistanceFromBoundary = 1.5f;
 
+    // animation
+    private GameObject animationManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -77,6 +80,7 @@ public class SheepController : MonoBehaviour
         uiManager = GameObject.Find("UIManager");
         audioManager = GameObject.Find("AudioManager");
         spawnManager = GameObject.Find("SpawnManager");
+        animationManager = GameObject.Find("AnimationManager");
     }
 
     // Update is called once per frame
@@ -374,6 +378,8 @@ public class SheepController : MonoBehaviour
     void Hop(float force)
     {
         hopDirectionX = Random.Range(-0.2f, 0.2f);
+        animationManager.GetComponent<AnimationManager>().playSheepJumpAnimation = true;
+        animationManager.GetComponent<AnimationManager>().sheepId = name;
         sheepRb.AddForce(new Vector3(hopDirectionX, hopDirectionY, hopDirectionZ) * force, ForceMode.Impulse);
         isGrounded = false;
     }
@@ -381,12 +387,16 @@ public class SheepController : MonoBehaviour
     IEnumerator StaggeredJump(float delay)
     {
         yield return new WaitForSeconds(delay);
+        animationManager.GetComponent<AnimationManager>().playSheepJumpAnimation = true;
+        animationManager.GetComponent<AnimationManager>().sheepId = name;
         sheepRb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
         isGrounded = false;
     }
 
     void Jump(Vector3 direction, float force)
     {
+        animationManager.GetComponent<AnimationManager>().playSheepJumpAnimation = true;
+        animationManager.GetComponent<AnimationManager>().sheepId = name;
         sheepRb.AddForce(direction * force, ForceMode.Impulse);
         isGrounded = false;
     }

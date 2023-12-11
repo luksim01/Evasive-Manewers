@@ -25,6 +25,8 @@ public class WolfController : MonoBehaviour
     // UI
     private bool isGameActive;
 
+    // animation
+    private GameObject animationManager;
 
     // Start is called before the first frame update
     void Start()
@@ -36,6 +38,8 @@ public class WolfController : MonoBehaviour
 
         hasTargetedSheepdog = spawnManager.GetComponent<SpawnManager>().hasTargetedSheepdog;
         hasTargetedHerd = spawnManager.GetComponent<SpawnManager>().hasTargetedHerd;
+
+        animationManager = GameObject.Find("AnimationManager");
     }
 
     // Update is called once per frame
@@ -123,6 +127,8 @@ public class WolfController : MonoBehaviour
                 transform.position.x < 5.4 &&
                 transform.position.x > -5.4)
             {
+                animationManager.GetComponent<AnimationManager>().playWolfBiteAnimation = true;
+                animationManager.GetComponent<AnimationManager>().wolfId = name;
                 targetSheep.tag = "Sheep";
             }
 
@@ -163,8 +169,10 @@ public class WolfController : MonoBehaviour
         }
 
         // once close enough, charge at player in one direction
-        if (sheepDogProximity.z <= 9 && transform.position.x < 7.7f && transform.position.x > -7.7f)
+        if (sheepDogProximity.z <= 8 && transform.position.x < 7.7f && transform.position.x > -7.7f)
         {
+            animationManager.GetComponent<AnimationManager>().playWolfBiteAnimation = true;
+            animationManager.GetComponent<AnimationManager>().wolfId = name;
             isCharging = true;
         }
         if (isCharging)

@@ -52,6 +52,9 @@ public class PlayerController : MonoBehaviour
     // UI
     private bool isGameActive;
 
+    // animation
+    private GameObject animationManager;
+
 
     // Start is called before the first frame update
     void Start()
@@ -59,6 +62,7 @@ public class PlayerController : MonoBehaviour
         sheepdogAudio = GetComponent<AudioSource>();
         sheepdogRb = GetComponent<Rigidbody>();
         audioManager = GameObject.Find("AudioManager");
+        animationManager = GameObject.Find("AnimationManager");
     }
 
     // Update is called once per frame
@@ -130,6 +134,7 @@ public class PlayerController : MonoBehaviour
         if (barkMoveInput && !hasBarkedMove)
         {
             hasBarkedMove = true;
+            animationManager.GetComponent<AnimationManager>().playDogBarkMoveCommandAnimation = true;
             barkEffect.Play();
             sheepdogAudio.PlayOneShot(barkMoveSound, 1.0f);
             StartCoroutine(BarkMoveCooldown(1.0f));
@@ -141,6 +146,7 @@ public class PlayerController : MonoBehaviour
         herd = GameObject.FindGameObjectsWithTag("Sheep");
         if (barkJumpInput && !hasBarkedJump && CheckSheepGrounded(herd))
         {
+            animationManager.GetComponent<AnimationManager>().playDogBarkJumpCommandAnimation = true;
             hasBarkedJump = true;
             barkEffect.Play();
             sheepdogAudio.PlayOneShot(barkJumpSound, 1.0f);
@@ -160,6 +166,7 @@ public class PlayerController : MonoBehaviour
     private void Jump(float jumpForce)
     {
         isGrounded = false;
+        animationManager.GetComponent<AnimationManager>().playDogJumpAnimation = true;
         sheepdogRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 

@@ -256,22 +256,22 @@ public class SpawnManager : MonoBehaviour
         {
             if (hasTargetedSheepdog)
             {
-                wolfSpawnPos = new Vector3(30.0f, 2.4f, sheepDogPosZ + Random.Range(-15, -5));
+                wolfSpawnPos = new Vector3(30.0f, 0, sheepDogPosZ + Random.Range(-15, -5));
             }
             else if (hasTargetedHerd)
             {
-                wolfSpawnPos = new Vector3(11.0f, 2.4f, Random.Range(-4, 1));
+                wolfSpawnPos = new Vector3(11.0f, 0, Random.Range(-4, 1));
             }
         }
         if (wolfOrigin[wolfOriginIndex] == "left")
         {
             if (hasTargetedSheepdog)
             {
-                wolfSpawnPos = new Vector3(-30.0f, 2.4f, sheepDogPosZ + Random.Range(-15, -5));
+                wolfSpawnPos = new Vector3(-30.0f, 0, sheepDogPosZ + Random.Range(-15, -5));
             }
             else if (hasTargetedHerd)
             {
-                wolfSpawnPos = new Vector3(-12.0f, 2.4f, Random.Range(-4, 1));
+                wolfSpawnPos = new Vector3(-12.0f, 0, Random.Range(-4, 1));
             }
         }
         return wolfSpawnPos;
