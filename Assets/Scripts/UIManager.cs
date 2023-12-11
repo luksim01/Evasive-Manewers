@@ -22,7 +22,7 @@ public class UIManager : MonoBehaviour
     public bool isGameActive;
 
     public int timeRemaining;
-    private int score;
+    public int score;
 
     private GameObject[] herd;
     private int herdSize;

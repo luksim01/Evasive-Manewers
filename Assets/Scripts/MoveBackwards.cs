@@ -10,7 +10,6 @@ public class MoveBackwards : MonoBehaviour
 
     private bool isGameActive;
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         isGameActive = GameObject.Find("UIManager").GetComponent<UIManager>().isGameActive;
@@ -19,7 +18,12 @@ public class MoveBackwards : MonoBehaviour
         {
             transform.Translate(Vector3.back * Time.deltaTime * speed);
 
-            if ((gameObject.tag == "Obstacle" || gameObject.tag == "Background Tree") && transform.position.z < -bounds)
+            if (gameObject.tag == "Obstacle" && transform.position.z < -bounds)
+            {
+                GameObject.Find("UIManager").GetComponent<UIManager>().score += 100;
+                Destroy(gameObject);
+            }
+            if (gameObject.tag == "Background Tree" && transform.position.z < -bounds)
             {
                 Destroy(gameObject);
             }

@@ -67,10 +67,18 @@ public class WolfController : MonoBehaviour
         // destroy if out of bounds
         if (transform.position.x > xBoundaryRight || transform.position.x < xBoundaryLeft)
         {
+            if (!hasBitten && hasTargetedSheepdog)
+            {
+                GameObject.Find("UIManager").GetComponent<UIManager>().score += 100;
+            }
             Destroy(gameObject);
         }
         if (transform.position.z > zBoundaryForward || transform.position.z < zBoundaryBackward)
         {
+            if (!hasBitten && hasTargetedSheepdog)
+            {
+                GameObject.Find("UIManager").GetComponent<UIManager>().score += 100;
+            }
             Destroy(gameObject);
         }
     }
