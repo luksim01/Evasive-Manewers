@@ -1536,6 +1536,7 @@ MonoBehaviour:
   thrownSpeed: 4
   heightTrigger: 2.2
   health: 5
+  sheepdogCollisionEffect: {fileID: 0}
 --- !u!1001 &610568277
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2062,6 +2063,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3227285108991186763, guid: 78973d6fd81094c5d9727611e21638f8, type: 3}
+      propertyPath: sheepCollision
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227285108991186763, guid: 78973d6fd81094c5d9727611e21638f8, type: 3}
+      propertyPath: sheepCollisionEffect
+      value: 
+      objectReference: {fileID: 3432256878017962716, guid: 408d451c21e714a59b9a04ce1358ed47, type: 3}
+    - target: {fileID: 3227285108991186763, guid: 78973d6fd81094c5d9727611e21638f8, type: 3}
+      propertyPath: sheepCollisionParticle
+      value: 
+      objectReference: {fileID: 3432256878017962716, guid: 408d451c21e714a59b9a04ce1358ed47, type: 3}
     - target: {fileID: 6768985135850443552, guid: 78973d6fd81094c5d9727611e21638f8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.1
@@ -4005,6 +4018,7 @@ MonoBehaviour:
   thrownSpeed: 4
   heightTrigger: 2.2
   health: 5
+  sheepdogCollisionEffect: {fileID: 2395051611644406233, guid: d5207754cf43c44e4a3a12ee85bf2cb8, type: 3}
 --- !u!82 &1415794731
 AudioSource:
   m_ObjectHideFlags: 0
@@ -4423,6 +4437,7 @@ MonoBehaviour:
   hudScreen: {fileID: 1291877783}
   isGameActive: 0
   timeRemaining: 0
+  score: 0
 --- !u!4 &1561207294
 Transform:
   m_ObjectHideFlags: 0
@@ -6740,6 +6755,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   score: 0
+  score_1st: 0
+  score_2nd: 0
+  score_3rd: 0
+  score_4th: 0
+  score_5th: 0
+  name_1st: 
+  name_2nd: 
+  name_3rd: 
+  name_4th: 
+  name_5th: 
 --- !u!4 &2107858012
 Transform:
   m_ObjectHideFlags: 0
@@ -6852,6 +6877,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3227285108991186763, guid: 78973d6fd81094c5d9727611e21638f8, type: 3}
+      propertyPath: sheepCollision
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227285108991186763, guid: 78973d6fd81094c5d9727611e21638f8, type: 3}
+      propertyPath: sheepCollisionEffect
+      value: 
+      objectReference: {fileID: 3432256878017962716, guid: 408d451c21e714a59b9a04ce1358ed47, type: 3}
+    - target: {fileID: 3227285108991186763, guid: 78973d6fd81094c5d9727611e21638f8, type: 3}
+      propertyPath: sheepCollisionParticle
+      value: 
+      objectReference: {fileID: 3432256878017962716, guid: 408d451c21e714a59b9a04ce1358ed47, type: 3}
     - target: {fileID: 6768985135850443552, guid: 78973d6fd81094c5d9727611e21638f8, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.1
@@ -6913,6 +6950,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3227285108991186763, guid: 78973d6fd81094c5d9727611e21638f8, type: 3}
+      propertyPath: sheepCollision
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227285108991186763, guid: 78973d6fd81094c5d9727611e21638f8, type: 3}
+      propertyPath: sheepCollisionEffect
+      value: 
+      objectReference: {fileID: 3432256878017962716, guid: 408d451c21e714a59b9a04ce1358ed47, type: 3}
+    - target: {fileID: 3227285108991186763, guid: 78973d6fd81094c5d9727611e21638f8, type: 3}
+      propertyPath: sheepCollisionParticle
+      value: 
+      objectReference: {fileID: 3432256878017962716, guid: 408d451c21e714a59b9a04ce1358ed47, type: 3}
     - target: {fileID: 6768985135850443552, guid: 78973d6fd81094c5d9727611e21638f8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

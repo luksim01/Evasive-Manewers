@@ -71,6 +71,9 @@ public class SheepController : MonoBehaviour
     // animation
     private GameObject animationManager;
 
+    // particle
+    public GameObject sheepCollisionEffect;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -349,10 +352,12 @@ public class SheepController : MonoBehaviour
         // destroy if out of bounds
         if (transform.position.x > xBoundRight || transform.position.x < xBoundLeft)
         {
+            PlaySheepCollisionEffect();
             Destroy(gameObject);
         }
         if (transform.position.z > zBoundForward || transform.position.z < zBoundBack)
         {
+            PlaySheepCollisionEffect();
             Destroy(gameObject);
         }
     }
@@ -415,6 +420,11 @@ public class SheepController : MonoBehaviour
         transform.Translate(new Vector3(fleeDirectionX, 0, fleeDirectionZ) * speedBurst * Time.deltaTime);
     }
 
+    void PlaySheepCollisionEffect()
+    {
+        GameObject sheepCollision = Instantiate(sheepCollisionEffect, transform.position, transform.rotation);
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (tag == "Sheep" && collision.gameObject.tag == "Obstacle")
@@ -422,6 +432,7 @@ public class SheepController : MonoBehaviour
             audioManager.GetComponent<AudioManager>().hasDetectedCollision = true;
             audioManager.GetComponent<AudioManager>().hasDetectedLostSheep = true;
             spawnManager.GetComponent<SpawnManager>().timeSinceLostSheep = 0;
+            PlaySheepCollisionEffect();
             Destroy(gameObject);
         }
 

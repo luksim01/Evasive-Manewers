@@ -55,6 +55,8 @@ public class PlayerController : MonoBehaviour
     // animation
     private GameObject animationManager;
 
+    // particle
+    public GameObject sheepdogCollisionEffect;
 
     // Start is called before the first frame update
     void Start()
@@ -194,6 +196,11 @@ public class PlayerController : MonoBehaviour
         return allGrounded;
     }
 
+    void PlaySheepdogCollisionEffect()
+    {
+        GameObject sheepCollision = Instantiate(sheepdogCollisionEffect, transform.position, transform.rotation);
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         // bitten by wolf
@@ -201,6 +208,7 @@ public class PlayerController : MonoBehaviour
         {
             audioManager.GetComponent<AudioManager>().hasDetectedCollision = true;
             collision.gameObject.GetComponent<WolfController>().hasBitten = true;
+            PlaySheepdogCollisionEffect();
             health -= 1;
         }
 
@@ -209,6 +217,7 @@ public class PlayerController : MonoBehaviour
         {
             audioManager.GetComponent<AudioManager>().hasDetectedCollision = true;
             collision.gameObject.GetComponent<MoveBackwards>().hasHitPlayer = true;
+            PlaySheepdogCollisionEffect();
             health -= 1;
         }
 
