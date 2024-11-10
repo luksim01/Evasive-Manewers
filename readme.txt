@@ -46,3 +46,5 @@ References:
 	https://learn.unity.com/tutorial/implement-data-persistence-between-scenes#
 	"Implement data persistence between sessions"
 	https://learn.unity.com/tutorial/implement-data-persistence-between-sessions#
+
+Testing: GitHub and Discord webhook.
