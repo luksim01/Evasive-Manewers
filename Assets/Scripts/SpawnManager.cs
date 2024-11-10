@@ -22,6 +22,7 @@ public class SpawnManager : MonoBehaviour
     private GameObject[] herd;
     public Vector3 straySheepSpawnPosition;
     public Vector3 straySheepTargetPosition;
+    public int spawnInterval = 20;
 
     // background spawning
     public GameObject backgroundTree;
@@ -115,7 +116,7 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    bool CheckTimeSinceLostSheep(int targetSeconds)
+    public bool CheckTimeSinceLostSheep(int targetSeconds)
     {
         timeSinceLostSheep += 1;
         if (timeSinceLostSheep >= targetSeconds)
@@ -133,7 +134,7 @@ public class SpawnManager : MonoBehaviour
     {
         if (isGameActive)
         {
-            if (CheckTimeSinceLostSheep(20))
+            if (CheckTimeSinceLostSheep(spawnInterval))
             {
                 string[] spawnSide = { "left", "right" };
                 int sideIndex = Random.Range(0, spawnSide.Length);
