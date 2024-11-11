@@ -3,9 +3,9 @@ name: Actions 😎
 on: [push]
 
 permissions:
-  contents: write
-  pull-requests: write
-  repository-projects: write
+  contents: read
+  actions: read
+  checks: write
 
 jobs:
   build:
