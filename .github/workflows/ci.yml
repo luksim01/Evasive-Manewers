@@ -10,7 +10,7 @@ permissions:
 jobs:
   build:
     name: Build my project ✨
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       # Checkout
       - name: Checkout repository
