@@ -36,6 +36,12 @@ jobs:
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN || github.token }}
 
+      # Clean
+      - name: clean 🫧
+        run: |
+          git reset --hard
+          git clean -fd
+
       # Build
       - name: build project 👾
         uses: game-ci/unity-builder@v4
