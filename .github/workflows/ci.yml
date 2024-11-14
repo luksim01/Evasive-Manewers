@@ -8,12 +8,12 @@ permissions:
   checks: write
 
 jobs:
-  build:
-    name: build project 🔨
+  test:
+    name: test flow ⚙️
     runs-on: ubuntu-latest
     steps:
       # Checkout
-      - name: Checkout repository
+      - name: checkout repository 📂
         uses: actions/checkout@v4
         with:
           lfs: true
@@ -34,7 +34,25 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          githubToken: ${{ secrets.GITHUB_TOKEN || github.token }}
+          githubToken: ${{ secrets.GITHUB_TOKEN || github.token}}
+
+  build:
+    name: build flow 👾
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout
+      - name: checkout repository 📂
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      # Cache
+      - uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
 
       # Clean
       - name: clean 🫧
@@ -43,7 +61,7 @@ jobs:
           git clean -fd
 
       # Build
-      - name: build project 👾
+      - name: build 🔨
         uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
