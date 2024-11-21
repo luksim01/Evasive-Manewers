@@ -1,6 +1,12 @@
-name: ci/cd 🔨🔎👾
+name: continuous integration 🔨🔎👾
 
-on: [push]
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -9,7 +15,7 @@ permissions:
 
 jobs:
   test:
-    name: test flow ⚙️
+    name: testing ⚙️
     runs-on: ubuntu-latest
     steps:
       # Checkout
@@ -19,7 +25,8 @@ jobs:
           lfs: true
 
       # Cache
-      - uses: actions/cache@v3
+      - name: cache 💾
+        uses: actions/cache@v3
         with:
           path: Library
           key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
@@ -37,7 +44,8 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN || github.token}}
 
   build:
-    name: build flow ${{ matrix.targetPlatform }} 👾
+    if: github.event_name == 'pull_request'
+    name: building ${{ matrix.targetPlatform }} 👾
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -74,5 +82,5 @@ jobs:
       # Output
       - uses: actions/upload-artifact@v3
         with:
-          name: Build-${{ matrix.targetPlatform }}
+          name: Evasive-Manewers-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
