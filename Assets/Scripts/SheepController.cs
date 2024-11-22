@@ -53,9 +53,6 @@ public class SheepController : MonoBehaviour
     private bool isGameActive;
     private GameObject uiManager;
 
-    // audio
-    private GameObject audioManager;
-
     // spawn manager
     private GameObject spawnManager;
 
@@ -74,6 +71,13 @@ public class SheepController : MonoBehaviour
     // particle
     public GameObject sheepCollisionEffect;
 
+    // audio
+    private IAudioManager _audioManager;
+    public void SetDependencies(IAudioManager audioManager)
+    {
+        _audioManager = audioManager;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -81,7 +85,6 @@ public class SheepController : MonoBehaviour
         sheepRb = GetComponent<Rigidbody>();
         pastBarkJumpState = isBarkedJumpAt;
         uiManager = GameObject.Find("UIManager");
-        audioManager = GameObject.Find("AudioManager");
         spawnManager = GameObject.Find("SpawnManager");
         animationManager = GameObject.Find("AnimationManager");
     }
@@ -209,7 +212,7 @@ public class SheepController : MonoBehaviour
         // sheep is lost if allowed to drift back too far
         if (transform.position.z < zBackwardBoundary)
         {
-            audioManager.GetComponent<AudioManager>().hasDetectedLostSheep = true;
+            _audioManager.HasDetectedLostSheep = true;
             spawnManager.GetComponent<SpawnManager>().timeSinceLostSheep = 0;
             Destroy(gameObject);
         }
@@ -353,11 +356,13 @@ public class SheepController : MonoBehaviour
         if (transform.position.x > xBoundRight || transform.position.x < xBoundLeft)
         {
             PlaySheepCollisionEffect();
+            _audioManager.HasDetectedLostSheep = true;
             Destroy(gameObject);
         }
         if (transform.position.z > zBoundForward || transform.position.z < zBoundBack)
         {
             PlaySheepCollisionEffect();
+            _audioManager.HasDetectedLostSheep = true;
             Destroy(gameObject);
         }
     }
@@ -429,8 +434,8 @@ public class SheepController : MonoBehaviour
     {
         if (tag == "Sheep" && collision.gameObject.tag == "Obstacle")
         {
-            audioManager.GetComponent<AudioManager>().hasDetectedCollision = true;
-            audioManager.GetComponent<AudioManager>().hasDetectedLostSheep = true;
+            _audioManager.HasDetectedCollision = true;
+            _audioManager.HasDetectedLostSheep = true;
             spawnManager.GetComponent<SpawnManager>().timeSinceLostSheep = 0;
             PlaySheepCollisionEffect();
             Destroy(gameObject);

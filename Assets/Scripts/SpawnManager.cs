@@ -31,8 +31,23 @@ public class SpawnManager : MonoBehaviour
     private bool isGameActive;
     private int timeRemaining;
 
-    // global audio
-    private GameObject audioManager;
+    // audio
+    private IAudioManager _audioManager; // audio manager dependency
+    public void SetDependencies(IAudioManager audioManager)
+    {
+        _audioManager = audioManager;
+    }
+
+    // game manager
+    [SerializeField] private DependancyManager dependancyManager;
+
+    private void Awake()
+    {
+        GameObject initialStraySheep = Instantiate(straySheep, new Vector3(0, 0, 8), straySheep.transform.rotation);
+        initialStraySheep.tag = "Sheep";
+        SheepController sheepController = initialStraySheep.GetComponent<SheepController>();
+        dependancyManager.InjectDependencies(sheepController);
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -46,8 +61,6 @@ public class SpawnManager : MonoBehaviour
         {
             trailLanesPos[laneIndex] = trailLanes[laneIndex].transform.position.x;
         }
-
-        audioManager = GameObject.Find("AudioManager");
 
         InvokeEncounter(8);
         Invoke("SpawnBackground", 1);
@@ -83,14 +96,14 @@ public class SpawnManager : MonoBehaviour
     {
         if(noOfLanes == "Single")
         {
-            audioManager.GetComponent<AudioManager>().hasDetectedWarnSingle = true;
+            _audioManager.HasDetectedWarnSingle = true;
             laneWarningsText[singleLaneIndex].SetActive(true);
             yield return new WaitForSeconds(2);
             laneWarningsText[singleLaneIndex].SetActive(false);
         }
         else if (noOfLanes == "All")
         {
-            audioManager.GetComponent<AudioManager>().hasDetectedWarnAll = true;
+            _audioManager.HasDetectedWarnAll = true;
             for (int laneIndex = 0; laneIndex < laneWarningsText.Length; laneIndex++)
             {
                 laneWarningsText[laneIndex].SetActive(true);
@@ -147,13 +160,17 @@ public class SpawnManager : MonoBehaviour
                 {
                     straySheepSpawnPosition = new Vector3(-12, 1, straySheepSpawnPositionZ);
                     straySheepTargetPosition = new Vector3(11, 1, straySheepTargetPositionZ);
-                    Instantiate(straySheep, straySheepSpawnPosition, straySheep.transform.rotation);
+                    GameObject straySheepNew = Instantiate(straySheep, straySheepSpawnPosition, straySheep.transform.rotation);
+                    SheepController sheepController = straySheepNew.GetComponent<SheepController>();
+                    dependancyManager.InjectDependencies(sheepController);
                 }
                 else if (spawnSide[sideIndex] == "right")
                 {
                     straySheepSpawnPosition = new Vector3(12, 1, straySheepSpawnPositionZ);
                     straySheepTargetPosition = new Vector3(-11, 1, straySheepTargetPositionZ);
-                    Instantiate(straySheep, straySheepSpawnPosition, straySheep.transform.rotation);
+                    GameObject straySheepNew = Instantiate(straySheep, straySheepSpawnPosition, straySheep.transform.rotation);
+                    SheepController sheepController = straySheepNew.GetComponent<SheepController>();
+                    dependancyManager.InjectDependencies(sheepController);
                 }
             }
             Invoke("SpawnStraySheep", 1);
