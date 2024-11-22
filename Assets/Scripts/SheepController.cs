@@ -6,7 +6,6 @@ using TMPro;
 public class SheepController : MonoBehaviour
 {
     // bark interaction
-    private GameObject sheepDog;
     private bool isBarkedAt;
     private bool isBarkedJumpAt;
     private bool pastBarkJumpState;
@@ -48,14 +47,7 @@ public class SheepController : MonoBehaviour
     private Vector3 sheepDogProximity;
     private float sheepDogProximityX;
     private float sheepDogProximityZ;
-
-    // UI
-    private bool isGameActive;
-    private GameObject uiManager;
-
-    // spawn manager
-    private GameObject spawnManager;
-
+    
     // stray sheep
     public bool isHerdSheep;
 
@@ -74,19 +66,31 @@ public class SheepController : MonoBehaviour
 
     // audio
     private IAudioManager _audioManager;
-    public void SetDependencies(IAudioManager audioManager)
+
+    // ui
+    private bool isGameActive;
+    private IUIManager _uiManager;
+
+    // spawn manager
+    private ISpawnManager _spawnManager;
+
+    // player
+    private IPlayerController _sheepdog;
+
+    // dependancies
+    public void SetDependencies(IAudioManager audioManager, IUIManager uiManager, ISpawnManager spawnManager, IPlayerController playerController)
     {
         _audioManager = audioManager;
+        _uiManager = uiManager;
+        _spawnManager = spawnManager;
+        _sheepdog = playerController;
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        sheepDog = GameObject.Find("Sheepdog");
         sheepRb = GetComponent<Rigidbody>();
         pastBarkJumpState = isBarkedJumpAt;
-        uiManager = GameObject.Find("UIManager");
-        spawnManager = GameObject.Find("SpawnManager");
 
         sheepBodyAnim = this.transform.Find("sheep_body").GetComponent<Animator>();
         sheepHeadAnim = this.transform.Find("sheep_head").GetComponent<Animator>();
@@ -95,7 +99,8 @@ public class SheepController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        isGameActive = uiManager.GetComponent<UIManager>().isGameActive;
+        //isGameActive = uiManager.GetComponent<UIManager>().isGameActive;
+        isGameActive = _uiManager.IsGameActive;
 
         if (isGameActive)
         {
@@ -112,12 +117,12 @@ public class SheepController : MonoBehaviour
     private void CheckPlayerActivity()
     {
         // keep track of barks
-        isBarkedAt = sheepDog.GetComponent<PlayerController>().hasBarkedMove;
-        isBarkedJumpAt = sheepDog.GetComponent<PlayerController>().hasBarkedJump;
+        isBarkedAt = _sheepdog.HasBarkedMove;
+        isBarkedJumpAt = _sheepdog.HasBarkedJump;
 
         // player proximity
-        sheepDogProximityX = transform.position.x - sheepDog.transform.position.x;
-        sheepDogProximityZ = transform.position.z - sheepDog.transform.position.z;
+        sheepDogProximityX = transform.position.x - _sheepdog.PlayerTransform.position.x;
+        sheepDogProximityZ = transform.position.z - _sheepdog.PlayerTransform.position.z;
         sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
     }
 
@@ -216,7 +221,7 @@ public class SheepController : MonoBehaviour
         if (transform.position.z < zBackwardBoundary)
         {
             _audioManager.HasDetectedLostSheep = true;
-            spawnManager.GetComponent<SpawnManager>().timeSinceLostSheep = 0;
+            _spawnManager.TimeSinceLostSheep = 0;
             Destroy(gameObject);
         }
     }
@@ -270,8 +275,9 @@ public class SheepController : MonoBehaviour
         }
 
         // movement across trail
-        Vector3 spawnPosition = spawnManager.GetComponent<SpawnManager>().straySheepSpawnPosition;
-        Vector3 targetPosition = spawnManager.GetComponent<SpawnManager>().straySheepTargetPosition;
+        Vector3 spawnPosition = _spawnManager.StraySheepSpawnPosition;
+        Vector3 targetPosition = _spawnManager.StraySheepTargetPosition;
+
         Vector3 targetDirection = targetPosition - spawnPosition;
         MoveAcrossTrail(targetDirection);
 
@@ -439,7 +445,7 @@ public class SheepController : MonoBehaviour
         {
             _audioManager.HasDetectedCollision = true;
             _audioManager.HasDetectedLostSheep = true;
-            spawnManager.GetComponent<SpawnManager>().timeSinceLostSheep = 0;
+            _spawnManager.TimeSinceLostSheep = 0;
             PlaySheepCollisionEffect();
             Destroy(gameObject);
         }

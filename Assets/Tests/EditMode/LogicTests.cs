@@ -13,7 +13,7 @@ public class LogicTests
         spawnManager.AddComponent<SpawnManager>();
 
         int targetSeconds = spawnManager.GetComponent<SpawnManager>().spawnInterval;
-        spawnManager.GetComponent<SpawnManager>().timeSinceLostSheep = 0;
+        spawnManager.GetComponent<SpawnManager>().TimeSinceLostSheep = 0;
         bool expectedStatus = false;
 
         // Act
@@ -33,7 +33,7 @@ public class LogicTests
         spawnManager.AddComponent<SpawnManager>();
 
         int targetSeconds = spawnManager.GetComponent<SpawnManager>().spawnInterval;
-        spawnManager.GetComponent<SpawnManager>().timeSinceLostSheep = targetSeconds - 1;
+        spawnManager.GetComponent<SpawnManager>().TimeSinceLostSheep = targetSeconds - 1;
         bool expectedStatus = true;
         
         // Act

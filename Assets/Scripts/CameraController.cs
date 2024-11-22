@@ -3,10 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 
-public class CameraControl : MonoBehaviour
+public class CameraController : MonoBehaviour
 {
-    private bool isGameActive;
     PostProcessVolume ppVolume;
+
+    // ui
+    private bool isGameActive;
+    private IUIManager _uiManager;
+
+    // dependancies
+    public void SetDependencies(IUIManager uiManager)
+    {
+        _uiManager = uiManager;
+    }
 
     void Start()
     {
@@ -16,7 +25,7 @@ public class CameraControl : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        isGameActive = GameObject.Find("UIManager").GetComponent<UIManager>().isGameActive;
+        isGameActive = _uiManager.IsGameActive;
 
         if (!isGameActive)
         {

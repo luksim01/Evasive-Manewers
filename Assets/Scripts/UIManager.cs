@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class UIManager : MonoBehaviour
+public class UIManager : MonoBehaviour, IUIManager
 {
     public TextMeshProUGUI titleScreenText;
     public TextMeshProUGUI healthText;
@@ -19,30 +19,36 @@ public class UIManager : MonoBehaviour
     public GameObject gameOverScreen;
     public GameObject hudScreen;
 
-    public bool isGameActive;
+    public bool IsGameActive { get; set; }
+    public int TimeRemaining { get; set; }
+    public int Score { get; set; }
 
-    public int timeRemaining;
-    public int score;
+    //public bool isGameActive;
 
     private GameObject[] herd;
     private int herdSize;
 
-    private GameObject sheepDog;
+    // player
+    private IPlayerController _sheepdog;
     private int sheepdogHealth;
 
-    //private GameObject memoryManager;
+    // dependancies
+    public void SetDependencies(IPlayerController playerController)
+    {
+        _sheepdog = playerController;
+    }
 
-    // Start is called before the first frame update
+    private void Awake()
+    {
+        IsGameActive = true;
+    }
+
     void Start()
     {
-        //memoryManager = GameObject.Find("MemoryManger");
-
         // initialise 
-        sheepDog = GameObject.Find("Sheepdog");
-        timeRemaining = 90;
+        TimeRemaining = 90;
         herdSize = 3;
-        score = 0;
-        isGameActive = true;
+        Score = 0;
         StartCoroutine(FadeOutTitle());
 
         // make GUI invisible initially
@@ -56,9 +62,9 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        if (isGameActive)
+        if (IsGameActive)
         {
-            sheepdogHealth = sheepDog.GetComponent<PlayerController>().health;
+            sheepdogHealth = _sheepdog.Health;
             if (sheepdogHealth >= 0)
             {
                 healthText.text = "Health " + new string('■', sheepdogHealth) + new string('□', 5-sheepdogHealth);
@@ -101,36 +107,36 @@ public class UIManager : MonoBehaviour
 
     IEnumerator TimeCountdown()
     {
-        while (isGameActive)
+        while (IsGameActive)
         {
-            if (timeRemaining < 0)
+            if (TimeRemaining < 0)
             {
                 reasonText.text = "You have escaped the forest!";
                 GameOver();
-                isGameActive = false;
+                IsGameActive = false;
             }
-            timeRemainingText.text = "Time " + timeRemaining;
-            scoreText.text = "Score " + score;
+            timeRemainingText.text = "Time " + TimeRemaining;
+            scoreText.text = "Score " + Score;
             herdMultiplierText.text = "Herd x" + herdSize;
 
             yield return new WaitForSeconds(1);
 
-            if (timeRemaining > 0)
+            if (TimeRemaining > 0)
             {
-                score += (10 * herdSize);
+                Score += (10 * herdSize);
             }
-            timeRemaining -= 1;
+            TimeRemaining -= 1;
             
         }
     }
 
     public void GameOver()
     {
-        finalScoreText.text = "Final Score " + score;
-        MemoryManager.instance.score = score;
+        finalScoreText.text = "Final Score " + Score;
+        MemoryManager.instance.score = Score;
         hudScreen.SetActive(false);
         gameOverScreen.SetActive(true);
-        isGameActive = false;
+        IsGameActive = false;
     }
 
     public void BeginGame()

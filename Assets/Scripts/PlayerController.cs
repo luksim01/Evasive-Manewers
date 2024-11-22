@@ -2,8 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IPlayerController
 {
+    public Transform PlayerTransform { get; set; }
+    public int Health { get; set; }
+
     // inputs
     private float horizontalInput;
     private float forwardInput;
@@ -27,8 +30,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool isGrounded = false;
 
     // bark control
-    public bool hasBarkedMove = false;
-    public bool hasBarkedJump = false;
+    //public bool hasBarkedMove = false;
+    //public bool hasBarkedJump = false;
+    public bool HasBarkedMove { get; set; }
+    public bool HasBarkedJump { get; set; }
 
     // bark particle 
     public ParticleSystem barkEffect;
@@ -40,12 +45,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float thrownSpeed = 4.0f;
     [SerializeField] private float heightTrigger = 2.2f;
 
-    // health
-    public int health = 5;
-
-    // UI
-    private bool isGameActive;
-
     // animation
     private Animator sheepdogBodyAnim;
     private Animator sheepdogHeadAnim;
@@ -54,16 +53,28 @@ public class PlayerController : MonoBehaviour
     public GameObject sheepdogCollisionEffect;
 
     // audio
-    private IAudioManager _audioManager; 
-    public void SetDependencies(IAudioManager audioManager)
+    private IAudioManager _audioManager;
+
+    // ui
+    private bool isGameActive;
+    private IUIManager _uiManager;
+
+    // dependancies
+    public void SetDependencies(IAudioManager audioManager, IUIManager uiManager)
     {
         _audioManager = audioManager;
+        _uiManager = uiManager;
+    }
+
+    private void Awake()
+    {
+        PlayerTransform = this.transform;
+        Health = 5;
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        //sheepdogAudio = GetComponent<AudioSource>(); // dependency
         sheepdogRb = GetComponent<Rigidbody>();
 
         sheepdogBodyAnim = this.transform.Find("sheepdog_body").GetComponent<Animator>();
@@ -73,7 +84,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        isGameActive = GameObject.Find("UIManager").GetComponent<UIManager>().isGameActive; // dependency
+        isGameActive = _uiManager.IsGameActive;
 
         if (isGameActive)
         {
@@ -85,6 +96,8 @@ public class PlayerController : MonoBehaviour
 
             CheckPlayerDeath();
         }
+
+        PlayerTransform = transform;
     }
 
     private void MovementControl(float forwardSpeed, float backwardSpeed, float sidewardSpeed, float jumpForce, float jumpMovementSpeed)
@@ -141,11 +154,11 @@ public class PlayerController : MonoBehaviour
         // player bark move command
         barkMoveInput = Input.GetKeyDown(KeyCode.Space);
 
-        if (barkMoveInput && !hasBarkedMove)
+        if (barkMoveInput && !HasBarkedMove)
         {
-            hasBarkedMove = true;
+            HasBarkedMove = true;
             sheepdogHeadAnim.Play("dog head bark move");
-            barkEffect.Play(); // dependency
+            barkEffect.Play();
             _audioManager.HasDetectedBarkMove = true;
             StartCoroutine(BarkMoveCooldown(1.0f));
         }
@@ -153,12 +166,12 @@ public class PlayerController : MonoBehaviour
         // player bark jump command
         barkJumpInput = Input.GetKeyDown(KeyCode.Tab);
         // keep track of herd to check they're grounded to trigger jump
-        herd = GameObject.FindGameObjectsWithTag("Sheep"); // dependency
-        if (barkJumpInput && !hasBarkedJump && CheckSheepGrounded(herd))
+        herd = GameObject.FindGameObjectsWithTag("Sheep");
+        if (barkJumpInput && !HasBarkedJump && CheckSheepGrounded(herd))
         {
             sheepdogHeadAnim.Play("dog head bark jump");
-            hasBarkedJump = true;
-            barkEffect.Play(); // dependency
+            HasBarkedJump = true;
+            barkEffect.Play();
             _audioManager.HasDetectedBarkJump = true;
             StartCoroutine(BarkJumpCooldown(1.0f));
         }
@@ -167,7 +180,7 @@ public class PlayerController : MonoBehaviour
     private void CheckPlayerDeath()
     {
         // player death
-        if (health <= 0)
+        if (Health <= 0)
         {
             Destroy(gameObject);
         }
@@ -185,14 +198,14 @@ public class PlayerController : MonoBehaviour
     IEnumerator BarkMoveCooldown(float barkCooldownTime)
     {
         yield return new WaitForSeconds(barkCooldownTime);
-        hasBarkedMove = false;
+        HasBarkedMove = false;
     }
 
     // Coroutine to wait for bark to cool down
     IEnumerator BarkJumpCooldown(float barkJumpCooldownTime)
     {
         yield return new WaitForSeconds(barkJumpCooldownTime);
-        hasBarkedJump = false;
+        HasBarkedJump = false;
     }
 
     private bool CheckSheepGrounded(GameObject[] herd)
@@ -218,16 +231,16 @@ public class PlayerController : MonoBehaviour
             _audioManager.HasDetectedCollision = true;
             collision.gameObject.GetComponent<WolfController>().hasBitten = true; // dependency
             PlaySheepdogCollisionEffect();
-            health -= 1;
+            Health -= 1;
         }
 
         // collided with obstacle
-        if (collision.gameObject.tag == "Obstacle" && !collision.gameObject.GetComponent<MoveBackwards>().hasHitPlayer) // dependency
+        if (collision.gameObject.tag == "Obstacle" && !collision.gameObject.GetComponent<ObstacleController>().hasHitPlayer) // dependency
         {
             _audioManager.HasDetectedCollision = true;
-            collision.gameObject.GetComponent<MoveBackwards>().hasHitPlayer = true; // dependency
+            collision.gameObject.GetComponent<ObstacleController>().hasHitPlayer = true; // dependency
             PlaySheepdogCollisionEffect();
-            health -= 1;
+            Health -= 1;
         }
 
         // is grounded
