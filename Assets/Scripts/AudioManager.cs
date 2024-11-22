@@ -2,52 +2,108 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AudioManager : MonoBehaviour
+public class AudioManager : MonoBehaviour, IAudioManager
 {
-
     // sound effects
     private AudioSource audioManager;
-    public AudioClip collisionSound;
-    public AudioClip sheepLostSound;
-    public AudioClip laneWarnSingleSound;
-    public AudioClip laneWarnAllSound;
 
-    public bool hasDetectedCollision;
-    public bool hasDetectedLostSheep;
-    public bool hasDetectedWarnSingle;
-    public bool hasDetectedWarnAll;
+    [SerializeField] private AudioClip barkMoveSound;
+    [SerializeField] private AudioClip barkJumpSound;
+    [SerializeField] private AudioClip collisionSound;
+    [SerializeField] private AudioClip sheepLostSound;
+    [SerializeField] private AudioClip laneWarnSingleSound;
+    [SerializeField] private AudioClip laneWarnAllSound;
 
-    // Start is called before the first frame update
+    private bool hasDetectedBarkMove;
+    private bool hasDetectedBarkJump;
+    private bool hasDetectedCollision;
+    private bool hasDetectedLostSheep;
+    private bool hasDetectedWarnSingle;
+    private bool hasDetectedWarnAll;
+
+    // interface properties
+    public bool HasDetectedBarkMove
+    {
+        get { return hasDetectedBarkMove; }
+        set { hasDetectedBarkMove = value; }
+    }
+
+    public bool HasDetectedBarkJump
+    {
+        get { return hasDetectedBarkJump; }
+        set { hasDetectedBarkJump = value; }
+    }
+
+    public bool HasDetectedCollision
+    {
+        get { return hasDetectedCollision; }
+        set { hasDetectedCollision = value; }
+    }
+
+    public bool HasDetectedLostSheep
+    {
+        get { return hasDetectedLostSheep; }
+        set { hasDetectedLostSheep = value; }
+    }
+
+    public bool HasDetectedWarnSingle
+    {
+        get { return hasDetectedWarnSingle; }
+        set { hasDetectedWarnSingle = value; }
+    }
+
+    public bool HasDetectedWarnAll
+    {
+        get { return hasDetectedWarnAll; }
+        set { hasDetectedWarnAll = value; }
+    }
+
     void Start()
     {
         audioManager = GetComponent<AudioSource>();
     }
 
-    // Update is called once per frame
     void Update()
     {
+        if (hasDetectedBarkMove)
+        {
+            PlaySound(barkMoveSound);
+            hasDetectedBarkMove = false;
+        }
+
+        if (hasDetectedBarkJump)
+        {
+            PlaySound(barkJumpSound);
+            hasDetectedBarkJump = false;
+        }
+
         if (hasDetectedCollision)
         {
-            audioManager.PlayOneShot(collisionSound, 1.0f);
+            PlaySound(collisionSound);
             hasDetectedCollision = false;
         }
 
         if (hasDetectedLostSheep)
         {
-            audioManager.PlayOneShot(sheepLostSound, 1.0f);
+            PlaySound(sheepLostSound);
             hasDetectedLostSheep = false;
         }
 
         if (hasDetectedWarnSingle)
         {
-            audioManager.PlayOneShot(laneWarnSingleSound, 1.0f);
+            PlaySound(laneWarnSingleSound);
             hasDetectedWarnSingle = false;
         }
 
         if (hasDetectedWarnAll)
         {
-            audioManager.PlayOneShot(laneWarnAllSound, 1.0f);
+            PlaySound(laneWarnAllSound);
             hasDetectedWarnAll = false;
         }
+    }
+
+    public void PlaySound(AudioClip clip)
+    {
+        audioManager.PlayOneShot(clip, 1.0f);
     }
 }

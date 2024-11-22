@@ -11,41 +11,49 @@ public class WolfController : MonoBehaviour
     // hunt target
     private GameObject[] herd;
     private GameObject targetSheep;
-    public bool hasTargetedSheepdog = false;
-    public bool hasTargetedHerd = false;
-    public bool hasTargetedSheep = false;
-    private GameObject spawnManager;
 
     // track player 
-    private GameObject sheepDog;
     private bool isBarkedAt;
     private Vector3 collisionCourse;
     private bool isCharging = false;
 
-    // UI
+    // ui
     private bool isGameActive;
+    private IUIManager _uiManager;
+
+    // spawn manager
+    private ISpawnManager _spawnManager;
+    private bool hasTargetedSheepdog;
+    private bool hasTargetedHerd;
+    private bool hasTargetedSheep = false;
+
+    // player
+    private IPlayerController _sheepdog;
+
+    public void SetDependencies(IUIManager uiManager, ISpawnManager spawnManager, IPlayerController playerController)
+    {
+        _uiManager = uiManager;
+        _spawnManager = spawnManager;
+        _sheepdog = playerController;
+    }
 
     // animation
-    private GameObject animationManager;
+    private Animator wolfHeadAnim;
 
-    // Start is called before the first frame update
     void Start()
     {
-        sheepDog = GameObject.Find("Sheepdog");
         wolfStartPosX = transform.position.x;
 
-        spawnManager = GameObject.Find("SpawnManager");
+        hasTargetedSheepdog = _spawnManager.HasTargetedSheepdog;
+        hasTargetedHerd = _spawnManager.HasTargetedHerd;
 
-        hasTargetedSheepdog = spawnManager.GetComponent<SpawnManager>().hasTargetedSheepdog;
-        hasTargetedHerd = spawnManager.GetComponent<SpawnManager>().hasTargetedHerd;
-
-        animationManager = GameObject.Find("AnimationManager");
+        wolfHeadAnim = this.transform.Find("wolf_head").GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        isGameActive = GameObject.Find("UIManager").GetComponent<UIManager>().isGameActive;
+        isGameActive = _uiManager.IsGameActive;
 
         if (isGameActive)
         {
@@ -69,7 +77,7 @@ public class WolfController : MonoBehaviour
         {
             if (!hasBitten && hasTargetedSheepdog)
             {
-                GameObject.Find("UIManager").GetComponent<UIManager>().score += 100;
+                _uiManager.Score += 100;
             }
             Destroy(gameObject);
         }
@@ -77,7 +85,7 @@ public class WolfController : MonoBehaviour
         {
             if (!hasBitten && hasTargetedSheepdog)
             {
-                GameObject.Find("UIManager").GetComponent<UIManager>().score += 100;
+                _uiManager.Score += 100;
             }
             Destroy(gameObject);
         }
@@ -102,7 +110,7 @@ public class WolfController : MonoBehaviour
     private void HuntSheep()
     {
         // keep track of bark
-        isBarkedAt = sheepDog.GetComponent<PlayerController>().hasBarkedMove;
+        isBarkedAt = _sheepdog.HasBarkedMove;
 
         // target one sheep
         if (!hasTargetedSheep)
@@ -125,8 +133,8 @@ public class WolfController : MonoBehaviour
             }
 
             // player proximity
-            float sheepDogProximityX = sheepDog.transform.position.x - transform.position.x;
-            float sheepDogProximityZ = sheepDog.transform.position.z - transform.position.z;
+            float sheepDogProximityX = _sheepdog.PlayerTransform.position.x - transform.position.x;
+            float sheepDogProximityZ = _sheepdog.PlayerTransform.position.z - transform.position.z;
 
             // wolf hunt sequence can be interrupted
             if (isBarkedAt &&
@@ -135,8 +143,7 @@ public class WolfController : MonoBehaviour
                 transform.position.x < 5.4 &&
                 transform.position.x > -5.4)
             {
-                animationManager.GetComponent<AnimationManager>().playWolfBiteAnimation = true;
-                animationManager.GetComponent<AnimationManager>().wolfId = name;
+                wolfHeadAnim.Play("wolf head bite");
                 targetSheep.tag = "Sheep";
             }
 
@@ -159,8 +166,8 @@ public class WolfController : MonoBehaviour
 
     private void HuntPlayer()
     {
-        float sheepDogProximityX = sheepDog.transform.position.x - transform.position.x;
-        float sheepDogProximityZ = sheepDog.transform.position.z - transform.position.z;
+        float sheepDogProximityX = _sheepdog.PlayerTransform.transform.position.x - transform.position.x;
+        float sheepDogProximityZ = _sheepdog.PlayerTransform.position.z - transform.position.z;
         Vector3 sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
 
         // track player position
@@ -185,8 +192,7 @@ public class WolfController : MonoBehaviour
         {
             if (Mathf.Abs(sheepDogProximityZ) < 6)
             {
-                animationManager.GetComponent<AnimationManager>().playWolfBiteAnimation = true;
-                animationManager.GetComponent<AnimationManager>().wolfId = name;
+                wolfHeadAnim.Play("wolf head bite");
             }
             Track(collisionCourse);
         }

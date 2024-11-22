@@ -6,7 +6,6 @@ using TMPro;
 public class SheepController : MonoBehaviour
 {
     // bark interaction
-    private GameObject sheepDog;
     private bool isBarkedAt;
     private bool isBarkedJumpAt;
     private bool pastBarkJumpState;
@@ -48,17 +47,7 @@ public class SheepController : MonoBehaviour
     private Vector3 sheepDogProximity;
     private float sheepDogProximityX;
     private float sheepDogProximityZ;
-
-    // UI
-    private bool isGameActive;
-    private GameObject uiManager;
-
-    // audio
-    private GameObject audioManager;
-
-    // spawn manager
-    private GameObject spawnManager;
-
+    
     // stray sheep
     public bool isHerdSheep;
 
@@ -69,27 +58,49 @@ public class SheepController : MonoBehaviour
     private float xDistanceFromBoundary = 1.5f;
 
     // animation
-    private GameObject animationManager;
+    private Animator sheepBodyAnim;
+    private Animator sheepHeadAnim;
 
     // particle
     public GameObject sheepCollisionEffect;
 
+    // audio
+    private IAudioManager _audioManager;
+
+    // ui
+    private bool isGameActive;
+    private IUIManager _uiManager;
+
+    // spawn manager
+    private ISpawnManager _spawnManager;
+
+    // player
+    private IPlayerController _sheepdog;
+
+    // dependancies
+    public void SetDependencies(IAudioManager audioManager, IUIManager uiManager, ISpawnManager spawnManager, IPlayerController playerController)
+    {
+        _audioManager = audioManager;
+        _uiManager = uiManager;
+        _spawnManager = spawnManager;
+        _sheepdog = playerController;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        sheepDog = GameObject.Find("Sheepdog");
         sheepRb = GetComponent<Rigidbody>();
         pastBarkJumpState = isBarkedJumpAt;
-        uiManager = GameObject.Find("UIManager");
-        audioManager = GameObject.Find("AudioManager");
-        spawnManager = GameObject.Find("SpawnManager");
-        animationManager = GameObject.Find("AnimationManager");
+
+        sheepBodyAnim = this.transform.Find("sheep_body").GetComponent<Animator>();
+        sheepHeadAnim = this.transform.Find("sheep_head").GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        isGameActive = uiManager.GetComponent<UIManager>().isGameActive;
+        //isGameActive = uiManager.GetComponent<UIManager>().isGameActive;
+        isGameActive = _uiManager.IsGameActive;
 
         if (isGameActive)
         {
@@ -106,12 +117,12 @@ public class SheepController : MonoBehaviour
     private void CheckPlayerActivity()
     {
         // keep track of barks
-        isBarkedAt = sheepDog.GetComponent<PlayerController>().hasBarkedMove;
-        isBarkedJumpAt = sheepDog.GetComponent<PlayerController>().hasBarkedJump;
+        isBarkedAt = _sheepdog.HasBarkedMove;
+        isBarkedJumpAt = _sheepdog.HasBarkedJump;
 
         // player proximity
-        sheepDogProximityX = transform.position.x - sheepDog.transform.position.x;
-        sheepDogProximityZ = transform.position.z - sheepDog.transform.position.z;
+        sheepDogProximityX = transform.position.x - _sheepdog.PlayerTransform.position.x;
+        sheepDogProximityZ = transform.position.z - _sheepdog.PlayerTransform.position.z;
         sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
     }
 
@@ -209,8 +220,8 @@ public class SheepController : MonoBehaviour
         // sheep is lost if allowed to drift back too far
         if (transform.position.z < zBackwardBoundary)
         {
-            audioManager.GetComponent<AudioManager>().hasDetectedLostSheep = true;
-            spawnManager.GetComponent<SpawnManager>().timeSinceLostSheep = 0;
+            _audioManager.HasDetectedLostSheep = true;
+            _spawnManager.TimeSinceLostSheep = 0;
             Destroy(gameObject);
         }
     }
@@ -264,8 +275,9 @@ public class SheepController : MonoBehaviour
         }
 
         // movement across trail
-        Vector3 spawnPosition = spawnManager.GetComponent<SpawnManager>().straySheepSpawnPosition;
-        Vector3 targetPosition = spawnManager.GetComponent<SpawnManager>().straySheepTargetPosition;
+        Vector3 spawnPosition = _spawnManager.StraySheepSpawnPosition;
+        Vector3 targetPosition = _spawnManager.StraySheepTargetPosition;
+
         Vector3 targetDirection = targetPosition - spawnPosition;
         MoveAcrossTrail(targetDirection);
 
@@ -353,11 +365,13 @@ public class SheepController : MonoBehaviour
         if (transform.position.x > xBoundRight || transform.position.x < xBoundLeft)
         {
             PlaySheepCollisionEffect();
+            _audioManager.HasDetectedLostSheep = true;
             Destroy(gameObject);
         }
         if (transform.position.z > zBoundForward || transform.position.z < zBoundBack)
         {
             PlaySheepCollisionEffect();
+            _audioManager.HasDetectedLostSheep = true;
             Destroy(gameObject);
         }
     }
@@ -383,8 +397,8 @@ public class SheepController : MonoBehaviour
     void Hop(float force)
     {
         hopDirectionX = Random.Range(-0.2f, 0.2f);
-        animationManager.GetComponent<AnimationManager>().playSheepJumpAnimation = true;
-        animationManager.GetComponent<AnimationManager>().sheepId = name;
+        sheepBodyAnim.Play("sheep jump");
+        sheepHeadAnim.Play("sheep head jump");
         sheepRb.AddForce(new Vector3(hopDirectionX, hopDirectionY, hopDirectionZ) * force, ForceMode.Impulse);
         isGrounded = false;
     }
@@ -392,16 +406,16 @@ public class SheepController : MonoBehaviour
     IEnumerator StaggeredJump(float delay)
     {
         yield return new WaitForSeconds(delay);
-        animationManager.GetComponent<AnimationManager>().playSheepJumpAnimation = true;
-        animationManager.GetComponent<AnimationManager>().sheepId = name;
+        sheepBodyAnim.Play("sheep jump");
+        sheepHeadAnim.Play("sheep head jump");
         sheepRb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
         isGrounded = false;
     }
 
     void Jump(Vector3 direction, float force)
     {
-        animationManager.GetComponent<AnimationManager>().playSheepJumpAnimation = true;
-        animationManager.GetComponent<AnimationManager>().sheepId = name;
+        sheepBodyAnim.Play("sheep jump");
+        sheepHeadAnim.Play("sheep head jump");
         sheepRb.AddForce(direction * force, ForceMode.Impulse);
         isGrounded = false;
     }
@@ -429,9 +443,9 @@ public class SheepController : MonoBehaviour
     {
         if (tag == "Sheep" && collision.gameObject.tag == "Obstacle")
         {
-            audioManager.GetComponent<AudioManager>().hasDetectedCollision = true;
-            audioManager.GetComponent<AudioManager>().hasDetectedLostSheep = true;
-            spawnManager.GetComponent<SpawnManager>().timeSinceLostSheep = 0;
+            _audioManager.HasDetectedCollision = true;
+            _audioManager.HasDetectedLostSheep = true;
+            _spawnManager.TimeSinceLostSheep = 0;
             PlaySheepCollisionEffect();
             Destroy(gameObject);
         }
