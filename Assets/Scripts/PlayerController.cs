@@ -47,7 +47,8 @@ public class PlayerController : MonoBehaviour
     private bool isGameActive;
 
     // animation
-    private GameObject animationManager;
+    private Animator sheepdogBodyAnim;
+    private Animator sheepdogHeadAnim;
 
     // particle
     public GameObject sheepdogCollisionEffect;
@@ -64,8 +65,9 @@ public class PlayerController : MonoBehaviour
     {
         //sheepdogAudio = GetComponent<AudioSource>(); // dependency
         sheepdogRb = GetComponent<Rigidbody>();
-        //audioManager = GameObject.Find("AudioManager"); // dependency
-        animationManager = GameObject.Find("AnimationManager"); // dependency
+
+        sheepdogBodyAnim = this.transform.Find("sheepdog_body").GetComponent<Animator>();
+        sheepdogHeadAnim = this.transform.Find("sheepdog_head").GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -90,16 +92,13 @@ public class PlayerController : MonoBehaviour
         // horizontal movement, slower movement while jumping
         horizontalInput = Input.GetAxis("Horizontal");
         Move(Vector3.right, horizontalInput, sidewardSpeed);
-        //transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * sidewardSpeed * (isGrounded ? 1 : jumpMovementSpeed));
 
         // forwards movement, slower movement while jumping
         forwardInput = Input.GetAxis("Forward");
-        //transform.Translate(Vector3.forward * forwardInput * Time.deltaTime * forwardSpeed * (isGrounded ? 1 : jumpMovementSpeed));
         Move(Vector3.forward, forwardInput, forwardSpeed);
 
         // backwards movement, slower movement while jumping
         backwardInput = Input.GetAxis("Backward");
-        //transform.Translate(Vector3.forward * backwardInput * Time.deltaTime * backwardSpeed * (isGrounded ? 1 : jumpMovementSpeed));
         Move(Vector3.forward, backwardInput, backwardSpeed);
 
         // jump
@@ -145,9 +144,8 @@ public class PlayerController : MonoBehaviour
         if (barkMoveInput && !hasBarkedMove)
         {
             hasBarkedMove = true;
-            animationManager.GetComponent<AnimationManager>().playDogBarkMoveCommandAnimation = true; // dependency
+            sheepdogHeadAnim.Play("dog head bark move");
             barkEffect.Play(); // dependency
-            //sheepdogAudio.PlayOneShot(barkMoveSound, 1.0f); // dependency
             _audioManager.HasDetectedBarkMove = true;
             StartCoroutine(BarkMoveCooldown(1.0f));
         }
@@ -158,10 +156,9 @@ public class PlayerController : MonoBehaviour
         herd = GameObject.FindGameObjectsWithTag("Sheep"); // dependency
         if (barkJumpInput && !hasBarkedJump && CheckSheepGrounded(herd))
         {
-            animationManager.GetComponent<AnimationManager>().playDogBarkJumpCommandAnimation = true; // dependency
+            sheepdogHeadAnim.Play("dog head bark jump");
             hasBarkedJump = true;
             barkEffect.Play(); // dependency
-            //sheepdogAudio.PlayOneShot(barkJumpSound, 1.0f); // dependency
             _audioManager.HasDetectedBarkJump = true;
             StartCoroutine(BarkJumpCooldown(1.0f));
         }
@@ -179,7 +176,8 @@ public class PlayerController : MonoBehaviour
     private void Jump(float jumpForce)
     {
         isGrounded = false;
-        animationManager.GetComponent<AnimationManager>().playDogJumpAnimation = true; // dependency
+        sheepdogBodyAnim.Play("dog jump");
+        sheepdogHeadAnim.Play("dog head jump");
         sheepdogRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 

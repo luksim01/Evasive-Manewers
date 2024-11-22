@@ -11,9 +11,3 @@ public interface IAudioManager
     bool HasDetectedWarnSingle { get; set; }
     bool HasDetectedWarnAll { get; set; }
 }
-
-public interface IAnimationManager
-{
-    bool PlayDogBarkMoveCommandAnimation { get; set; }
-    bool PlayDogJumpAnimation { get; set; }
-}

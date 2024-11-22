@@ -66,7 +66,8 @@ public class SheepController : MonoBehaviour
     private float xDistanceFromBoundary = 1.5f;
 
     // animation
-    private GameObject animationManager;
+    private Animator sheepBodyAnim;
+    private Animator sheepHeadAnim;
 
     // particle
     public GameObject sheepCollisionEffect;
@@ -86,7 +87,9 @@ public class SheepController : MonoBehaviour
         pastBarkJumpState = isBarkedJumpAt;
         uiManager = GameObject.Find("UIManager");
         spawnManager = GameObject.Find("SpawnManager");
-        animationManager = GameObject.Find("AnimationManager");
+
+        sheepBodyAnim = this.transform.Find("sheep_body").GetComponent<Animator>();
+        sheepHeadAnim = this.transform.Find("sheep_head").GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -388,8 +391,8 @@ public class SheepController : MonoBehaviour
     void Hop(float force)
     {
         hopDirectionX = Random.Range(-0.2f, 0.2f);
-        animationManager.GetComponent<AnimationManager>().playSheepJumpAnimation = true;
-        animationManager.GetComponent<AnimationManager>().sheepId = name;
+        sheepBodyAnim.Play("sheep jump");
+        sheepHeadAnim.Play("sheep head jump");
         sheepRb.AddForce(new Vector3(hopDirectionX, hopDirectionY, hopDirectionZ) * force, ForceMode.Impulse);
         isGrounded = false;
     }
@@ -397,16 +400,16 @@ public class SheepController : MonoBehaviour
     IEnumerator StaggeredJump(float delay)
     {
         yield return new WaitForSeconds(delay);
-        animationManager.GetComponent<AnimationManager>().playSheepJumpAnimation = true;
-        animationManager.GetComponent<AnimationManager>().sheepId = name;
+        sheepBodyAnim.Play("sheep jump");
+        sheepHeadAnim.Play("sheep head jump");
         sheepRb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
         isGrounded = false;
     }
 
     void Jump(Vector3 direction, float force)
     {
-        animationManager.GetComponent<AnimationManager>().playSheepJumpAnimation = true;
-        animationManager.GetComponent<AnimationManager>().sheepId = name;
+        sheepBodyAnim.Play("sheep jump");
+        sheepHeadAnim.Play("sheep head jump");
         sheepRb.AddForce(direction * force, ForceMode.Impulse);
         isGrounded = false;
     }
