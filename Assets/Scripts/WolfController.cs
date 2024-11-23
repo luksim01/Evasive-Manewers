@@ -2,14 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WolfController : MonoBehaviour
+public class WolfController : MonoBehaviour, IWolfController
 {
     // wolf 
     private float wolfStartPosX;
-    public bool hasBitten = false;
+    public bool HasBitten { get; set; }
 
     // hunt target
-    private GameObject[] herd;
     private GameObject targetSheep;
 
     // track player 
@@ -57,8 +56,6 @@ public class WolfController : MonoBehaviour
 
         if (isGameActive)
         {
-            herd = GameObject.FindGameObjectsWithTag("Sheep");
-
             if (hasTargetedSheepdog)
             {
                 HuntPlayer();
@@ -75,7 +72,7 @@ public class WolfController : MonoBehaviour
         // destroy if out of bounds
         if (transform.position.x > xBoundaryRight || transform.position.x < xBoundaryLeft)
         {
-            if (!hasBitten && hasTargetedSheepdog)
+            if (!HasBitten && hasTargetedSheepdog)
             {
                 _uiManager.Score += 100;
             }
@@ -83,7 +80,7 @@ public class WolfController : MonoBehaviour
         }
         if (transform.position.z > zBoundaryForward || transform.position.z < zBoundaryBackward)
         {
-            if (!hasBitten && hasTargetedSheepdog)
+            if (!HasBitten && hasTargetedSheepdog)
             {
                 _uiManager.Score += 100;
             }
@@ -96,11 +93,11 @@ public class WolfController : MonoBehaviour
         int targetIndex = -1;
         float closestSheep = 80;
 
-        for (int i = 0; i < herd.Length; i++)
+        for (int i = 0; i < _spawnManager.Herd.Length; i++)
         {
-            if (Mathf.Abs(herd[i].transform.position.x - transform.position.x) < closestSheep)
+            if (Mathf.Abs(_spawnManager.Herd[i].transform.position.x - transform.position.x) < closestSheep)
             {
-                closestSheep = Mathf.Abs(herd[i].transform.position.x - transform.position.x);
+                closestSheep = Mathf.Abs(_spawnManager.Herd[i].transform.position.x - transform.position.x);
                 targetIndex = i;
             }
         }
@@ -115,7 +112,7 @@ public class WolfController : MonoBehaviour
         // target one sheep
         if (!hasTargetedSheep)
         {
-            targetSheep = herd[IdentifyClosestSheepIndex()];
+            targetSheep = _spawnManager.Herd[IdentifyClosestSheepIndex()];
             hasTargetedSheep = true;
             targetSheep.tag = "Hunted";
         }
@@ -147,7 +144,7 @@ public class WolfController : MonoBehaviour
                 targetSheep.tag = "Sheep";
             }
 
-            if (targetSheep.tag == "Sheep")
+            if (targetSheep.CompareTag("Sheep"))
             {
                 TravelTowards(new Vector3(transform.position.x, 0, 50 - transform.position.z), 18.0f);
             }
@@ -207,7 +204,7 @@ public class WolfController : MonoBehaviour
     private void Track(Vector3 direction)
     {
         Vector3 alignDirection = (direction).normalized;
-        if (alignDirection != Vector3.zero && !hasBitten)
+        if (alignDirection != Vector3.zero && !HasBitten)
         {
             transform.rotation = Quaternion.LookRotation(alignDirection);
         }

@@ -26,12 +26,12 @@ public class ObstacleController : MonoBehaviour
         {
             transform.Translate(Vector3.back * Time.deltaTime * speed);
 
-            if (gameObject.tag == "Obstacle" && transform.position.z < -bounds)
+            if (gameObject.CompareTag("Obstacle") && transform.position.z < -bounds)
             {
                 _uiManager.Score += 100;
                 Destroy(gameObject);
             }
-            if (gameObject.tag == "Background Tree" && transform.position.z < -bounds)
+            if (gameObject.CompareTag("Background Tree") && transform.position.z < -bounds)
             {
                 Destroy(gameObject);
             }

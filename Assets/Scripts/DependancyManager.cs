@@ -20,7 +20,7 @@ public class DependancyManager : MonoBehaviour
 
         if (uiManager != null)
         {
-            uiManager.SetDependencies(playerController);
+            uiManager.SetDependencies(playerController, spawnManager);
         }
         else
         {
@@ -31,7 +31,7 @@ public class DependancyManager : MonoBehaviour
         // inject dependancies
         if (playerController != null)
         {
-            playerController.SetDependencies(audioManager, uiManager);
+            playerController.SetDependencies(audioManager, uiManager, spawnManager);
         }
         else
         {
@@ -73,11 +73,35 @@ public class DependancyManager : MonoBehaviour
         }
     }
 
-    public void InjectMoveBackwardsDependencies(ObstacleController obstacleController)
+    public void InjectObstacleControllerDependencies(ObstacleController obstacleController)
     {
         if (obstacleController != null)
         {
             obstacleController.SetDependencies(uiManager);
+        }
+    }
+
+    public void InjectWolfControllerDependancyIntoPlayerController(WolfController wolfController)
+    {
+        if (playerController != null)
+        {
+            playerController.SetWolfDependancy(wolfController);
+        }
+    }
+
+    public void InjectSheepControllerDependancyIntoPlayerController(SheepController sheepController)
+    {
+        if (playerController != null)
+        {
+            playerController.SetSheepDependancy(sheepController);
+        }
+    }
+
+    public void InjectSheepControllerDependancyIntoSpawnManager(SheepController sheepController)
+    {
+        if (playerController != null)
+        {
+            spawnManager.SetSheepDependancy(sheepController);
         }
     }
 }

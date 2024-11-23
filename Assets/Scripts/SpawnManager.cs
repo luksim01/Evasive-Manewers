@@ -17,7 +17,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
     // sheep spawning
     public GameObject straySheep;
-    private GameObject[] herd;
+    public GameObject[] Herd { get; set; }
     public int TimeSinceLostSheep { get; set; }
     public Vector3 StraySheepSpawnPosition { get; set; }
     public Vector3 StraySheepTargetPosition { get; set; }
@@ -40,6 +40,9 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     // player
     private IPlayerController _sheepdog;
 
+    // sheep
+    private SheepController _sheepController;
+
     // dependancies
     public void SetDependencies(IAudioManager audioManager, IUIManager uiManager, IPlayerController playerController)
     {
@@ -48,7 +51,12 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         _sheepdog = playerController;
     }
 
-    // game manager
+    public void SetSheepDependancy(SheepController sheepController)
+    {
+        _sheepController = sheepController;
+    }
+
+    // dependancy manager
     [SerializeField] private DependancyManager dependancyManager;
 
     private void Awake()
@@ -59,7 +67,6 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         dependancyManager.InjectSheepControllerDependencies(sheepController);
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         // spawn position array
@@ -81,8 +88,21 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         timeRemaining = _uiManager.TimeRemaining;
 
         // keep track of herd
-        herd = GameObject.FindGameObjectsWithTag("Sheep");
+        Herd = GameObject.FindGameObjectsWithTag("Sheep");
     }
+
+    public bool CheckSheepGrounded()
+    {
+        bool allGrounded = true;
+        foreach (GameObject sheep in Herd)
+        {
+            SheepController sheepController = sheep.GetComponent<SheepController>();
+            dependancyManager.InjectSheepControllerDependancyIntoSpawnManager(sheepController);
+            allGrounded &= _sheepController.IsGrounded;
+        }
+        return allGrounded;
+    }
+
 
     private void InvokeEncounter(float encounterInterval)
     {
@@ -128,12 +148,12 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         if (isGameActive)
         {
             GameObject foregroundTreeNew = Instantiate(backgroundTree, new Vector3(14, 0, 40), backgroundTree.transform.rotation);
-            ObstacleController moveBackwardsForeground = foregroundTreeNew.GetComponent<ObstacleController>();
-            dependancyManager.InjectMoveBackwardsDependencies(moveBackwardsForeground);
+            ObstacleController obstacleControllerForeground = foregroundTreeNew.GetComponent<ObstacleController>();
+            dependancyManager.InjectObstacleControllerDependencies(obstacleControllerForeground);
 
             GameObject backgroundTreeNew = Instantiate(backgroundTree, new Vector3(-9, 0, 40), backgroundTree.transform.rotation);
-            ObstacleController moveBackwardsBackground = backgroundTreeNew.GetComponent<ObstacleController>();
-            dependancyManager.InjectMoveBackwardsDependencies(moveBackwardsBackground);
+            ObstacleController obstacleControllerBackground = backgroundTreeNew.GetComponent<ObstacleController>();
+            dependancyManager.InjectObstacleControllerDependencies(obstacleControllerBackground);
 
             if (timeRemaining > 10)
             {
@@ -215,8 +235,8 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
             Vector3 obstacleSpawnPos = new Vector3(trailLanesPos[obstacleSpawnPosIndex], obstacle.transform.position.y, 40.0f);
 
             GameObject obstacleNew = Instantiate(obstacle, obstacleSpawnPos, obstacle.transform.rotation);
-            ObstacleController moveBackwards = obstacleNew.GetComponent<ObstacleController>();
-            dependancyManager.InjectMoveBackwardsDependencies(moveBackwards);
+            ObstacleController obstacleController = obstacleNew.GetComponent<ObstacleController>();
+            dependancyManager.InjectObstacleControllerDependencies(obstacleController);
 
             InvokeEncounter(8);
         }
@@ -226,7 +246,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     {
         if (isGameActive)
         {
-            if (herd.Length > 0)
+            if (Herd.Length > 0)
             {
                 // choose target for wolf to hunt
                 ChooseTarget();
@@ -237,10 +257,12 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 dependancyManager.InjectWolfControllerDependencies(wolfController);
 
                 // sheep reaction to wolf is reset
-                foreach (GameObject sheep in herd)
+                foreach (GameObject sheep in Herd)
                 {
-                    sheep.GetComponent<SheepController>().hasAvoidedWolf = false;
-                    sheep.GetComponent<SheepController>().hasEnteredWolfSpace = false;
+                    SheepController sheepController = sheep.GetComponent<SheepController>();
+                    dependancyManager.InjectSheepControllerDependancyIntoSpawnManager(sheepController);
+                    _sheepController.HasAvoidedWolf = false;
+                    _sheepController.HasEnteredWolfSpace = false;
                 }
             }
 
@@ -253,7 +275,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         int targetIndex;
         string[] huntTarget = { "player", "sheep" };
 
-        if (herd.Length > 0)
+        if (Herd.Length > 0)
         {
             targetIndex = Random.Range(0, huntTarget.Length);
         }
@@ -281,7 +303,6 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         int wolfOriginIndex = Random.Range(0, wolfOrigin.Length);
 
         // wolf spawn position changes based on hunt target
-        //float sheepDogPosZ = sheepDog.transform.position.z;
         float sheepDogPosZ = _sheepdog.PlayerTransform.position.z;
 
         Vector3 wolfSpawnPos = new();

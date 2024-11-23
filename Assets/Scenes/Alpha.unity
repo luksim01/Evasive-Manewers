@@ -2638,7 +2638,7 @@ GameObject:
   - component: {fileID: 1287461240}
   - component: {fileID: 1287461242}
   m_Layer: 0
-  m_Name: Main Camera
+  m_Name: MainCamera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3128,9 +3128,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isGrounded: 0
   barkEffect: {fileID: 135989356}
-  thrownSpeed: 4
-  heightTrigger: 2.2
+  thrownSpeed: 6
+  heightTrigger: 2
   sheepdogCollisionEffect: {fileID: 2395051611644406233, guid: d5207754cf43c44e4a3a12ee85bf2cb8, type: 3}
+  dependancyManager: {fileID: 825577882}
 --- !u!65 &1415794734
 BoxCollider:
   m_ObjectHideFlags: 0
