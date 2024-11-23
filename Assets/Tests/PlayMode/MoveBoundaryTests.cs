@@ -111,7 +111,7 @@ public class MoveBoundaryTests
         playerController.SetDependencies(mockAudioManager, mockUIManager, mockSpawnManager);
 
         // Act
-        for (int frame = 0; frame < 200; frame++)
+        for (int frame = 0; frame < 600; frame++)
         {
             playerController.Move(new Vector3(x, 0, z), direction, 10f);
             yield return null;
