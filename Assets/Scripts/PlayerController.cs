@@ -176,7 +176,7 @@ public class PlayerController : MonoBehaviour, IPlayerController
         if (barkMoveInput && !HasBarkedMove)
         {
             HasBarkedMove = true;
-            sheepdogHeadAnim.Play("dog head bark move");
+            sheepdogHeadAnim.SetTrigger("isBarkingMove");
             barkEffect.Play();
             _audioManager.HasDetectedBarkMove = true;
             StartCoroutine(BarkMoveCooldown(1.0f));
@@ -188,7 +188,7 @@ public class PlayerController : MonoBehaviour, IPlayerController
         // keep track of herd to check they're grounded to trigger jump
         if (barkJumpInput && !HasBarkedJump && _spawnManager.CheckSheepGrounded())
         {
-            sheepdogHeadAnim.Play("dog head bark jump");
+            sheepdogHeadAnim.SetTrigger("isBarkingJump");
             HasBarkedJump = true;
             barkEffect.Play();
             _audioManager.HasDetectedBarkJump = true;
@@ -208,8 +208,8 @@ public class PlayerController : MonoBehaviour, IPlayerController
     private void Jump(float jumpForce)
     {
         isGrounded = false;
-        sheepdogBodyAnim.Play("dog jump");
-        sheepdogHeadAnim.Play("dog head jump");
+        sheepdogBodyAnim.SetTrigger("isJumping");
+        sheepdogHeadAnim.SetTrigger("isJumping");
         sheepdogRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 

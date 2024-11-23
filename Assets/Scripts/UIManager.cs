@@ -149,3 +149,10 @@ public class UIManager : MonoBehaviour, IUIManager
         SceneManager.LoadScene(1);
     }
 }
+
+public class MockUIManager : IUIManager
+{
+    public bool IsGameActive { get; set; }
+    public int TimeRemaining { get; set; }
+    public int Score { get; set; }
+}
