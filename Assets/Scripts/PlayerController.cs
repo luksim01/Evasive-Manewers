@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour, IPlayerController
 {
+    // self
     public Transform PlayerTransform { get; set; }
     public int Health { get; set; }
 
@@ -30,20 +31,15 @@ public class PlayerController : MonoBehaviour, IPlayerController
     [SerializeField] private bool isGrounded = false;
 
     // bark control
-    //public bool hasBarkedMove = false;
-    //public bool hasBarkedJump = false;
     public bool HasBarkedMove { get; set; }
     public bool HasBarkedJump { get; set; }
 
     // bark particle 
     public ParticleSystem barkEffect;
 
-    // herd
-    private GameObject[] herd;
-
     // collision with top of sheep
-    [SerializeField] private float thrownSpeed = 4.0f;
-    [SerializeField] private float heightTrigger = 2.2f;
+    [SerializeField] private float thrownSpeed = 6.0f;
+    [SerializeField] private float heightTrigger = 2f;
 
     // animation
     private Animator sheepdogBodyAnim;
@@ -59,12 +55,35 @@ public class PlayerController : MonoBehaviour, IPlayerController
     private bool isGameActive;
     private IUIManager _uiManager;
 
+    // spawn manager
+    private ISpawnManager _spawnManager;
+
+    // wolf
+    private WolfController _wolfController;
+
+    // sheep
+    private SheepController _sheepController;
+
     // dependancies
-    public void SetDependencies(IAudioManager audioManager, IUIManager uiManager)
+    public void SetDependencies(IAudioManager audioManager, IUIManager uiManager, ISpawnManager spawnManager)
     {
         _audioManager = audioManager;
         _uiManager = uiManager;
+        _spawnManager = spawnManager;
     }
+
+    public void SetWolfDependancy(WolfController wolfController)
+    {
+        _wolfController = wolfController;
+    }
+
+    public void SetSheepDependancy(SheepController sheepController)
+    {
+        _sheepController = sheepController;
+    }
+
+    // dependancy manager
+    [SerializeField] private DependancyManager dependancyManager;
 
     private void Awake()
     {
@@ -165,9 +184,9 @@ public class PlayerController : MonoBehaviour, IPlayerController
 
         // player bark jump command
         barkJumpInput = Input.GetKeyDown(KeyCode.Tab);
+
         // keep track of herd to check they're grounded to trigger jump
-        herd = GameObject.FindGameObjectsWithTag("Sheep");
-        if (barkJumpInput && !HasBarkedJump && CheckSheepGrounded(herd))
+        if (barkJumpInput && !HasBarkedJump && _spawnManager.CheckSheepGrounded())
         {
             sheepdogHeadAnim.Play("dog head bark jump");
             HasBarkedJump = true;
@@ -208,34 +227,30 @@ public class PlayerController : MonoBehaviour, IPlayerController
         HasBarkedJump = false;
     }
 
-    private bool CheckSheepGrounded(GameObject[] herd)
-    {
-        bool allGrounded = true;
-        foreach (GameObject sheep in herd)
-        {
-            allGrounded &= sheep.GetComponent<SheepController>().isGrounded; // dependency
-        }
-        return allGrounded;
-    }
-
     void PlaySheepdogCollisionEffect()
     {
-        GameObject sheepCollision = Instantiate(sheepdogCollisionEffect, transform.position, transform.rotation);
+        Instantiate(sheepdogCollisionEffect, transform.position, transform.rotation);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         // bitten by wolf
-        if(collision.gameObject.tag == "Wolf" && !collision.gameObject.GetComponent<WolfController>().hasBitten) // dependency
+        if(collision.gameObject.CompareTag("Wolf"))
         {
-            _audioManager.HasDetectedCollision = true;
-            collision.gameObject.GetComponent<WolfController>().hasBitten = true; // dependency
-            PlaySheepdogCollisionEffect();
-            Health -= 1;
+            WolfController wolfController = collision.gameObject.GetComponent<WolfController>();
+            dependancyManager.InjectWolfControllerDependancyIntoPlayerController(wolfController);
+            if (!_wolfController.HasBitten)
+            {
+                _audioManager.HasDetectedCollision = true;
+                _wolfController.HasBitten = true;
+                PlaySheepdogCollisionEffect();
+                Health -= 1;
+            }
+            
         }
 
         // collided with obstacle
-        if (collision.gameObject.tag == "Obstacle" && !collision.gameObject.GetComponent<ObstacleController>().hasHitPlayer) // dependency
+        if (collision.gameObject.CompareTag("Obstacle") && !collision.gameObject.GetComponent<ObstacleController>().hasHitPlayer) // dependency
         {
             _audioManager.HasDetectedCollision = true;
             collision.gameObject.GetComponent<ObstacleController>().hasHitPlayer = true; // dependency
@@ -244,15 +259,20 @@ public class PlayerController : MonoBehaviour, IPlayerController
         }
 
         // is grounded
-        if (collision.gameObject.tag == "Trail Lane")
+        if (collision.gameObject.CompareTag("Trail Lane"))
         {
             isGrounded = true;
         }
 
         // player thrown off by sheep if they land on top of them
-        if (collision.gameObject.tag == "Sheep" && (transform.position.y - collision.gameObject.transform.position.y) > heightTrigger)
+        if (collision.gameObject.CompareTag("Sheep"))
         {
-            sheepdogRb.AddForce(Vector3.up * thrownSpeed, ForceMode.Impulse);
+            SheepController sheepController = collision.gameObject.GetComponent<SheepController>();
+            dependancyManager.InjectSheepControllerDependancyIntoPlayerController(sheepController);
+            if (PlayerTransform.position.y - _sheepController.SheepTransform.position.y > heightTrigger)
+            {
+                sheepdogRb.AddForce(Vector3.up * thrownSpeed, ForceMode.Impulse);
+            }
         }
     }
 }

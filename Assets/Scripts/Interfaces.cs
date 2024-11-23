@@ -21,18 +21,34 @@ public interface IUIManager
 
 public interface ISpawnManager
 {
+    bool CheckSheepGrounded();
+
     bool HasTargetedSheepdog { get; set; }
     bool HasTargetedHerd { get; set; }
 
-    public int TimeSinceLostSheep { get; set; }
-    public Vector3 StraySheepSpawnPosition { get; set; }
-    public Vector3 StraySheepTargetPosition { get; set; }
+    GameObject[] Herd { get; set; }
+    int TimeSinceLostSheep { get; set; }
+    Vector3 StraySheepSpawnPosition { get; set; }
+    Vector3 StraySheepTargetPosition { get; set; }
 }
 
 public interface IPlayerController
 {
-    public Transform PlayerTransform { get; set; }
-    public int Health { get; set; }
-    public bool HasBarkedMove { get; set; }
-    public bool HasBarkedJump { get; set; }
+    Transform PlayerTransform { get; set; }
+    int Health { get; set; }
+    bool HasBarkedMove { get; set; }
+    bool HasBarkedJump { get; set; }
+}
+
+public interface IWolfController
+{
+    bool HasBitten { get; set; }
+}
+
+public interface ISheepController
+{
+    Transform SheepTransform { get; set; }
+    bool IsGrounded { get; set; }
+    bool HasEnteredWolfSpace { get; set; }
+    bool HasAvoidedWolf { get; set; }
 }

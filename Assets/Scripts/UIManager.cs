@@ -23,19 +23,20 @@ public class UIManager : MonoBehaviour, IUIManager
     public int TimeRemaining { get; set; }
     public int Score { get; set; }
 
-    //public bool isGameActive;
-
-    private GameObject[] herd;
     private int herdSize;
 
     // player
     private IPlayerController _sheepdog;
     private int sheepdogHealth;
 
+    // spawn manager
+    private ISpawnManager _spawnManager;
+
     // dependancies
-    public void SetDependencies(IPlayerController playerController)
+    public void SetDependencies(IPlayerController playerController, SpawnManager spawnManager)
     {
         _sheepdog = playerController;
+        _spawnManager = spawnManager;
     }
 
     private void Awake()
@@ -69,10 +70,9 @@ public class UIManager : MonoBehaviour, IUIManager
             {
                 healthText.text = "Health " + new string('■', sheepdogHealth) + new string('□', 5-sheepdogHealth);
             }
-            herd = GameObject.FindGameObjectsWithTag("Sheep");
             GameObject straySheep = GameObject.FindGameObjectWithTag("Stray");
             GameObject huntedSheep = GameObject.FindGameObjectWithTag("Hunted");
-            herdSize = herd.Length + (huntedSheep ? 1 : 0);
+            herdSize = _spawnManager.Herd.Length + (huntedSheep ? 1 : 0);
 
             if (herdSize == 0 && !straySheep)
             {

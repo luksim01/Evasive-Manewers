@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class SheepController : MonoBehaviour
+public class SheepController : MonoBehaviour, ISheepController
 {
+    public Transform SheepTransform { get; set; }
+
     // bark interaction
     private bool isBarkedAt;
     private bool isBarkedJumpAt;
@@ -39,8 +41,7 @@ public class SheepController : MonoBehaviour
     private float heightTrigger = 2.2f;
 
     // staggered jump
-    private GameObject[] herd;
-    public bool isGrounded = false;
+    public bool IsGrounded { get; set; }
     private float jumpDelayModifier = 7.5f;
 
     // player proximity
@@ -52,8 +53,8 @@ public class SheepController : MonoBehaviour
     public bool isHerdSheep;
 
     // wolf 
-    public bool hasEnteredWolfSpace;
-    public bool hasAvoidedWolf;
+    public bool HasEnteredWolfSpace { get; set; }
+    public bool HasAvoidedWolf { get; set; }
 
     private float xDistanceFromBoundary = 1.5f;
 
@@ -106,12 +107,11 @@ public class SheepController : MonoBehaviour
         {
             CheckPlayerActivity();
 
-            // keep track of herd
-            herd = GameObject.FindGameObjectsWithTag("Sheep");
-
             // sheep behaviour based on tag
             DetermineSheepBehaviour();
         }
+
+        SheepTransform = this.transform;
     }
 
     private void CheckPlayerActivity()
@@ -169,7 +169,7 @@ public class SheepController : MonoBehaviour
         // stagger jump of herd
         if (isBarkedJumpAt != pastBarkJumpState && !pastBarkJumpState)
         {
-            float jumpDelay = CalculateDelay(herd);
+            float jumpDelay = CalculateDelay(_spawnManager.Herd);
             StartCoroutine(StaggeredJump(jumpDelay));
         }
 
@@ -178,7 +178,7 @@ public class SheepController : MonoBehaviour
 
 
         // sheep try to keep a small distance from each other
-        foreach (GameObject sheep in herd)
+        foreach (GameObject sheep in _spawnManager.Herd)
         {
             float sheepProximityX = transform.position.x - sheep.transform.position.x;
             float sheepProximityZ = transform.position.z - sheep.transform.position.z;
@@ -199,19 +199,19 @@ public class SheepController : MonoBehaviour
 
             Vector3 wolfProximity = new Vector3(wolfProximityX, 0, 0);
 
-            if (!hasAvoidedWolf && Mathf.Abs(wolfProximityX) < 5.0f && Mathf.Abs(wolfProximityZ) < 7.0f)
+            if (!HasAvoidedWolf && Mathf.Abs(wolfProximityX) < 5.0f && Mathf.Abs(wolfProximityZ) < 7.0f)
             {
-                if (isGrounded)
+                if (IsGrounded)
                 {
                     Jump(jumpDirection, jumpForce);
                 }
                 Avoid(wolfProximity, avoidSpeed);
-                hasEnteredWolfSpace = true;
+                HasEnteredWolfSpace = true;
             }
 
-            if (hasEnteredWolfSpace && Mathf.Abs(wolfProximityZ) > 7.0f)
+            if (HasEnteredWolfSpace && Mathf.Abs(wolfProximityZ) > 7.0f)
             {
-                hasAvoidedWolf = true;
+                HasAvoidedWolf = true;
             }
         }
 
@@ -264,7 +264,7 @@ public class SheepController : MonoBehaviour
         if (transform.position.x < xBoundary + xDistanceFromBoundary && transform.position.x > -xBoundary - xDistanceFromBoundary)
         {
             sheepRb.isKinematic = false;
-            if (isGrounded)
+            if (IsGrounded)
             {
                 Jump(jumpDirection, jumpForce);
             }
@@ -282,7 +282,7 @@ public class SheepController : MonoBehaviour
         MoveAcrossTrail(targetDirection);
 
         // stray sheep avoids herd sheep
-        foreach (GameObject sheep in herd)
+        foreach (GameObject sheep in _spawnManager.Herd)
         {
             float sheepProximityX = transform.position.x - sheep.transform.position.x;
             float sheepProximityZ = transform.position.z - sheep.transform.position.z;
@@ -400,7 +400,7 @@ public class SheepController : MonoBehaviour
         sheepBodyAnim.Play("sheep jump");
         sheepHeadAnim.Play("sheep head jump");
         sheepRb.AddForce(new Vector3(hopDirectionX, hopDirectionY, hopDirectionZ) * force, ForceMode.Impulse);
-        isGrounded = false;
+        IsGrounded = false;
     }
 
     IEnumerator StaggeredJump(float delay)
@@ -409,7 +409,7 @@ public class SheepController : MonoBehaviour
         sheepBodyAnim.Play("sheep jump");
         sheepHeadAnim.Play("sheep head jump");
         sheepRb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
-        isGrounded = false;
+        IsGrounded = false;
     }
 
     void Jump(Vector3 direction, float force)
@@ -417,7 +417,7 @@ public class SheepController : MonoBehaviour
         sheepBodyAnim.Play("sheep jump");
         sheepHeadAnim.Play("sheep head jump");
         sheepRb.AddForce(direction * force, ForceMode.Impulse);
-        isGrounded = false;
+        IsGrounded = false;
     }
 
     void Avoid(Vector3 direction, float speed)
@@ -436,12 +436,12 @@ public class SheepController : MonoBehaviour
 
     void PlaySheepCollisionEffect()
     {
-        GameObject sheepCollision = Instantiate(sheepCollisionEffect, transform.position, transform.rotation);
+        Instantiate(sheepCollisionEffect, transform.position, transform.rotation);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (tag == "Sheep" && collision.gameObject.tag == "Obstacle")
+        if (CompareTag("Sheep") && collision.gameObject.CompareTag("Obstacle"))
         {
             _audioManager.HasDetectedCollision = true;
             _audioManager.HasDetectedLostSheep = true;
@@ -450,21 +450,27 @@ public class SheepController : MonoBehaviour
             Destroy(gameObject);
         }
 
-        if (collision.gameObject.tag == "Trail Lane" || collision.gameObject.tag == "Boundary Lane")
+        if (collision.gameObject.CompareTag("Trail Lane") || collision.gameObject.CompareTag("Boundary Lane"))
         {
-            isGrounded = true;
+            IsGrounded = true;
         }
 
         // hop away if landed on top of another sheep or player
-        if ((collision.gameObject.tag == "Sheep" || collision.gameObject.tag == "Player") && (transform.position.y - collision.gameObject.transform.position.y) > heightTrigger )
+        if ((collision.gameObject.CompareTag("Sheep") || collision.gameObject.CompareTag("Player")))
         {
-            Hop(jumpForce);
+            if ((this.transform.position.y - collision.gameObject.transform.position.y) > heightTrigger)
+            {
+                Hop(jumpForce);
+            }
         }
 
         // hop away if player lands ontop of sheep
-        if (collision.gameObject.tag == "Player" && (collision.gameObject.transform.position.y - transform.position.y) > heightTrigger && isGrounded)
+        if (collision.gameObject.CompareTag("Player"))
         {
-            Hop(throwForce);
+            if ((_sheepdog.PlayerTransform.position.y - this.transform.position.y) > heightTrigger && IsGrounded)
+            {
+                Hop(throwForce);
+            }
         }
     }
 }
