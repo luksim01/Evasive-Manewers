@@ -113,7 +113,7 @@ public class MoveBoundaryTests
         // Act
         for (int frame = 0; frame < 600; frame++)
         {
-            playerController.Move(new Vector3(x, 0, z), direction, 10f);
+            playerController.Move(new Vector3(x, 0, z), direction, 50f);
             yield return null;
         }
 
