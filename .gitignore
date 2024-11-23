@@ -74,3 +74,6 @@ crashlytics-build.properties
 # Ignore temporaries from GameCI
 /[Aa]rtifacts/
 /[Cc]odeCoverage/
+
+# Ignore files created by unity's test framework
+Assets/InitTestScene*

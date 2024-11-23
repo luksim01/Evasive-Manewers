@@ -140,7 +140,7 @@ public class WolfController : MonoBehaviour, IWolfController
                 transform.position.x < 5.4 &&
                 transform.position.x > -5.4)
             {
-                wolfHeadAnim.Play("wolf head bite");
+                wolfHeadAnim.SetTrigger("isBiting");
                 targetSheep.tag = "Sheep";
             }
 
@@ -189,7 +189,7 @@ public class WolfController : MonoBehaviour, IWolfController
         {
             if (Mathf.Abs(sheepDogProximityZ) < 6)
             {
-                wolfHeadAnim.Play("wolf head bite");
+                wolfHeadAnim.SetTrigger("isBiting");
             }
             Track(collisionCourse);
         }

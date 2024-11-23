@@ -397,8 +397,8 @@ public class SheepController : MonoBehaviour, ISheepController
     void Hop(float force)
     {
         hopDirectionX = Random.Range(-0.2f, 0.2f);
-        sheepBodyAnim.Play("sheep jump");
-        sheepHeadAnim.Play("sheep head jump");
+        sheepBodyAnim.SetTrigger("isJumping");
+        sheepHeadAnim.SetTrigger("isJumping");
         sheepRb.AddForce(new Vector3(hopDirectionX, hopDirectionY, hopDirectionZ) * force, ForceMode.Impulse);
         IsGrounded = false;
     }
@@ -406,16 +406,16 @@ public class SheepController : MonoBehaviour, ISheepController
     IEnumerator StaggeredJump(float delay)
     {
         yield return new WaitForSeconds(delay);
-        sheepBodyAnim.Play("sheep jump");
-        sheepHeadAnim.Play("sheep head jump");
+        sheepBodyAnim.SetTrigger("isJumping");
+        sheepHeadAnim.SetTrigger("isJumping");
         sheepRb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
         IsGrounded = false;
     }
 
     void Jump(Vector3 direction, float force)
     {
-        sheepBodyAnim.Play("sheep jump");
-        sheepHeadAnim.Play("sheep head jump");
+        sheepBodyAnim.SetTrigger("isJumping");
+        sheepHeadAnim.SetTrigger("isJumping");
         sheepRb.AddForce(direction * force, ForceMode.Impulse);
         IsGrounded = false;
     }

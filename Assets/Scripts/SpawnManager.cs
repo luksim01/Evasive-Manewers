@@ -61,10 +61,20 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
     private void Awake()
     {
-        GameObject initialStraySheep = Instantiate(straySheep, new Vector3(0, 0, 8), straySheep.transform.rotation);
-        initialStraySheep.tag = "Sheep";
-        SheepController sheepController = initialStraySheep.GetComponent<SheepController>();
-        dependancyManager.InjectSheepControllerDependencies(sheepController);
+        GameObject initialSheep1 = Instantiate(straySheep, new Vector3(0, 0, 8), straySheep.transform.rotation);
+        initialSheep1.tag = "Sheep";
+        SheepController sheepController1 = initialSheep1.GetComponent<SheepController>();
+        dependancyManager.InjectSheepControllerDependencies(sheepController1);
+
+        GameObject initialSheep2 = Instantiate(straySheep, new Vector3(-3, 0, 4), straySheep.transform.rotation);
+        initialSheep2.tag = "Sheep";
+        SheepController sheepController2 = initialSheep2.GetComponent<SheepController>();
+        dependancyManager.InjectSheepControllerDependencies(sheepController2);
+
+        GameObject initialSheep3 = Instantiate(straySheep, new Vector3(3, 0, 4), straySheep.transform.rotation);
+        initialSheep3.tag = "Sheep";
+        SheepController sheepController3 = initialSheep3.GetComponent<SheepController>();
+        dependancyManager.InjectSheepControllerDependencies(sheepController3);
     }
 
     void Start()
@@ -330,5 +340,20 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
             }
         }
         return wolfSpawnPos;
+    }
+}
+
+public class MockSpawnManager : ISpawnManager
+{
+    public bool HasTargetedSheepdog { get; set; }
+    public bool HasTargetedHerd { get; set; }
+    public GameObject[] Herd { get; set; }
+    public int TimeSinceLostSheep { get; set; }
+    public Vector3 StraySheepSpawnPosition { get; set; }
+    public Vector3 StraySheepTargetPosition { get; set; }
+
+    public bool CheckSheepGrounded()
+    {
+        return Herd != null && Herd.Length > 0;
     }
 }

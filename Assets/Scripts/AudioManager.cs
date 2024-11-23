@@ -107,3 +107,19 @@ public class AudioManager : MonoBehaviour, IAudioManager
         audioManager.PlayOneShot(clip, 1.0f);
     }
 }
+
+public class MockAudioManager : IAudioManager
+{
+    public bool HasDetectedBarkMove { get; set; }
+    public bool HasDetectedBarkJump { get; set; }
+    public bool HasDetectedCollision { get; set; }
+    public bool HasDetectedLostSheep { get; set; }
+    public bool HasDetectedWarnSingle { get; set; }
+    public bool HasDetectedWarnAll { get; set; }
+
+    public void PlaySound(AudioClip clip)
+    {
+        // Mock sound-playing logic. This can simply log the action for testing purposes.
+        Debug.Log($"MockAudioManager: Playing sound {clip?.name}");
+    }
+}
