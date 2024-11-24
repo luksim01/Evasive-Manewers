@@ -65,16 +65,19 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         initialSheep1.tag = "Sheep";
         SheepController sheepController1 = initialSheep1.GetComponent<SheepController>();
         dependancyManager.InjectSheepControllerDependencies(sheepController1);
+        sheepController1.IsSlowingDown = true;
 
         GameObject initialSheep2 = Instantiate(straySheep, new Vector3(-3, 0, 4), straySheep.transform.rotation);
         initialSheep2.tag = "Sheep";
         SheepController sheepController2 = initialSheep2.GetComponent<SheepController>();
         dependancyManager.InjectSheepControllerDependencies(sheepController2);
+        sheepController2.IsSlowingDown = true;
 
         GameObject initialSheep3 = Instantiate(straySheep, new Vector3(3, 0, 4), straySheep.transform.rotation);
         initialSheep3.tag = "Sheep";
         SheepController sheepController3 = initialSheep3.GetComponent<SheepController>();
         dependancyManager.InjectSheepControllerDependencies(sheepController3);
+        sheepController3.IsSlowingDown = true;
     }
 
     void Start()
@@ -205,6 +208,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                     StraySheepTargetPosition = new Vector3(11, 1, straySheepTargetPositionZ);
                     GameObject straySheepNew = Instantiate(straySheep, StraySheepSpawnPosition, straySheep.transform.rotation);
                     SheepController sheepController = straySheepNew.GetComponent<SheepController>();
+                    sheepController.IsSlowingDown = true;
                     dependancyManager.InjectSheepControllerDependencies(sheepController);
                 }
                 else if (spawnSide[sideIndex] == "right")
@@ -213,6 +217,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                     StraySheepTargetPosition = new Vector3(-11, 1, straySheepTargetPositionZ);
                     GameObject straySheepNew = Instantiate(straySheep, StraySheepSpawnPosition, straySheep.transform.rotation);
                     SheepController sheepController = straySheepNew.GetComponent<SheepController>();
+                    sheepController.IsSlowingDown = true;
                     dependancyManager.InjectSheepControllerDependencies(sheepController);
                 }
             }

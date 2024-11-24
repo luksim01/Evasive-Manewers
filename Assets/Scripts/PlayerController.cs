@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour, IPlayerController
@@ -235,7 +234,7 @@ public class PlayerController : MonoBehaviour, IPlayerController
     private void OnCollisionEnter(Collision collision)
     {
         // bitten by wolf
-        if(collision.gameObject.CompareTag("Wolf"))
+        if(collision.gameObject.CompareTag("WolfHuntingDog") || collision.gameObject.CompareTag("WolfHuntingSheep"))
         {
             WolfController wolfController = collision.gameObject.GetComponent<WolfController>();
             dependancyManager.InjectWolfControllerDependancyIntoPlayerController(wolfController);

@@ -1,19 +1,16 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 
-public class SheepController : MonoBehaviour, ISheepController
+public class SheepController : BaseController, ISheepController
 {
     public Transform SheepTransform { get; set; }
+    public bool IsSlowingDown { get; set; }
 
     // bark interaction
     private bool isBarkedAt;
     private bool isBarkedJumpAt;
     private bool pastBarkJumpState;
     private Rigidbody sheepRb;
-
-    public bool isSlowingDown = true;
 
     // interaction boundaries
     private float xBoundary = 7.3f;
@@ -31,7 +28,6 @@ public class SheepController : MonoBehaviour, ISheepController
     private float sheepSlowdownSpeed = 0.5f;
     private float boundaryAvoidSpeed = 0.3f;
     private int avoidSpeed = 2;
-
     private float heightBoundary = 2.0f;
 
     private float hopDirectionX;
@@ -79,7 +75,7 @@ public class SheepController : MonoBehaviour, ISheepController
     private IPlayerController _sheepdog;
 
     // dependancies
-    public void SetDependencies(IAudioManager audioManager, IUIManager uiManager, ISpawnManager spawnManager, IPlayerController playerController)
+    public override void SetDependencies(IAudioManager audioManager, IUIManager uiManager, ISpawnManager spawnManager, IPlayerController playerController)
     {
         _audioManager = audioManager;
         _uiManager = uiManager;
@@ -146,15 +142,16 @@ public class SheepController : MonoBehaviour, ISheepController
 
     void HerdSheepBehaviour()
     {
-        // keep track of wolf
-        GameObject wolf = GameObject.FindGameObjectWithTag("Wolf");
-        
+        // keep track of wolves
+        GameObject[] wolvesHuntingDog = GameObject.FindGameObjectsWithTag("WolfHuntingDog");
+        GameObject[] wolvesHuntingSheep = GameObject.FindGameObjectsWithTag("WolfHuntingSheep");
+
         // avoid player
         if (Mathf.Abs(sheepDogProximityX) < 2.5f && Mathf.Abs(sheepDogProximityZ) < 7.0f)
         {
             Avoid(sheepDogProximity, avoidSpeed);
         }
-        else if (isSlowingDown)
+        else if (IsSlowingDown)
         {
             // sheep gradually falls behind
             transform.Translate(Vector3.back * sheepSlowdownSpeed * Time.deltaTime);
@@ -192,28 +189,8 @@ public class SheepController : MonoBehaviour, ISheepController
         }
 
         // sheep act frantic when there's a nearby wolf
-        if (wolf)
-        {
-            float wolfProximityX = transform.position.x - wolf.transform.position.x;
-            float wolfProximityZ = transform.position.z - wolf.transform.position.z;
-
-            Vector3 wolfProximity = new Vector3(wolfProximityX, 0, 0);
-
-            if (!HasAvoidedWolf && Mathf.Abs(wolfProximityX) < 5.0f && Mathf.Abs(wolfProximityZ) < 7.0f)
-            {
-                if (IsGrounded)
-                {
-                    Jump(jumpDirection, jumpForce);
-                }
-                Avoid(wolfProximity, avoidSpeed);
-                HasEnteredWolfSpace = true;
-            }
-
-            if (HasEnteredWolfSpace && Mathf.Abs(wolfProximityZ) > 7.0f)
-            {
-                HasAvoidedWolf = true;
-            }
-        }
+        HerdFleeWolf(wolvesHuntingDog);
+        HerdFleeWolf(wolvesHuntingSheep);
 
         MovementBoundaries();
 
@@ -223,6 +200,35 @@ public class SheepController : MonoBehaviour, ISheepController
             _audioManager.HasDetectedLostSheep = true;
             _spawnManager.TimeSinceLostSheep = 0;
             Destroy(gameObject);
+        }
+    }
+
+    void HerdFleeWolf(GameObject[] wolves)
+    {
+        foreach (GameObject wolf in wolves)
+        {
+            if (wolf)
+            {
+                float wolfProximityX = transform.position.x - wolf.transform.position.x;
+                float wolfProximityZ = transform.position.z - wolf.transform.position.z;
+
+                Vector3 wolfProximity = new Vector3(wolfProximityX, 0, 0);
+
+                if (!HasAvoidedWolf && Mathf.Abs(wolfProximityX) < 5.0f && Mathf.Abs(wolfProximityZ) < 7.0f)
+                {
+                    if (IsGrounded)
+                    {
+                        Jump(jumpDirection, jumpForce);
+                    }
+                    Avoid(wolfProximity, avoidSpeed);
+                    HasEnteredWolfSpace = true;
+                }
+
+                if (HasEnteredWolfSpace && Mathf.Abs(wolfProximityZ) > 7.0f)
+                {
+                    HasAvoidedWolf = true;
+                }
+            }
         }
     }
 
@@ -312,7 +318,7 @@ public class SheepController : MonoBehaviour, ISheepController
         }
 
         // stray sheep is gone once beyond the forest boundary
-        if (Mathf.Abs(targetPosition.x - transform.position.x) <= 0.2)
+        if (transform.position.x < -12f || transform.position.x > 12f)
         {
             Destroy(gameObject);
         }
@@ -337,26 +343,33 @@ public class SheepController : MonoBehaviour, ISheepController
             sheepRb.isKinematic = true;
         }
 
-        // keep track of wolf
-        GameObject wolf = GameObject.FindGameObjectWithTag("Wolf");
+        // keep track of wolves
+        GameObject[] wolvesHuntingSheep = GameObject.FindGameObjectsWithTag("WolfHuntingSheep");
+        StrayFleeWolf(wolvesHuntingSheep);
+    }
 
-        if (wolf)
+    void StrayFleeWolf(GameObject[] wolves)
+    {
+        foreach (GameObject wolf in wolves)
         {
-            float wolfProximityX = transform.position.x - wolf.transform.position.x;
-            float wolfProximityZ = transform.position.z - wolf.transform.position.z;
-
-            Vector3 wolfProximity = new Vector3(wolfProximityX, 0, wolfProximityZ);
-
-            // flee wolf
-            if (Mathf.Abs(wolfProximityX) < 4.5f && Mathf.Abs(wolfProximityZ) < 9.0f)
+            if (wolf)
             {
-                Avoid(wolfProximity, avoidSpeed*2);
+                float wolfProximityX = transform.position.x - wolf.transform.position.x;
+                float wolfProximityZ = transform.position.z - wolf.transform.position.z;
+
+                Vector3 wolfProximity = new Vector3(wolfProximityX, 0, wolfProximityZ);
+
+                // flee wolf
+                if (Mathf.Abs(wolfProximityX) < 4.5f && Mathf.Abs(wolfProximityZ) < 9.0f)
+                {
+                    Avoid(wolfProximity, avoidSpeed * 2);
+                }
             }
-        }
-        else
-        {
-            DestroyBoundaries(12, -13, 30, -30);
-        }
+            else
+            {
+                DestroyBoundaries(12, -13, 30, -30);
+            }
+        }        
     }
 
     void DestroyBoundaries(float xBoundRight, float xBoundLeft, float zBoundForward, float zBoundBack)

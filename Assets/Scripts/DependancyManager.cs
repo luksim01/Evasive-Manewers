@@ -69,7 +69,7 @@ public class DependancyManager : MonoBehaviour
     {
         if (wolfController != null)
         {
-            wolfController.SetDependencies(uiManager, spawnManager, playerController);
+            wolfController.SetDependencies(audioManager, uiManager, spawnManager, playerController);
         }
     }
 

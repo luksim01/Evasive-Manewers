@@ -51,4 +51,5 @@ public interface ISheepController
     bool IsGrounded { get; set; }
     bool HasEnteredWolfSpace { get; set; }
     bool HasAvoidedWolf { get; set; }
+    bool IsSlowingDown { get; set; }
 }

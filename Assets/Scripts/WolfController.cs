@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class WolfController : MonoBehaviour, IWolfController
+public class WolfController : BaseController, IWolfController
 {
     // wolf 
     private float wolfStartPosX;
@@ -29,7 +27,7 @@ public class WolfController : MonoBehaviour, IWolfController
     // player
     private IPlayerController _sheepdog;
 
-    public void SetDependencies(IUIManager uiManager, ISpawnManager spawnManager, IPlayerController playerController)
+    public override void SetDependencies(IAudioManager audioManager, IUIManager uiManager, ISpawnManager spawnManager, IPlayerController playerController)
     {
         _uiManager = uiManager;
         _spawnManager = spawnManager;
@@ -42,10 +40,7 @@ public class WolfController : MonoBehaviour, IWolfController
     void Start()
     {
         wolfStartPosX = transform.position.x;
-
-        hasTargetedSheepdog = _spawnManager.HasTargetedSheepdog;
-        hasTargetedHerd = _spawnManager.HasTargetedHerd;
-
+        DetermineTarget();
         wolfHeadAnim = this.transform.Find("wolf_head").GetComponent<Animator>();
     }
 
@@ -56,14 +51,34 @@ public class WolfController : MonoBehaviour, IWolfController
 
         if (isGameActive)
         {
-            if (hasTargetedSheepdog)
-            {
+            DetermineWolfBehaviour();
+        }
+    }
+
+    private void DetermineTarget()
+    {
+        if (_spawnManager.HasTargetedSheepdog)
+        {
+            this.tag = "WolfHuntingDog";
+        }
+        if (_spawnManager.HasTargetedHerd)
+        {
+            this.tag = "WolfHuntingSheep";
+        }
+    }
+
+    private void DetermineWolfBehaviour()
+    {
+        switch (tag)
+        {
+            case "WolfHuntingDog":
                 HuntPlayer();
-            }
-            else if (hasTargetedHerd)
-            {
+                break;
+            case "WolfHuntingSheep":
                 HuntSheep();
-            }
+                break;
+            default:
+                break;
         }
     }
 
