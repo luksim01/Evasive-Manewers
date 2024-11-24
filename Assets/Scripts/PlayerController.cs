@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 
@@ -6,6 +7,8 @@ public class PlayerController : MonoBehaviour, IPlayerController
     // self
     public Transform PlayerTransform { get; set; }
     public int Health { get; set; }
+    public float BarkInteractionRadius { get; set; }
+    [SerializeField] private GameObject barkInteractionIndicator;
 
     // inputs
     private float horizontalInput;
@@ -93,6 +96,9 @@ public class PlayerController : MonoBehaviour, IPlayerController
     // Start is called before the first frame update
     void Start()
     {
+        BarkInteractionRadius = 3f;
+        barkInteractionIndicator = CreateBarkInteractionIndicator();
+
         sheepdogRb = GetComponent<Rigidbody>();
 
         sheepdogBodyAnim = this.transform.Find("sheepdog_body").GetComponent<Animator>();
@@ -113,9 +119,79 @@ public class PlayerController : MonoBehaviour, IPlayerController
             CheckBarkCommand();
 
             CheckPlayerDeath();
+
+            ManageInteractorVision();
         }
 
         PlayerTransform = transform;
+    }
+
+    private void ManageInteractorVision()
+    {
+        CastRadius(barkInteractionIndicator);
+    }
+
+    public GameObject CreateBarkInteractionIndicator()
+    {
+        GameObject barkInteractionIndicator = new GameObject();
+        GameObject barkInteractionIndicatorPrefab = Resources.Load<GameObject>("Prefabs/TDD/InteractiveRadius");
+        if (barkInteractionIndicatorPrefab == null)
+        {
+            Debug.LogError("barkInteractionIndicatorPrefab couldn't be located and assigned");
+        }
+        else
+        {
+            barkInteractionIndicator = Object.Instantiate(barkInteractionIndicatorPrefab, barkInteractionIndicatorPrefab.transform.position, barkInteractionIndicatorPrefab.transform.rotation);
+            barkInteractionIndicator.name = "InteractionIndicator";
+        }
+
+        return barkInteractionIndicator;
+    }
+
+    public void CastRadius(GameObject barkInteractionIndicator)
+    {
+        barkInteractionIndicator.transform.position = new Vector3(this.transform.position.x, barkInteractionIndicator.transform.position.y, this.transform.position.z);
+
+        int excludeLayer = LayerMask.NameToLayer("Ignore Raycast");
+        int mask = ~(1 << excludeLayer);
+
+        Collider[] colliderList = Physics.OverlapSphere(transform.position, BarkInteractionRadius, mask);
+
+        foreach (Collider collider in colliderList)
+        {
+            BaseController interactiveCharacterController = collider.GetComponent<BaseController>();
+            GameObject interactiveCharacter = collider.gameObject;
+
+            List<GameObject> interactiveCharacterChildrenList = GetInteractiveCharacterChildrenList(interactiveCharacter);
+
+            foreach (GameObject interactiveCharacterChild in interactiveCharacterChildrenList)
+            {
+                Debug.Log($"({interactiveCharacter.name}): {interactiveCharacterChild.name}");
+            }
+
+            if (Input.GetKeyDown(KeyCode.I)) // placeholder
+            {
+                interactiveCharacterController.Interact();
+            }
+        }
+    }
+
+    List<GameObject> GetInteractiveCharacterChildrenList(GameObject interactiveCharacter)
+    {
+        List<GameObject> childrenList = new List<GameObject>();
+
+        foreach (Transform child in interactiveCharacter.transform)
+        {
+            Renderer renderer = child.GetComponent<Renderer>();
+            if (renderer != null && renderer.material != null)
+            {
+                childrenList.Add(child.gameObject);
+            }
+
+            childrenList.AddRange(GetInteractiveCharacterChildrenList(child.gameObject));
+        }
+
+        return childrenList;
     }
 
     private void MovementControl(float forwardSpeed, float backwardSpeed, float sidewardSpeed, float jumpForce, float jumpMovementSpeed)

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5267613620612214326}
   - component: {fileID: 4016362695588129006}
   - component: {fileID: 2024072894131302584}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Dog Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}

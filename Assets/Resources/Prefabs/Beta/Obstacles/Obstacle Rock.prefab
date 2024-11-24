@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5173155191533276113}
   - component: {fileID: 6398021503213948614}
   - component: {fileID: 2797199550028132515}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: rock_obstacle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 4721368438712054260}
   - component: {fileID: 7702965175240278523}
   - component: {fileID: 2833619623328496775}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Obstacle Rock
   m_TagString: Obstacle
   m_Icon: {fileID: 0}
@@ -180,8 +180,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb3baca978a3e4e0ab1d3cdac2b7d70b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
-  bounds: 35
   hasHitPlayer: 0
 --- !u!1001 &2538425126494318699
 PrefabInstance:
@@ -234,6 +232,10 @@ PrefabInstance:
     - target: {fileID: 4243515351513807571, guid: a73dadac35308433d9de08e0c1b48ef7, type: 3}
       propertyPath: m_Name
       value: rock_obstacle
+      objectReference: {fileID: 0}
+    - target: {fileID: 4243515351513807571, guid: a73dadac35308433d9de08e0c1b48ef7, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4243515351513807571, guid: a73dadac35308433d9de08e0c1b48ef7, type: 3}
       propertyPath: m_TagString

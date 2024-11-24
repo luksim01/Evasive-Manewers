@@ -55,6 +55,11 @@ public class WolfController : BaseController, IWolfController
         }
     }
 
+    public override void Interact()
+    {
+
+    }
+
     private void DetermineTarget()
     {
         if (_spawnManager.HasTargetedSheepdog)

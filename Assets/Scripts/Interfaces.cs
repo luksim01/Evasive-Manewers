@@ -38,6 +38,8 @@ public interface IPlayerController
     int Health { get; set; }
     bool HasBarkedMove { get; set; }
     bool HasBarkedJump { get; set; }
+
+    float BarkInteractionRadius { get; set; }
 }
 
 public interface IWolfController
@@ -52,4 +54,9 @@ public interface ISheepController
     bool HasEnteredWolfSpace { get; set; }
     bool HasAvoidedWolf { get; set; }
     bool IsSlowingDown { get; set; }
+}
+
+public interface IInteractiveCharacter
+{
+    void Interact();
 }

@@ -125,6 +125,9 @@ public class BarkInteractivityTests
         PlayerController playerController = sheepdog.GetComponent<PlayerController>();
         playerController.SetDependencies(mockAudioManager, mockUIManager, mockSpawnManager);
 
+        GameObject barkInteractionIndicator = playerController.CreateBarkInteractionIndicator();
+        tearDownList.Add(barkInteractionIndicator);
+
         // test sheep
         GameObject sheepPrefab = Resources.Load<GameObject>("Prefabs/Final/Sheep");
         if (sheepPrefab == null)
@@ -140,7 +143,6 @@ public class BarkInteractivityTests
         testSheepController.SetDependencies(mockAudioManager, mockUIManager, mockSpawnManager, playerController);
 
         mockSpawnManager.Herd = GameObject.FindGameObjectsWithTag("Sheep");
-
 
         // character
         GameObject characterPrefab = Resources.Load<GameObject>("Prefabs/Final/" + characterName);
@@ -160,7 +162,7 @@ public class BarkInteractivityTests
         // Act
         for (int frame = 0; frame < 230; frame++)
         {
-            //playerController.BarkInteract();
+            playerController.CastRadius(barkInteractionIndicator);
             yield return null;
         }
 
@@ -168,6 +170,7 @@ public class BarkInteractivityTests
 
         // Assert
         Assert.That(characterObject.tag, Is.EqualTo(expectedCharacterTag));
+        Assert.That(false);
     }
 
     [TearDown]

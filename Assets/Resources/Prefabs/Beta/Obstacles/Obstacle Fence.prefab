@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1075736577346914870}
   - component: {fileID: 2961341973201720634}
   - component: {fileID: 6011280318095643192}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 4180289400566287296}
   - component: {fileID: 5763566243471063041}
   - component: {fileID: 1575594226739146857}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cylinder.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,7 +178,7 @@ GameObject:
   - component: {fileID: 2859810060090958387}
   - component: {fileID: 5800848469569362050}
   - component: {fileID: 5740712200558487144}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Obstacle Fence
   m_TagString: Obstacle
   m_Icon: {fileID: 0}
@@ -261,8 +261,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb3baca978a3e4e0ab1d3cdac2b7d70b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
-  bounds: 35
   hasHitPlayer: 0
 --- !u!1 &5364451421702360340
 GameObject:
@@ -275,7 +273,7 @@ GameObject:
   - component: {fileID: 7847986017438320772}
   - component: {fileID: 823936224895306229}
   - component: {fileID: 3716562835955186731}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cylinder.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -358,7 +356,7 @@ GameObject:
   - component: {fileID: 2429301087564317200}
   - component: {fileID: 4563332640410048401}
   - component: {fileID: 5392635253167590200}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cylinder.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -441,7 +439,7 @@ GameObject:
   - component: {fileID: 8373003902319506266}
   - component: {fileID: 769520634563385384}
   - component: {fileID: 5025860856274105948}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cylinder.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -524,7 +522,7 @@ GameObject:
   - component: {fileID: 3985705245377667501}
   - component: {fileID: 3225866939472191574}
   - component: {fileID: 7783096052192960635}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cylinder.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -605,7 +603,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3297895645781322928}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: fence_obstacle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -645,7 +643,7 @@ GameObject:
   - component: {fileID: 120167360258204901}
   - component: {fileID: 6241631945943397549}
   - component: {fileID: 4183629480020908336}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cylinder.007
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -725,9 +723,29 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6154040043717978524}
     m_Modifications:
+    - target: {fileID: 756922258190841700, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1925000273738161778, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2226034218922357627, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3714266323769892126, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 3817190461136372789, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
       propertyPath: m_Name
       value: fence_obstacle
+      objectReference: {fileID: 0}
+    - target: {fileID: 3817190461136372789, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3817190461136372789, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
       propertyPath: m_TagString
@@ -772,6 +790,18 @@ PrefabInstance:
     - target: {fileID: 4589926874955341455, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4649725578403896946, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5629295588945844311, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7086729189351329858, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

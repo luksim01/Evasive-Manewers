@@ -110,6 +110,11 @@ public class SheepController : BaseController, ISheepController
         SheepTransform = this.transform;
     }
 
+    public override void Interact()
+    {
+
+    }
+
     private void CheckPlayerActivity()
     {
         // keep track of barks
