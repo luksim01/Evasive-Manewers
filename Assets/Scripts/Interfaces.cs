@@ -58,5 +58,5 @@ public interface ISheepController
 
 public interface IInteractiveCharacter
 {
-    void Interact();
+    bool Interact();
 }

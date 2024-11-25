@@ -110,9 +110,13 @@ public class SheepController : BaseController, ISheepController
         SheepTransform = this.transform;
     }
 
-    public override void Interact()
+    public override bool Interact()
     {
-
+        if (this.CompareTag("Stray") || this.CompareTag("Sheep"))
+        {
+            return true;
+        }
+        return false;
     }
 
     private void CheckPlayerActivity()

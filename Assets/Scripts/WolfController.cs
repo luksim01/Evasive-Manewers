@@ -55,9 +55,13 @@ public class WolfController : BaseController, IWolfController
         }
     }
 
-    public override void Interact()
+    public override bool Interact()
     {
-
+        if (this.CompareTag("WolfHuntingSheep"))
+        {
+            return true;
+        }
+        return false;
     }
 
     private void DetermineTarget()

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3111195360747955431}
   - component: {fileID: 937386913144519325}
   - component: {fileID: 1551172803337998265}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: BarkEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}

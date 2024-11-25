@@ -96,21 +96,21 @@ public class BarkInteractivityTests
 
 
     [UnityTest]
-    [TestCase("Sheep", "Sheep", 4f, "Sheep", ExpectedResult = null)]
-    [TestCase("Wolf", "WolfHuntingSheep", 4f, "WolfHuntingSheep", ExpectedResult = null)]
-    [TestCase("Sheep", "Stray", 4f, "Sheep", ExpectedResult = null)]
-    [TestCase("Sheep", "Hunted", 4f, "Hunted", ExpectedResult = null)]
-    [TestCase("Wolf", "WolfHuntingDog", 4f, "WolfHuntingDog", ExpectedResult = null)]
-    public IEnumerator PlayerControllerBarkInteractivityRingTest(string characterName, string characterTag, float expectedZ, string expectedCharacterTag)
+    [TestCase("Sheep", "Sheep", 4f, "Sheep", true, ExpectedResult = null)]
+    [TestCase("Wolf", "WolfHuntingSheep", 4f, "WolfHuntingSheep", true, ExpectedResult = null)]
+    [TestCase("Sheep", "Stray", 4f, "Sheep", true, ExpectedResult = null)]
+    [TestCase("Sheep", "Hunted", 4f, "Hunted", false, ExpectedResult = null)]
+    [TestCase("Wolf", "WolfHuntingDog", 4f, "WolfHuntingDog", false, ExpectedResult = null)]
+    public IEnumerator PlayerControllerBarkInteractivityRingTest(string characterName, string characterTag, float expectedZ, string expectedCharacterTag, bool expectedInteractivityStatus)
     {
         // Arrange
+        Vector3 characterSpawnPosition = new Vector3(4f, 0, -8);
+
         // mock up of dependancies
         MockAudioManager mockAudioManager = new MockAudioManager();
         MockUIManager mockUIManager = new MockUIManager();
         mockUIManager.IsGameActive = true;
         MockSpawnManager mockSpawnManager = new MockSpawnManager();
-        mockSpawnManager.StraySheepSpawnPosition = new Vector3(0, 0, 5);
-        mockSpawnManager.StraySheepTargetPosition = new Vector3(0, 0, -5);
 
         // dog
         GameObject sheepdogPrefab = Resources.Load<GameObject>("Prefabs/Final/Sheepdog");
@@ -123,6 +123,10 @@ public class BarkInteractivityTests
         sheepdog.name = "Sheepdog";
         tearDownList.Add(sheepdog);
         PlayerController playerController = sheepdog.GetComponent<PlayerController>();
+
+        mockSpawnManager.StraySheepSpawnPosition = characterSpawnPosition;
+        mockSpawnManager.StraySheepTargetPosition = sheepdog.transform.position;
+
         playerController.SetDependencies(mockAudioManager, mockUIManager, mockSpawnManager);
 
         GameObject barkInteractionIndicator = playerController.CreateBarkInteractionIndicator();
@@ -135,10 +139,12 @@ public class BarkInteractivityTests
             Assert.Fail("sheepPrefab couldn't be located and assigned");
         }
 
-        GameObject testSheep = Object.Instantiate(sheepPrefab, new Vector3(3.1f, 0, -8), sheepPrefab.transform.rotation);
+        GameObject testSheep = Object.Instantiate(sheepPrefab, new Vector3(characterSpawnPosition.x, 5, characterSpawnPosition.z), sheepPrefab.transform.rotation);
         testSheep.name = "TestSheep";
         testSheep.tag = "Sheep";
         tearDownList.Add(testSheep);
+        Rigidbody testSheepRigidbody = testSheep.GetComponent<Rigidbody>();
+        testSheepRigidbody.isKinematic = true;
         SheepController testSheepController = testSheep.GetComponent<SheepController>();
         testSheepController.SetDependencies(mockAudioManager, mockUIManager, mockSpawnManager, playerController);
 
@@ -151,7 +157,7 @@ public class BarkInteractivityTests
             Assert.Fail($"characterPrefab ({characterName}) couldn't be located and assigned");
         }
 
-        GameObject characterObject = Object.Instantiate(characterPrefab, new Vector3(0, 0, 5), characterPrefab.transform.rotation);
+        GameObject characterObject = Object.Instantiate(characterPrefab, characterSpawnPosition, characterPrefab.transform.rotation);
         characterObject.name = characterName;
         characterObject.tag = characterTag;
         tearDownList.Add(characterObject);
@@ -159,18 +165,19 @@ public class BarkInteractivityTests
         BaseController characterController = characterObject.GetComponent<BaseController>();
         characterController.SetDependencies(mockAudioManager, mockUIManager, mockSpawnManager, playerController);
 
+        bool isInteractive = false;
+
         // Act
-        for (int frame = 0; frame < 230; frame++)
+        for (int frame = 0; frame < 250; frame++)
         {
-            playerController.CastRadius(barkInteractionIndicator);
+            isInteractive = playerController.CastRadius(barkInteractionIndicator);
+            
             yield return null;
         }
 
-        //Debug.Log($"(PlayerControllerBarkInteractivityRingTest) sheepdog position at end of test: x = {sheepdog.transform.position.x}, z = {sheepdog.transform.position.z}");
-
         // Assert
         Assert.That(characterObject.tag, Is.EqualTo(expectedCharacterTag));
-        Assert.That(false);
+        Assert.That(isInteractive, Is.EqualTo(expectedInteractivityStatus));
     }
 
     [TearDown]

@@ -96,7 +96,7 @@ public class PlayerController : MonoBehaviour, IPlayerController
     // Start is called before the first frame update
     void Start()
     {
-        BarkInteractionRadius = 3f;
+        BarkInteractionRadius = 5f;
         barkInteractionIndicator = CreateBarkInteractionIndicator();
 
         sheepdogRb = GetComponent<Rigidbody>();
@@ -128,7 +128,7 @@ public class PlayerController : MonoBehaviour, IPlayerController
 
     private void ManageInteractorVision()
     {
-        CastRadius(barkInteractionIndicator);
+        bool isInteractive = CastRadius(barkInteractionIndicator);
     }
 
     public GameObject CreateBarkInteractionIndicator()
@@ -148,8 +148,9 @@ public class PlayerController : MonoBehaviour, IPlayerController
         return barkInteractionIndicator;
     }
 
-    public void CastRadius(GameObject barkInteractionIndicator)
+    public bool CastRadius(GameObject barkInteractionIndicator)
     {
+        bool isInteractive = false;
         barkInteractionIndicator.transform.position = new Vector3(this.transform.position.x, barkInteractionIndicator.transform.position.y, this.transform.position.z);
 
         int excludeLayer = LayerMask.NameToLayer("Ignore Raycast");
@@ -169,11 +170,10 @@ public class PlayerController : MonoBehaviour, IPlayerController
                 Debug.Log($"({interactiveCharacter.name}): {interactiveCharacterChild.name}");
             }
 
-            if (Input.GetKeyDown(KeyCode.I)) // placeholder
-            {
-                interactiveCharacterController.Interact();
-            }
+            isInteractive = interactiveCharacterController.Interact();
         }
+
+        return isInteractive;
     }
 
     List<GameObject> GetInteractiveCharacterChildrenList(GameObject interactiveCharacter)
