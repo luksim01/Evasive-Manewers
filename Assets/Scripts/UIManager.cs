@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.Profiling;
 
 public class UIManager : MonoBehaviour, IUIManager
 {
@@ -39,6 +40,9 @@ public class UIManager : MonoBehaviour, IUIManager
         _spawnManager = spawnManager;
     }
 
+    // pause
+    [SerializeField] private bool isPaused = false;
+
     private void Awake()
     {
         IsGameActive = true;
@@ -63,6 +67,18 @@ public class UIManager : MonoBehaviour, IUIManager
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (!isPaused)
+            {
+                PauseGame();
+            }
+            else
+            {
+                ResumeGame();
+            }
+        }
+
         if (IsGameActive)
         {
             sheepdogHealth = _sheepdog.Health;
@@ -85,6 +101,20 @@ public class UIManager : MonoBehaviour, IUIManager
                 GameOver();
             }
         }
+    }
+
+    void PauseGame()
+    {
+        isPaused = true;
+        Profiler.enabled = false;
+        Time.timeScale = 0f;
+    }
+
+    void ResumeGame()
+    {
+        isPaused = false;
+        Profiler.enabled = true;
+        Time.timeScale = 1f;
     }
 
     IEnumerator FadeOutTitle()
