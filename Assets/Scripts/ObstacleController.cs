@@ -12,10 +12,14 @@ public class ObstacleController : MonoBehaviour
     private bool isGameActive;
     private IUIManager _uiManager;
 
+    // spawn manager
+    private ISpawnManager _spawnManager;
+
     // dependancies
-    public void SetDependencies(IUIManager uiManager)
+    public void SetDependencies(IUIManager uiManager, SpawnManager spawnManager)
     {
         _uiManager = uiManager;
+        _spawnManager = spawnManager;
     }
 
     void FixedUpdate()
@@ -33,7 +37,8 @@ public class ObstacleController : MonoBehaviour
             }
             if (gameObject.CompareTag("Background Tree") && transform.position.z < -bounds)
             {
-                Destroy(gameObject);
+                //Destroy(gameObject);
+                _spawnManager.ReturnPooledGameObject(gameObject);
             }
         }
     }

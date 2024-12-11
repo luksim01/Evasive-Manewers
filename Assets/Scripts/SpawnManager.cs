@@ -25,6 +25,8 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
     // background spawning
     public GameObject backgroundTree;
+    private List<GameObject> backgroundTreePool;
+    private int treeAmountToPool = 32;
 
     // lanes
     [SerializeField] private GameObject[] trailLanes;
@@ -43,12 +45,16 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     // sheep
     private SheepController _sheepController;
 
+    // spawn manager
+    private SpawnManager _spawnManager;
+
     // dependancies
-    public void SetDependencies(IAudioManager audioManager, IUIManager uiManager, IPlayerController playerController)
+    public void SetDependencies(IAudioManager audioManager, IUIManager uiManager, IPlayerController playerController, SpawnManager spawnManager)
     {
         _audioManager = audioManager;
         _uiManager = uiManager;
         _sheepdog = playerController;
+        _spawnManager = spawnManager;
     }
 
     public void SetSheepDependancy(SheepController sheepController)
@@ -84,6 +90,17 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         for (int laneIndex = 0; laneIndex < trailLanes.Length; laneIndex++)
         {
             trailLanesPos[laneIndex] = trailLanes[laneIndex].transform.position.x;
+        }
+
+        // creating a pool of background trees
+        backgroundTreePool = new List<GameObject>();
+        GameObject backgroundTreeToPool;
+        for (int i = 0; i < treeAmountToPool; i++)
+        {
+            // instantiate water tiles as children of the manager
+            backgroundTreeToPool = Instantiate(backgroundTree, this.transform);
+            backgroundTreeToPool.SetActive(false);
+            backgroundTreePool.Add(backgroundTreeToPool);
         }
 
         InvokeEncounter(8);
@@ -153,17 +170,45 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         }
     }
 
+    private GameObject GetPooledGameObject(int poolSize, List<GameObject> pool)
+    {
+        for (int i = 0; i < poolSize; i++)
+        {
+            if (!pool[i].activeInHierarchy)
+            {
+                return pool[i];
+            }
+        }
+        return null;
+    }
+
+
+    public void ReturnPooledGameObject(GameObject gameObject)
+    {
+        gameObject.SetActive(false);
+    }
+
     private void SpawnBackground()
     {
         if (isGameActive)
         {
-            GameObject foregroundTreeNew = Instantiate(backgroundTree, new Vector3(14, 0, 40), backgroundTree.transform.rotation);
-            ObstacleController obstacleControllerForeground = foregroundTreeNew.GetComponent<ObstacleController>();
-            dependancyManager.InjectObstacleControllerDependencies(obstacleControllerForeground);
+            GameObject foregroundTreeNew = GetPooledGameObject(treeAmountToPool, backgroundTreePool);
+            if(foregroundTreeNew != null)
+            {
+                foregroundTreeNew.transform.SetPositionAndRotation(new Vector3(14, 0, 40), foregroundTreeNew.transform.rotation);
+                foregroundTreeNew.SetActive(true);
+                ObstacleController obstacleControllerForeground = foregroundTreeNew.GetComponent<ObstacleController>();
+                dependancyManager.InjectObstacleControllerDependencies(obstacleControllerForeground);
+            }
 
-            GameObject backgroundTreeNew = Instantiate(backgroundTree, new Vector3(-9, 0, 40), backgroundTree.transform.rotation);
-            ObstacleController obstacleControllerBackground = backgroundTreeNew.GetComponent<ObstacleController>();
-            dependancyManager.InjectObstacleControllerDependencies(obstacleControllerBackground);
+            GameObject backgroundTreeNew = GetPooledGameObject(treeAmountToPool, backgroundTreePool);
+            if (backgroundTreeNew != null)
+            {
+                backgroundTreeNew.transform.SetPositionAndRotation(new Vector3(-9, 0, 40), backgroundTreeNew.transform.rotation);
+                backgroundTreeNew.SetActive(true);
+                ObstacleController obstacleControllerBackground = backgroundTreeNew.GetComponent<ObstacleController>();
+                dependancyManager.InjectObstacleControllerDependencies(obstacleControllerBackground);
+            }
 
             if (timeRemaining > 10)
             {
@@ -355,5 +400,10 @@ public class MockSpawnManager : ISpawnManager
     public bool CheckSheepGrounded()
     {
         return Herd != null && Herd.Length > 0;
+    }
+
+    public void ReturnPooledGameObject(GameObject gameObject)
+    {
+        gameObject.SetActive(false);
     }
 }

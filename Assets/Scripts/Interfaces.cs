@@ -22,6 +22,7 @@ public interface IUIManager
 public interface ISpawnManager
 {
     bool CheckSheepGrounded();
+    void ReturnPooledGameObject(GameObject gameObject);
 
     bool HasTargetedSheepdog { get; set; }
     bool HasTargetedHerd { get; set; }

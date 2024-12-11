@@ -40,7 +40,7 @@ public class DependancyManager : MonoBehaviour
 
         if (spawnManager != null)
         {
-            spawnManager.SetDependencies(audioManager, uiManager, playerController);
+            spawnManager.SetDependencies(audioManager, uiManager, playerController, spawnManager);
         }
         else
         {
@@ -77,7 +77,7 @@ public class DependancyManager : MonoBehaviour
     {
         if (obstacleController != null)
         {
-            obstacleController.SetDependencies(uiManager);
+            obstacleController.SetDependencies(uiManager, spawnManager);
         }
     }
 
