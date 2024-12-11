@@ -97,10 +97,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isSlowingDown: 1
-  isGrounded: 0
   isHerdSheep: 0
-  hasEnteredWolfSpace: 0
-  hasAvoidedWolf: 0
   sheepCollisionEffect: {fileID: 3432256878017962716, guid: 408d451c21e714a59b9a04ce1358ed47, type: 3}
 --- !u!1001 &5382863644890653774
 PrefabInstance:

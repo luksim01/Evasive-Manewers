@@ -96,10 +96,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af75feeaf1fa240c5887113062d249ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hasBitten: 0
-  hasTargetedSheepdog: 0
-  hasTargetedHerd: 0
-  hasTargetedSheep: 0
 --- !u!1001 &3743661574775535673
 PrefabInstance:
   m_ObjectHideFlags: 0
