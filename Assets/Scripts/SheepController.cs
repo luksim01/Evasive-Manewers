@@ -114,6 +114,12 @@ public class SheepController : MonoBehaviour, ISheepController
         SheepTransform = this.transform;
     }
 
+    void ReturnToPoolAndReset(GameObject gameObject)
+    {
+        gameObject.tag = "Stray";
+        _spawnManager.ReturnPooledGameObject(gameObject);
+    }
+
     private void CheckPlayerActivity()
     {
         // keep track of barks
@@ -222,7 +228,7 @@ public class SheepController : MonoBehaviour, ISheepController
         {
             _audioManager.HasDetectedLostSheep = true;
             _spawnManager.TimeSinceLostSheep = 0;
-            Destroy(gameObject);
+            ReturnToPoolAndReset(gameObject);
         }
     }
 
@@ -314,7 +320,7 @@ public class SheepController : MonoBehaviour, ISheepController
         // stray sheep is gone once beyond the forest boundary
         if (Mathf.Abs(targetPosition.x - transform.position.x) <= 0.2)
         {
-            Destroy(gameObject);
+            ReturnToPoolAndReset(gameObject);
         }
     }
 
@@ -353,10 +359,8 @@ public class SheepController : MonoBehaviour, ISheepController
                 Avoid(wolfProximity, avoidSpeed*2);
             }
         }
-        else
-        {
-            DestroyBoundaries(12, -13, 30, -30);
-        }
+
+        DestroyBoundaries(12, -13, 40, -40);
     }
 
     void DestroyBoundaries(float xBoundRight, float xBoundLeft, float zBoundForward, float zBoundBack)
@@ -366,13 +370,13 @@ public class SheepController : MonoBehaviour, ISheepController
         {
             PlaySheepCollisionEffect();
             _audioManager.HasDetectedLostSheep = true;
-            Destroy(gameObject);
+            ReturnToPoolAndReset(gameObject);
         }
         if (transform.position.z > zBoundForward || transform.position.z < zBoundBack)
         {
             PlaySheepCollisionEffect();
             _audioManager.HasDetectedLostSheep = true;
-            Destroy(gameObject);
+            ReturnToPoolAndReset(gameObject);
         }
     }
 
@@ -447,7 +451,7 @@ public class SheepController : MonoBehaviour, ISheepController
             _audioManager.HasDetectedLostSheep = true;
             _spawnManager.TimeSinceLostSheep = 0;
             PlaySheepCollisionEffect();
-            Destroy(gameObject);
+            ReturnToPoolAndReset(gameObject);
         }
 
         if (collision.gameObject.CompareTag("Trail Lane") || collision.gameObject.CompareTag("Boundary Lane"))

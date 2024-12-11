@@ -142,21 +142,23 @@ public class WolfController : MonoBehaviour, IWolfController
             {
                 wolfHeadAnim.SetTrigger("isBiting");
                 targetSheep.tag = "Sheep";
+                isCharging = true;
             }
+        }
 
-            if (targetSheep.CompareTag("Sheep"))
-            {
-                TravelTowards(new Vector3(transform.position.x, 0, 50 - transform.position.z), 18.0f);
-            }
-        }
-        else
-        {
-            TravelTowards(new Vector3(transform.position.x, 0, 50 - transform.position.z), 18.0f);
-        }
 
         float xBoundaryLeft = 12.0f;
         float xBoundaryRight = -13.0f;
         float zBoundary = 40.0f;
+
+        if (isCharging)
+        {
+            TravelTowards(new Vector3(transform.position.x, 0f, zBoundary), 18.0f);
+        }
+        else if (!targetSheep.activeSelf)
+        {
+            isCharging = true;
+        }
 
         DestroyBoundaries(xBoundaryLeft, xBoundaryRight, zBoundary, -zBoundary);
 }

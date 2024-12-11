@@ -22,6 +22,8 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     public Vector3 StraySheepSpawnPosition { get; set; }
     public Vector3 StraySheepTargetPosition { get; set; }
     public int spawnInterval = 20;
+    private List<GameObject> sheepPool;
+    private int sheepAmountToPool = 8;
 
     // background spawning
     public GameObject backgroundTree;
@@ -65,22 +67,24 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     // dependancy manager
     [SerializeField] private DependancyManager dependancyManager;
 
-    private void Awake()
+    List<GameObject> CreateGameObjectPool(string poolName, Transform poolParent, GameObject poolObject, int poolSize)
     {
-        GameObject initialSheep1 = Instantiate(straySheep, new Vector3(0, 0, 8), straySheep.transform.rotation);
-        initialSheep1.tag = "Sheep";
-        SheepController sheepController1 = initialSheep1.GetComponent<SheepController>();
-        dependancyManager.InjectSheepControllerDependencies(sheepController1);
+        // organise pool under parent gameobject
+        GameObject pool = new();
+        pool.name = poolName;
+        pool.transform.parent = poolParent;
 
-        GameObject initialSheep2 = Instantiate(straySheep, new Vector3(-3, 0, 4), straySheep.transform.rotation);
-        initialSheep2.tag = "Sheep";
-        SheepController sheepController2 = initialSheep2.GetComponent<SheepController>();
-        dependancyManager.InjectSheepControllerDependencies(sheepController2);
+        // instantiate gameobjects and add to gameobject pool
+        List<GameObject> poolList = new List<GameObject>();
+        GameObject gameObjectToPool;
+        for (int i = 0; i < poolSize; i++)
+        {
+            gameObjectToPool = Instantiate(poolObject, pool.transform);
+            gameObjectToPool.SetActive(false);
+            poolList.Add(gameObjectToPool);
+        }
 
-        GameObject initialSheep3 = Instantiate(straySheep, new Vector3(3, 0, 4), straySheep.transform.rotation);
-        initialSheep3.tag = "Sheep";
-        SheepController sheepController3 = initialSheep3.GetComponent<SheepController>();
-        dependancyManager.InjectSheepControllerDependencies(sheepController3);
+        return poolList;
     }
 
     void Start()
@@ -92,15 +96,25 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
             trailLanesPos[laneIndex] = trailLanes[laneIndex].transform.position.x;
         }
 
-        // creating a pool of background trees
-        backgroundTreePool = new List<GameObject>();
-        GameObject backgroundTreeToPool;
-        for (int i = 0; i < treeAmountToPool; i++)
+        // creating a pool of boundary trees
+        backgroundTreePool = CreateGameObjectPool("BoundaryTreePool", gameObject.transform, backgroundTree, treeAmountToPool);
+
+        // creating a pool of sheep
+        sheepPool = CreateGameObjectPool("SheepPool", gameObject.transform, straySheep, sheepAmountToPool);
+        // spawning initial herd
+        int[] xPosition = { -3, 0, 3 };
+        int[] zPosition = {  4, 8, 4 };
+        for (int i = 0; i < 3; i++)
         {
-            // instantiate water tiles as children of the manager
-            backgroundTreeToPool = Instantiate(backgroundTree, this.transform);
-            backgroundTreeToPool.SetActive(false);
-            backgroundTreePool.Add(backgroundTreeToPool);
+            GameObject sheepNew = GetPooledGameObject(sheepAmountToPool, sheepPool);
+            if (sheepNew != null)
+            {
+                sheepNew.transform.SetPositionAndRotation(new Vector3(xPosition[i], 0, zPosition[i]), sheepNew.transform.rotation);
+                sheepNew.tag = "Sheep";
+                sheepNew.SetActive(true);
+                SheepController sheepNewController = sheepNew.GetComponent<SheepController>();
+                dependancyManager.InjectSheepControllerDependencies(sheepNewController);
+            }
         }
 
         InvokeEncounter(8);
@@ -248,17 +262,29 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 {
                     StraySheepSpawnPosition = new Vector3(-12, 1, straySheepSpawnPositionZ);
                     StraySheepTargetPosition = new Vector3(11, 1, straySheepTargetPositionZ);
-                    GameObject straySheepNew = Instantiate(straySheep, StraySheepSpawnPosition, straySheep.transform.rotation);
-                    SheepController sheepController = straySheepNew.GetComponent<SheepController>();
-                    dependancyManager.InjectSheepControllerDependencies(sheepController);
+
+                    GameObject straySheepNew = GetPooledGameObject(sheepAmountToPool, sheepPool);
+                    if (straySheepNew != null)
+                    {
+                        straySheepNew.transform.SetPositionAndRotation(StraySheepSpawnPosition, straySheepNew.transform.rotation);
+                        straySheepNew.SetActive(true);
+                        SheepController sheepStrayController = straySheepNew.GetComponent<SheepController>();
+                        dependancyManager.InjectSheepControllerDependencies(sheepStrayController);
+                    }
                 }
                 else if (spawnSide[sideIndex] == "right")
                 {
                     StraySheepSpawnPosition = new Vector3(12, 1, straySheepSpawnPositionZ);
                     StraySheepTargetPosition = new Vector3(-11, 1, straySheepTargetPositionZ);
-                    GameObject straySheepNew = Instantiate(straySheep, StraySheepSpawnPosition, straySheep.transform.rotation);
-                    SheepController sheepController = straySheepNew.GetComponent<SheepController>();
-                    dependancyManager.InjectSheepControllerDependencies(sheepController);
+
+                    GameObject straySheepNew = GetPooledGameObject(sheepAmountToPool, sheepPool);
+                    if (straySheepNew != null)
+                    {
+                        straySheepNew.transform.SetPositionAndRotation(StraySheepSpawnPosition, straySheepNew.transform.rotation);
+                        straySheepNew.SetActive(true);
+                        SheepController sheepStrayController = straySheepNew.GetComponent<SheepController>();
+                        dependancyManager.InjectSheepControllerDependencies(sheepStrayController);
+                    }
                 }
             }
             Invoke("SpawnStraySheep", 1);
