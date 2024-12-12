@@ -14,6 +14,8 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     public GameObject[] obstacles;
     private float[] trailLanesPos;
     public GameObject[] laneWarningsText;
+    private List<GameObject>[] obstaclePool;
+    private int obstacleAmountToPool = 3;
 
     // sheep spawning
     public GameObject straySheep;
@@ -69,9 +71,20 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
     List<GameObject> CreateGameObjectPool(string poolName, Transform poolParent, GameObject poolObject, int poolSize)
     {
+        Transform existingPool = transform.Find(poolName);
+        GameObject pool;
+
         // organise pool under parent gameobject
-        GameObject pool = new();
-        pool.name = poolName;
+        if (existingPool == null)
+        {
+            pool = new();
+            pool.name = poolName;
+        }
+        else
+        {
+            pool = existingPool.gameObject;
+        }
+
         pool.transform.parent = poolParent;
 
         // instantiate gameobjects and add to gameobject pool
@@ -116,6 +129,14 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 dependancyManager.InjectSheepControllerDependencies(sheepNewController);
             }
         }
+
+        // create a pool of obstacles
+        obstaclePool = new List<GameObject>[obstacles.Length];
+        for (int i = 0; i < obstacles.Length; i++)
+        {
+            obstaclePool[i] = CreateGameObjectPool("ObstaclePool", gameObject.transform, obstacles[i], obstacleAmountToPool);
+        }
+
 
         InvokeEncounter(8);
         Invoke("SpawnBackground", 1);
@@ -296,11 +317,11 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         if (isGameActive)
         {
             int obstacleIndex = Random.Range(0, obstacles.Length);
-            GameObject obstacle = obstacles[obstacleIndex];
+            GameObject obstacleNew = GetPooledGameObject(obstacleAmountToPool, obstaclePool[obstacleIndex]);
 
             int obstacleSpawnPosIndex;
 
-            if (obstacle.name.Contains("Long"))
+            if (obstacleNew.name.Contains("Long"))
             {
                 // spawn in middle lane
                 obstacleSpawnPosIndex = 2;
@@ -313,11 +334,15 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 StartCoroutine(DisplayLaneWarning(obstacleSpawnPosIndex, "Single"));
             }
 
-            Vector3 obstacleSpawnPos = new Vector3(trailLanesPos[obstacleSpawnPosIndex], obstacle.transform.position.y, 40.0f);
+            Vector3 obstacleSpawnPos = new Vector3(trailLanesPos[obstacleSpawnPosIndex], obstacleNew.transform.position.y, 40.0f);
 
-            GameObject obstacleNew = Instantiate(obstacle, obstacleSpawnPos, obstacle.transform.rotation);
-            ObstacleController obstacleController = obstacleNew.GetComponent<ObstacleController>();
-            dependancyManager.InjectObstacleControllerDependencies(obstacleController);
+            if (obstacleNew != null)
+            {
+                obstacleNew.transform.SetPositionAndRotation(obstacleSpawnPos, obstacleNew.transform.rotation);
+                obstacleNew.SetActive(true);
+                ObstacleController obstacleController = obstacleNew.GetComponent<ObstacleController>();
+                dependancyManager.InjectObstacleControllerDependencies(obstacleController);
+            }
 
             InvokeEncounter(8);
         }

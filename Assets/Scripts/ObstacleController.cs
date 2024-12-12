@@ -33,11 +33,10 @@ public class ObstacleController : MonoBehaviour
             if (gameObject.CompareTag("Obstacle") && transform.position.z < -bounds)
             {
                 _uiManager.Score += 100;
-                Destroy(gameObject);
+                _spawnManager.ReturnPooledGameObject(gameObject);
             }
             if (gameObject.CompareTag("Background Tree") && transform.position.z < -bounds)
             {
-                //Destroy(gameObject);
                 _spawnManager.ReturnPooledGameObject(gameObject);
             }
         }
