@@ -114,7 +114,7 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     void ReturnToPoolAndReset(GameObject gameObject)
     {
         gameObject.tag = "Stray";
-        _spawnManager.ReturnPooledGameObject(gameObject);
+        ObjectPoolUtility.Return(gameObject);
     }
 
     private void CheckPlayerActivity()

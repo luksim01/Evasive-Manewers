@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public interface IAudioManager
 {
@@ -22,7 +23,7 @@ public interface IUIManager
 public interface ISpawnManager
 {
     bool CheckSheepGrounded();
-    void ReturnPooledGameObject(GameObject gameObject);
+    //void ReturnPooledGameObject(GameObject gameObject);
 
     bool HasTargetedSheepdog { get; set; }
     bool HasTargetedHerd { get; set; }
@@ -53,4 +54,11 @@ public interface ICollidable
 {
     bool HasCollided { get; set; }
     void OnCollision(GameObject collidingObject);
+}
+
+public interface IObjectPool
+{
+    List<GameObject> CreateGameObjectPool(string poolName, Transform poolParent, GameObject poolObject, int poolSize);
+    GameObject GetPooledGameObject(int poolSize, List<GameObject> pool);
+    void ReturnPooledGameObject(GameObject gameObject);
 }

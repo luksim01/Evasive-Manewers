@@ -36,6 +36,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
     // bark particle 
     public ParticleSystem barkEffect;
+    private List<ParticleSystem> barkEffectPool;
+    private int barkEffectAmountToPool = 2;
 
     // collision with top of sheep
     [SerializeField] private float thrownSpeed = 6.0f;

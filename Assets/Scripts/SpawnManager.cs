@@ -74,37 +74,6 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     // dependancy manager
     [SerializeField] private DependancyManager dependancyManager;
 
-    List<GameObject> CreateGameObjectPool(string poolName, Transform poolParent, GameObject poolObject, int poolSize)
-    {
-        Transform existingPool = transform.Find(poolName);
-        GameObject pool;
-
-        // organise pool under parent gameobject
-        if (existingPool == null)
-        {
-            pool = new();
-            pool.name = poolName;
-        }
-        else
-        {
-            pool = existingPool.gameObject;
-        }
-
-        pool.transform.parent = poolParent;
-
-        // instantiate gameobjects and add to gameobject pool
-        List<GameObject> poolList = new List<GameObject>();
-        GameObject gameObjectToPool;
-        for (int i = 0; i < poolSize; i++)
-        {
-            gameObjectToPool = Instantiate(poolObject, pool.transform);
-            gameObjectToPool.SetActive(false);
-            poolList.Add(gameObjectToPool);
-        }
-
-        return poolList;
-    }
-
     void Start()
     {
         // spawn position array
@@ -115,16 +84,16 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         }
 
         // creating a pool of boundary trees
-        backgroundTreePool = CreateGameObjectPool("BoundaryTreePool", gameObject.transform, backgroundTree, treeAmountToPool);
+        backgroundTreePool = ObjectPoolUtility.Create("BoundaryTreePool", gameObject.transform, backgroundTree, treeAmountToPool);
 
         // creating a pool of sheep
-        sheepPool = CreateGameObjectPool("SheepPool", gameObject.transform, straySheep, sheepAmountToPool);
+        sheepPool = ObjectPoolUtility.Create("SheepPool", gameObject.transform, straySheep, sheepAmountToPool);
         // spawning initial herd
         int[] xPosition = { -3, 0, 3 };
         int[] zPosition = {  4, 8, 4 };
         for (int i = 0; i < 3; i++)
         {
-            GameObject sheepNew = GetPooledGameObject(sheepAmountToPool, sheepPool);
+            GameObject sheepNew = ObjectPoolUtility.Get(sheepAmountToPool, sheepPool);
             if (sheepNew != null)
             {
                 sheepNew.transform.SetPositionAndRotation(new Vector3(xPosition[i], 0, zPosition[i]), sheepNew.transform.rotation);
@@ -139,11 +108,11 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         obstaclePool = new List<GameObject>[obstacles.Length];
         for (int i = 0; i < obstacles.Length; i++)
         {
-            obstaclePool[i] = CreateGameObjectPool("ObstaclePool", gameObject.transform, obstacles[i], obstacleAmountToPool);
+            obstaclePool[i] = ObjectPoolUtility.Create("ObstaclePool", gameObject.transform, obstacles[i], obstacleAmountToPool);
         }
 
         // create a pool of wolves
-        wolfPool = CreateGameObjectPool("WolfPool", gameObject.transform, wolf, wolfAmountToPool);
+        wolfPool = ObjectPoolUtility.Create("WolfPool", gameObject.transform, wolf, wolfAmountToPool);
 
 
         InvokeEncounter(8);
@@ -216,29 +185,11 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         }
     }
 
-    private GameObject GetPooledGameObject(int poolSize, List<GameObject> pool)
-    {
-        for (int i = 0; i < poolSize; i++)
-        {
-            if (!pool[i].activeInHierarchy)
-            {
-                return pool[i];
-            }
-        }
-        return null;
-    }
-
-
-    public void ReturnPooledGameObject(GameObject gameObject)
-    {
-        gameObject.SetActive(false);
-    }
-
     private void SpawnBackground()
     {
         if (isGameActive)
         {
-            GameObject foregroundTreeNew = GetPooledGameObject(treeAmountToPool, backgroundTreePool);
+            GameObject foregroundTreeNew = ObjectPoolUtility.Get(treeAmountToPool, backgroundTreePool);
             if(foregroundTreeNew != null)
             {
                 foregroundTreeNew.transform.SetPositionAndRotation(new Vector3(14, 0, 40), foregroundTreeNew.transform.rotation);
@@ -247,7 +198,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 dependancyManager.InjectObstacleControllerDependencies(obstacleControllerForeground);
             }
 
-            GameObject backgroundTreeNew = GetPooledGameObject(treeAmountToPool, backgroundTreePool);
+            GameObject backgroundTreeNew = ObjectPoolUtility.Get(treeAmountToPool, backgroundTreePool);
             if (backgroundTreeNew != null)
             {
                 backgroundTreeNew.transform.SetPositionAndRotation(new Vector3(-9, 0, 40), backgroundTreeNew.transform.rotation);
@@ -295,7 +246,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                     StraySheepSpawnPosition = new Vector3(-12, 1, straySheepSpawnPositionZ);
                     StraySheepTargetPosition = new Vector3(11, 1, straySheepTargetPositionZ);
 
-                    GameObject straySheepNew = GetPooledGameObject(sheepAmountToPool, sheepPool);
+                    GameObject straySheepNew = ObjectPoolUtility.Get(sheepAmountToPool, sheepPool);
                     if (straySheepNew != null)
                     {
                         straySheepNew.transform.SetPositionAndRotation(StraySheepSpawnPosition, straySheepNew.transform.rotation);
@@ -309,7 +260,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                     StraySheepSpawnPosition = new Vector3(12, 1, straySheepSpawnPositionZ);
                     StraySheepTargetPosition = new Vector3(-11, 1, straySheepTargetPositionZ);
 
-                    GameObject straySheepNew = GetPooledGameObject(sheepAmountToPool, sheepPool);
+                    GameObject straySheepNew = ObjectPoolUtility.Get(sheepAmountToPool, sheepPool);
                     if (straySheepNew != null)
                     {
                         straySheepNew.transform.SetPositionAndRotation(StraySheepSpawnPosition, straySheepNew.transform.rotation);
@@ -328,7 +279,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         if (isGameActive)
         {
             int obstacleIndex = Random.Range(0, obstacles.Length);
-            GameObject obstacleNew = GetPooledGameObject(obstacleAmountToPool, obstaclePool[obstacleIndex]);
+            GameObject obstacleNew = ObjectPoolUtility.Get(obstacleAmountToPool, obstaclePool[obstacleIndex]);
 
             int obstacleSpawnPosIndex;
 
@@ -369,7 +320,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 ChooseTarget();
 
                 // choose spawn position for wolf
-                GameObject wolfNew = GetPooledGameObject(wolfAmountToPool, wolfPool);
+                GameObject wolfNew = ObjectPoolUtility.Get(wolfAmountToPool, wolfPool);
                 if (wolfNew != null)
                 {
                     wolfNew.transform.SetPositionAndRotation(WolfSpawnPosition = ChooseSpawnPosition(), transform.rotation);

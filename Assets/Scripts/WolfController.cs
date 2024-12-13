@@ -88,7 +88,7 @@ public class WolfController : MonoBehaviour, ICollidable
         hasTargetedSheep = false;
         isCharging = false;
         hasBitten = false;
-        _spawnManager.ReturnPooledGameObject(gameObject);
+        ObjectPoolUtility.Return(gameObject);
     }
 
     private void DestroyBoundaries(float xBoundaryRight, float xBoundaryLeft, float zBoundaryForward, float zBoundaryBackward)
