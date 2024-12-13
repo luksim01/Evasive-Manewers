@@ -36,8 +36,6 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
     // bark particle 
     public ParticleSystem barkEffect;
-    private List<ParticleSystem> barkEffectPool;
-    private int barkEffectAmountToPool = 2;
 
     // collision with top of sheep
     [SerializeField] private float thrownSpeed = 6.0f;
@@ -49,6 +47,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
     // particle
     public GameObject sheepdogCollisionEffect;
+    private List<GameObject> collisionEffectPool;
+    private int collisionEffectAmountToPool = 2;
 
     // audio
     private IAudioManager _audioManager;
@@ -103,6 +103,9 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
         sheepdogBodyAnim = this.transform.Find("sheepdog_body").GetComponent<Animator>();
         sheepdogHeadAnim = this.transform.Find("sheepdog_head").GetComponent<Animator>();
+
+        // creating a pool of collision effects
+        collisionEffectPool = ObjectPoolUtility.Create("DogCollisionPool", gameObject.transform, sheepdogCollisionEffect, collisionEffectAmountToPool);
     }
 
     // Update is called once per frame
@@ -232,9 +235,28 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         HasBarkedJump = false;
     }
 
+    // Coroutine to wait for grace period to cool down
+    IEnumerator DamageCooldown(float damageCooldownTime)
+    {
+        yield return new WaitForSeconds(damageCooldownTime);
+        HasCollided = false;
+    }
+
+    IEnumerator CollisionEffectDuration(GameObject gameObject, float durationTime)
+    {
+        yield return new WaitForSeconds(durationTime);
+        ObjectPoolUtility.Return(gameObject);
+    }
+
     void PlaySheepdogCollisionEffect()
     {
-        Instantiate(sheepdogCollisionEffect, transform.position, transform.rotation);
+        GameObject sheepdogCollisionEffect = ObjectPoolUtility.Get(collisionEffectAmountToPool, collisionEffectPool);
+        if (sheepdogCollisionEffect != null)
+        {
+            sheepdogCollisionEffect.transform.SetPositionAndRotation(transform.position, transform.rotation);
+            sheepdogCollisionEffect.SetActive(true);
+            StartCoroutine(CollisionEffectDuration(sheepdogCollisionEffect, 2f));
+        }
     }
 
     public void OnCollision(GameObject collidingObject)
@@ -244,6 +266,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
             _audioManager.HasDetectedCollision = true;
             PlaySheepdogCollisionEffect();
             Health -= 1;
+            HasCollided = true;
+            StartCoroutine(DamageCooldown(1f));
         }
 
         if (collidingObject.CompareTag("Trail Lane"))

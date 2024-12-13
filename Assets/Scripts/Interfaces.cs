@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 public interface IAudioManager
 {
@@ -23,7 +24,6 @@ public interface IUIManager
 public interface ISpawnManager
 {
     bool CheckSheepGrounded();
-    //void ReturnPooledGameObject(GameObject gameObject);
 
     bool HasTargetedSheepdog { get; set; }
     bool HasTargetedHerd { get; set; }
@@ -34,6 +34,10 @@ public interface ISpawnManager
     int TimeSinceLostSheep { get; set; }
     Vector3 StraySheepSpawnPosition { get; set; }
     Vector3 StraySheepTargetPosition { get; set; }
+
+    List<GameObject> SheepCollisionEffectPool { get; set; }
+    int SheepCollisionEffectAmountToPool { get; set; }
+    void ActivateSheepCollisionEffect(GameObject effect);
 }
 
 public interface IPlayerController

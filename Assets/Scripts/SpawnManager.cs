@@ -32,6 +32,11 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     private List<GameObject> sheepPool;
     private int sheepAmountToPool = 8;
 
+    // particle
+    public GameObject sheepCollisionEffect;
+    public List<GameObject> SheepCollisionEffectPool { get; set; }
+    public int SheepCollisionEffectAmountToPool { get; set; }
+
     // background spawning
     public GameObject backgroundTree;
     private List<GameObject> backgroundTreePool;
@@ -103,6 +108,9 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 dependancyManager.InjectSheepControllerDependencies(sheepNewController);
             }
         }
+
+        // creating a pool of sheep collision effects
+        SheepCollisionEffectPool = ObjectPoolUtility.Create("SheepCollisionEffectPool", gameObject.transform, sheepCollisionEffect, SheepCollisionEffectAmountToPool = sheepAmountToPool);
 
         // create a pool of obstacles
         obstaclePool = new List<GameObject>[obstacles.Length];
@@ -183,6 +191,17 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 laneWarningsText[laneIndex].SetActive(false);
             }
         }
+    }
+
+    public void ActivateSheepCollisionEffect(GameObject effect)
+    {
+        StartCoroutine(CollisionEffectDuration(effect, 2f));
+    }
+
+    public IEnumerator CollisionEffectDuration(GameObject gameObject, float durationTime)
+    {
+        yield return new WaitForSeconds(durationTime);
+        ObjectPoolUtility.Return(gameObject);
     }
 
     private void SpawnBackground()
@@ -418,4 +437,8 @@ public class MockSpawnManager : ISpawnManager
     {
         gameObject.SetActive(false);
     }
+
+    public List<GameObject> SheepCollisionEffectPool { get; set; }
+    public int SheepCollisionEffectAmountToPool { get; set; }
+    public void ActivateSheepCollisionEffect(GameObject effect) { }
 }

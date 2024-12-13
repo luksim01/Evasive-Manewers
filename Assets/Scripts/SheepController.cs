@@ -57,8 +57,10 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     private Animator sheepBodyAnim;
     private Animator sheepHeadAnim;
 
-    // particle
-    public GameObject sheepCollisionEffect;
+    //// particle
+    //public GameObject sheepCollisionEffect;
+    //private List<GameObject> collisionEffectPool;
+    //private int collisionEffectAmountToPool = 8;
 
     // audio
     private IAudioManager _audioManager;
@@ -354,13 +356,13 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
         // destroy if out of bounds
         if (transform.position.x > xBoundRight || transform.position.x < xBoundLeft)
         {
-            PlaySheepCollisionEffect();
+            PlayCollisionEffect();
             _audioManager.HasDetectedLostSheep = true;
             ReturnToPoolAndReset(gameObject);
         }
         if (transform.position.z > zBoundForward || transform.position.z < zBoundBack)
         {
-            PlaySheepCollisionEffect();
+            PlayCollisionEffect();
             _audioManager.HasDetectedLostSheep = true;
             ReturnToPoolAndReset(gameObject);
         }
@@ -402,6 +404,12 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
         IsGrounded = false;
     }
 
+    //IEnumerator CollisionEffectDuration(GameObject gameObject, float durationTime)
+    //{
+    //    yield return new WaitForSeconds(durationTime);
+    //    ObjectPoolUtility.Return(gameObject);
+    //}
+
     void Jump(Vector3 direction, float force)
     {
         sheepBodyAnim.SetTrigger("isJumping");
@@ -424,9 +432,15 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
         transform.Translate(new Vector3(fleeDirectionX, 0, fleeDirectionZ) * speedBurst * Time.deltaTime);
     }
 
-    void PlaySheepCollisionEffect()
+    void PlayCollisionEffect()
     {
-        Instantiate(sheepCollisionEffect, transform.position, transform.rotation);
+        GameObject sheepCollisionEffect = ObjectPoolUtility.Get(_spawnManager.SheepCollisionEffectAmountToPool, _spawnManager.SheepCollisionEffectPool);
+        if (sheepCollisionEffect != null)
+        {
+            sheepCollisionEffect.transform.SetPositionAndRotation(transform.position, transform.rotation);
+            sheepCollisionEffect.SetActive(true);
+            _spawnManager.ActivateSheepCollisionEffect(sheepCollisionEffect);
+        }
     }
 
     // collision
@@ -437,7 +451,7 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
             _audioManager.HasDetectedCollision = true;
             _audioManager.HasDetectedLostSheep = true;
             _spawnManager.TimeSinceLostSheep = 0;
-            PlaySheepCollisionEffect();
+            PlayCollisionEffect();
             ReturnToPoolAndReset(gameObject);
         }
 
