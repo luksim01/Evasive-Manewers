@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ObstacleController : MonoBehaviour
@@ -42,4 +40,12 @@ public class ObstacleController : MonoBehaviour
         }
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        ICollidable collidable = collision.gameObject.GetComponent<ICollidable>();
+        if (collidable != null && !collidable.HasCollided)
+        {
+            collidable.OnCollision(this.gameObject);
+        }
+    }
 }

@@ -7,8 +7,13 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 {
     // wolf spawning
     public GameObject wolf;
+    public GameObject[] Pack { get; set; }
     public bool HasTargetedSheepdog { get; set; }
     public bool HasTargetedHerd { get; set; }
+    public Vector3 WolfSpawnPosition { get; set; }
+    private List<GameObject> wolfPool;
+    private int wolfAmountToPool = 3;
+
 
     // obstacle spawning
     public GameObject[] obstacles;
@@ -137,6 +142,9 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
             obstaclePool[i] = CreateGameObjectPool("ObstaclePool", gameObject.transform, obstacles[i], obstacleAmountToPool);
         }
 
+        // create a pool of wolves
+        wolfPool = CreateGameObjectPool("WolfPool", gameObject.transform, wolf, wolfAmountToPool);
+
 
         InvokeEncounter(8);
         Invoke("SpawnBackground", 1);
@@ -151,6 +159,9 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
         // keep track of herd
         Herd = GameObject.FindGameObjectsWithTag("Sheep");
+
+        // keep track of pack
+        Pack = GameObject.FindGameObjectsWithTag("Wolf");
     }
 
     public bool CheckSheepGrounded()
@@ -358,17 +369,14 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 ChooseTarget();
 
                 // choose spawn position for wolf
-                GameObject wolfNew = Instantiate(wolf, ChooseSpawnPosition(), wolf.transform.rotation);
-                WolfController wolfController = wolfNew.GetComponent<WolfController>();
-                dependancyManager.InjectWolfControllerDependencies(wolfController);
-
-                // sheep reaction to wolf is reset
-                foreach (GameObject sheep in Herd)
+                GameObject wolfNew = GetPooledGameObject(wolfAmountToPool, wolfPool);
+                if (wolfNew != null)
                 {
-                    SheepController sheepController = sheep.GetComponent<SheepController>();
-                    dependancyManager.InjectSheepControllerDependancyIntoSpawnManager(sheepController);
-                    _sheepController.HasAvoidedWolf = false;
-                    _sheepController.HasEnteredWolfSpace = false;
+                    wolfNew.transform.SetPositionAndRotation(WolfSpawnPosition = ChooseSpawnPosition(), transform.rotation);
+
+                    wolfNew.SetActive(true);
+                    WolfController wolfController = wolfNew.GetComponent<WolfController>();
+                    dependancyManager.InjectWolfControllerDependencies(wolfController);
                 }
             }
 
@@ -443,7 +451,9 @@ public class MockSpawnManager : ISpawnManager
 {
     public bool HasTargetedSheepdog { get; set; }
     public bool HasTargetedHerd { get; set; }
+    public Vector3 WolfSpawnPosition { get; set; }
     public GameObject[] Herd { get; set; }
+    public GameObject[] Pack { get; set; }
     public int TimeSinceLostSheep { get; set; }
     public Vector3 StraySheepSpawnPosition { get; set; }
     public Vector3 StraySheepTargetPosition { get; set; }

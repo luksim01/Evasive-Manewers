@@ -26,8 +26,10 @@ public interface ISpawnManager
 
     bool HasTargetedSheepdog { get; set; }
     bool HasTargetedHerd { get; set; }
+    Vector3 WolfSpawnPosition { get; set; }
 
     GameObject[] Herd { get; set; }
+    GameObject[] Pack { get; set; }
     int TimeSinceLostSheep { get; set; }
     Vector3 StraySheepSpawnPosition { get; set; }
     Vector3 StraySheepTargetPosition { get; set; }
@@ -41,15 +43,14 @@ public interface IPlayerController
     bool HasBarkedJump { get; set; }
 }
 
-public interface IWolfController
-{
-    bool HasBitten { get; set; }
-}
-
 public interface ISheepController
 {
     Transform SheepTransform { get; set; }
     bool IsGrounded { get; set; }
-    bool HasEnteredWolfSpace { get; set; }
-    bool HasAvoidedWolf { get; set; }
+}
+
+public interface ICollidable
+{
+    bool HasCollided { get; set; }
+    void OnCollision(GameObject collidingObject);
 }

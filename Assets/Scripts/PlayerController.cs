@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour, IPlayerController
+public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 {
     // self
     public Transform PlayerTransform { get; set; }
@@ -84,6 +84,9 @@ public class PlayerController : MonoBehaviour, IPlayerController
 
     // dependancy manager
     [SerializeField] private DependancyManager dependancyManager;
+
+    // collision
+    public bool HasCollided { get; set; }
 
     private void Awake()
     {
@@ -201,7 +204,7 @@ public class PlayerController : MonoBehaviour, IPlayerController
         // player death
         if (Health <= 0)
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
     }
 
@@ -232,47 +235,37 @@ public class PlayerController : MonoBehaviour, IPlayerController
         Instantiate(sheepdogCollisionEffect, transform.position, transform.rotation);
     }
 
-    private void OnCollisionEnter(Collision collision)
+    public void OnCollision(GameObject collidingObject)
     {
-        // bitten by wolf
-        if(collision.gameObject.CompareTag("Wolf"))
-        {
-            WolfController wolfController = collision.gameObject.GetComponent<WolfController>();
-            dependancyManager.InjectWolfControllerDependancyIntoPlayerController(wolfController);
-            if (!_wolfController.HasBitten)
-            {
-                _audioManager.HasDetectedCollision = true;
-                _wolfController.HasBitten = true;
-                PlaySheepdogCollisionEffect();
-                Health -= 1;
-            }
-            
-        }
-
-        // collided with obstacle
-        if (collision.gameObject.CompareTag("Obstacle") && !collision.gameObject.GetComponent<ObstacleController>().hasHitPlayer) // dependency
+        if (collidingObject.CompareTag("Wolf") || collidingObject.CompareTag("Obstacle"))
         {
             _audioManager.HasDetectedCollision = true;
-            collision.gameObject.GetComponent<ObstacleController>().hasHitPlayer = true; // dependency
             PlaySheepdogCollisionEffect();
             Health -= 1;
         }
 
-        // is grounded
-        if (collision.gameObject.CompareTag("Trail Lane"))
+        if (collidingObject.CompareTag("Trail Lane"))
         {
             isGrounded = true;
         }
 
-        // player thrown off by sheep if they land on top of them
-        if (collision.gameObject.CompareTag("Sheep"))
+        if (collidingObject.CompareTag("Sheep"))
         {
-            SheepController sheepController = collision.gameObject.GetComponent<SheepController>();
+            SheepController sheepController = collidingObject.gameObject.GetComponent<SheepController>();
             dependancyManager.InjectSheepControllerDependancyIntoPlayerController(sheepController);
             if (PlayerTransform.position.y - _sheepController.SheepTransform.position.y > heightTrigger)
             {
                 sheepdogRb.AddForce(Vector3.up * thrownSpeed, ForceMode.Impulse);
             }
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        ICollidable collidable = collision.gameObject.GetComponent<ICollidable>();
+        if (collidable != null && !collidable.HasCollided)
+        {
+            collidable.OnCollision(this.gameObject);
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class SheepController : MonoBehaviour, ISheepController
+public class SheepController : MonoBehaviour, ISheepController, ICollidable
 {
     public Transform SheepTransform { get; set; }
 
@@ -51,11 +51,6 @@ public class SheepController : MonoBehaviour, ISheepController
     
     // stray sheep
     public bool isHerdSheep;
-
-    // wolf 
-    public bool HasEnteredWolfSpace { get; set; }
-    public bool HasAvoidedWolf { get; set; }
-
     private float xDistanceFromBoundary = 1.5f;
 
     // animation
@@ -87,6 +82,9 @@ public class SheepController : MonoBehaviour, ISheepController
         _sheepdog = playerController;
     }
 
+    // collision
+    public bool HasCollided { get; set; }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -100,7 +98,6 @@ public class SheepController : MonoBehaviour, ISheepController
     // Update is called once per frame
     void Update()
     {
-        //isGameActive = uiManager.GetComponent<UIManager>().isGameActive;
         isGameActive = _uiManager.IsGameActive;
 
         if (isGameActive)
@@ -151,10 +148,7 @@ public class SheepController : MonoBehaviour, ISheepController
     }
 
     void HerdSheepBehaviour()
-    {
-        // keep track of wolf
-        GameObject wolf = GameObject.FindGameObjectWithTag("Wolf");
-        
+    {     
         // avoid player
         if (Mathf.Abs(sheepDogProximityX) < 2.5f && Mathf.Abs(sheepDogProximityZ) < 7.0f)
         {
@@ -198,26 +192,20 @@ public class SheepController : MonoBehaviour, ISheepController
         }
 
         // sheep act frantic when there's a nearby wolf
-        if (wolf)
+        foreach (GameObject wolf in _spawnManager.Pack)
         {
             float wolfProximityX = transform.position.x - wolf.transform.position.x;
             float wolfProximityZ = transform.position.z - wolf.transform.position.z;
 
             Vector3 wolfProximity = new Vector3(wolfProximityX, 0, 0);
 
-            if (!HasAvoidedWolf && Mathf.Abs(wolfProximityX) < 5.0f && Mathf.Abs(wolfProximityZ) < 7.0f)
+            if (Mathf.Abs(wolfProximityX) < 5.0f && Mathf.Abs(wolfProximityZ) < 7.0f)
             {
                 if (IsGrounded)
                 {
                     Jump(jumpDirection, jumpForce);
                 }
                 Avoid(wolfProximity, avoidSpeed);
-                HasEnteredWolfSpace = true;
-            }
-
-            if (HasEnteredWolfSpace && Mathf.Abs(wolfProximityZ) > 7.0f)
-            {
-                HasAvoidedWolf = true;
             }
         }
 
@@ -344,9 +332,7 @@ public class SheepController : MonoBehaviour, ISheepController
         }
 
         // keep track of wolf
-        GameObject wolf = GameObject.FindGameObjectWithTag("Wolf");
-
-        if (wolf)
+        foreach (GameObject wolf in _spawnManager.Pack)
         {
             float wolfProximityX = transform.position.x - wolf.transform.position.x;
             float wolfProximityZ = transform.position.z - wolf.transform.position.z;
@@ -443,9 +429,10 @@ public class SheepController : MonoBehaviour, ISheepController
         Instantiate(sheepCollisionEffect, transform.position, transform.rotation);
     }
 
-    private void OnCollisionEnter(Collision collision)
+    // collision
+    public void OnCollision(GameObject collidingObject)
     {
-        if (CompareTag("Sheep") && collision.gameObject.CompareTag("Obstacle"))
+        if (CompareTag("Sheep") && collidingObject.CompareTag("Obstacle"))
         {
             _audioManager.HasDetectedCollision = true;
             _audioManager.HasDetectedLostSheep = true;
@@ -454,27 +441,36 @@ public class SheepController : MonoBehaviour, ISheepController
             ReturnToPoolAndReset(gameObject);
         }
 
-        if (collision.gameObject.CompareTag("Trail Lane") || collision.gameObject.CompareTag("Boundary Lane"))
+        if (collidingObject.CompareTag("Trail Lane") || collidingObject.CompareTag("Boundary Lane"))
         {
             IsGrounded = true;
         }
 
         // hop away if landed on top of another sheep or player
-        if ((collision.gameObject.CompareTag("Sheep") || collision.gameObject.CompareTag("Player")))
+        if (collidingObject.CompareTag("Sheep") || collidingObject.CompareTag("Player"))
         {
-            if ((this.transform.position.y - collision.gameObject.transform.position.y) > heightTrigger)
+            if ((this.transform.position.y - collidingObject.transform.position.y) > heightTrigger)
             {
                 Hop(jumpForce);
             }
         }
 
         // hop away if player lands ontop of sheep
-        if (collision.gameObject.CompareTag("Player"))
+        if (collidingObject.CompareTag("Player"))
         {
             if ((_sheepdog.PlayerTransform.position.y - this.transform.position.y) > heightTrigger && IsGrounded)
             {
                 Hop(throwForce);
             }
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        ICollidable collidable = collision.gameObject.GetComponent<ICollidable>();
+        if (collidable != null && !collidable.HasCollided)
+        {
+            collidable.OnCollision(this.gameObject);
         }
     }
 }

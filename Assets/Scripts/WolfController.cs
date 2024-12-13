@@ -2,11 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WolfController : MonoBehaviour, IWolfController
+public class WolfController : MonoBehaviour, ICollidable
 {
     // wolf 
-    private float wolfStartPosX;
-    public bool HasBitten { get; set; }
+    private bool hasBitten;
 
     // hunt target
     private GameObject targetSheep;
@@ -22,8 +21,10 @@ public class WolfController : MonoBehaviour, IWolfController
 
     // spawn manager
     private ISpawnManager _spawnManager;
+    private float wolfSpawnPositionX;
     private bool hasTargetedSheepdog;
     private bool hasTargetedHerd;
+    private bool hasInitialisedWolf = false;
     private bool hasTargetedSheep = false;
 
     // player
@@ -39,13 +40,11 @@ public class WolfController : MonoBehaviour, IWolfController
     // animation
     private Animator wolfHeadAnim;
 
+    // collision
+    public bool HasCollided { get; set; }
+
     void Start()
     {
-        wolfStartPosX = transform.position.x;
-
-        hasTargetedSheepdog = _spawnManager.HasTargetedSheepdog;
-        hasTargetedHerd = _spawnManager.HasTargetedHerd;
-
         wolfHeadAnim = this.transform.Find("wolf_head").GetComponent<Animator>();
     }
 
@@ -54,7 +53,12 @@ public class WolfController : MonoBehaviour, IWolfController
     {
         isGameActive = _uiManager.IsGameActive;
 
-        if (isGameActive)
+        if (!hasInitialisedWolf)
+        {
+            InitialiseWolf();
+        }
+
+        if (isGameActive && hasInitialisedWolf)
         {
             if (hasTargetedSheepdog)
             {
@@ -67,24 +71,46 @@ public class WolfController : MonoBehaviour, IWolfController
         }
     }
 
+    void InitialiseWolf()
+    {
+        wolfSpawnPositionX = _spawnManager.WolfSpawnPosition.x;
+        hasTargetedSheepdog = _spawnManager.HasTargetedSheepdog;
+        hasTargetedHerd = _spawnManager.HasTargetedHerd;
+        hasInitialisedWolf = true;
+    }
+
+    void ReturnToPoolAndReset(GameObject gameObject)
+    {
+        hasInitialisedWolf = false;
+        wolfSpawnPositionX = 0f;
+        hasTargetedSheepdog = false;
+        hasTargetedHerd = false;
+        hasTargetedSheep = false;
+        isCharging = false;
+        hasBitten = false;
+        _spawnManager.ReturnPooledGameObject(gameObject);
+    }
+
     private void DestroyBoundaries(float xBoundaryRight, float xBoundaryLeft, float zBoundaryForward, float zBoundaryBackward)
     {
         // destroy if out of bounds
         if (transform.position.x > xBoundaryRight || transform.position.x < xBoundaryLeft)
         {
-            if (!HasBitten && hasTargetedSheepdog)
+            if (!hasBitten && hasTargetedSheepdog)
             {
                 _uiManager.Score += 100;
             }
-            Destroy(gameObject);
+            //Destroy(gameObject);
+            ReturnToPoolAndReset(gameObject);
         }
         if (transform.position.z > zBoundaryForward || transform.position.z < zBoundaryBackward)
         {
-            if (!HasBitten && hasTargetedSheepdog)
+            if (!hasBitten && hasTargetedSheepdog)
             {
                 _uiManager.Score += 100;
             }
-            Destroy(gameObject);
+            //Destroy(gameObject);
+            ReturnToPoolAndReset(gameObject);
         }
     }
 
@@ -161,7 +187,7 @@ public class WolfController : MonoBehaviour, IWolfController
         }
 
         DestroyBoundaries(xBoundaryLeft, xBoundaryRight, zBoundary, -zBoundary);
-}
+    }
 
     private void HuntPlayer()
     {
@@ -170,13 +196,7 @@ public class WolfController : MonoBehaviour, IWolfController
         Vector3 sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
 
         // track player position
-        if (wolfStartPosX > 0 && !isCharging)
-        {
-            collisionCourse = sheepDogProximity;
-            Track(sheepDogProximity);
-        }
-
-        if (wolfStartPosX < 0 && !isCharging)
+        if (!isCharging)
         {
             collisionCourse = sheepDogProximity;
             Track(sheepDogProximity);
@@ -206,7 +226,7 @@ public class WolfController : MonoBehaviour, IWolfController
     private void Track(Vector3 direction)
     {
         Vector3 alignDirection = (direction).normalized;
-        if (alignDirection != Vector3.zero && !HasBitten)
+        if (alignDirection != Vector3.zero && !hasBitten)
         {
             transform.rotation = Quaternion.LookRotation(alignDirection);
         }
@@ -218,5 +238,23 @@ public class WolfController : MonoBehaviour, IWolfController
     {
         Vector3 alignDirection = (direction).normalized;
         transform.Translate(alignDirection * speed * Time.deltaTime);
+    }
+
+    public void OnCollision(GameObject collidingObject)
+    {
+        if (collidingObject.CompareTag("Player"))
+        {
+            HasCollided = true;
+            hasBitten = true;
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        ICollidable collidable = collision.gameObject.GetComponent<ICollidable>();
+        if (collidable != null && !collidable.HasCollided)
+        {
+            collidable.OnCollision(this.gameObject);
+        }
     }
 }
