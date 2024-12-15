@@ -81,6 +81,7 @@ public class WolfController : MonoBehaviour, ICollidable
 
     void ReturnToPoolAndReset(GameObject gameObject)
     {
+        _spawnManager.RemoveWolfFromPack(gameObject);
         hasInitialisedWolf = false;
         wolfSpawnPositionX = 0f;
         hasTargetedSheepdog = false;
@@ -100,7 +101,6 @@ public class WolfController : MonoBehaviour, ICollidable
             {
                 _uiManager.Score += 100;
             }
-            //Destroy(gameObject);
             ReturnToPoolAndReset(gameObject);
         }
         if (transform.position.z > zBoundaryForward || transform.position.z < zBoundaryBackward)
@@ -109,7 +109,6 @@ public class WolfController : MonoBehaviour, ICollidable
             {
                 _uiManager.Score += 100;
             }
-            //Destroy(gameObject);
             ReturnToPoolAndReset(gameObject);
         }
     }
@@ -119,7 +118,7 @@ public class WolfController : MonoBehaviour, ICollidable
         int targetIndex = -1;
         float closestSheep = 80;
 
-        for (int i = 0; i < _spawnManager.Herd.Length; i++)
+        for (int i = 0; i < _spawnManager.Herd.Count; i++)
         {
             if (Mathf.Abs(_spawnManager.Herd[i].transform.position.x - transform.position.x) < closestSheep)
             {

@@ -29,8 +29,10 @@ public interface ISpawnManager
     bool HasTargetedHerd { get; set; }
     Vector3 WolfSpawnPosition { get; set; }
 
-    GameObject[] Herd { get; set; }
-    GameObject[] Pack { get; set; }
+    List<GameObject> Herd { get; set; }
+    List<GameObject> Pack { get; set; }
+    List<GameObject> Strays { get; set; }
+
     int TimeSinceLostSheep { get; set; }
     Vector3 StraySheepSpawnPosition { get; set; }
     Vector3 StraySheepTargetPosition { get; set; }
@@ -38,6 +40,13 @@ public interface ISpawnManager
     List<GameObject> SheepCollisionEffectPool { get; set; }
     int SheepCollisionEffectAmountToPool { get; set; }
     void ActivateSheepCollisionEffect(GameObject effect);
+
+    void AddSheepToHerd(GameObject gameObject);
+    void RemoveSheepFromHerd(GameObject gameObject);
+    void AddSheepToStrays(GameObject gameObject);
+    void RemoveSheepFromStrays(GameObject gameObject);
+    void AddWolfToPack(GameObject gameObject);
+    void RemoveWolfFromPack(GameObject gameObject);
 }
 
 public interface IPlayerController

@@ -7,7 +7,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 {
     // wolf spawning
     public GameObject wolf;
-    public GameObject[] Pack { get; set; }
+    public List<GameObject> Pack { get; set; }
     public bool HasTargetedSheepdog { get; set; }
     public bool HasTargetedHerd { get; set; }
     public Vector3 WolfSpawnPosition { get; set; }
@@ -24,7 +24,8 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
     // sheep spawning
     public GameObject straySheep;
-    public GameObject[] Herd { get; set; }
+    public List<GameObject> Herd { get; set; }
+    public List<GameObject> Strays { get; set; }
     public int TimeSinceLostSheep { get; set; }
     public Vector3 StraySheepSpawnPosition { get; set; }
     public Vector3 StraySheepTargetPosition { get; set; }
@@ -92,6 +93,8 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         backgroundTreePool = ObjectPoolUtility.Create("BoundaryTreePool", gameObject.transform, backgroundTree, treeAmountToPool);
 
         // creating a pool of sheep
+        Herd = new List<GameObject>();
+        Strays = new List<GameObject>();
         sheepPool = ObjectPoolUtility.Create("SheepPool", gameObject.transform, straySheep, sheepAmountToPool);
         // spawning initial herd
         int[] xPosition = { -3, 0, 3 };
@@ -104,6 +107,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 sheepNew.transform.SetPositionAndRotation(new Vector3(xPosition[i], 0, zPosition[i]), sheepNew.transform.rotation);
                 sheepNew.tag = "Sheep";
                 sheepNew.SetActive(true);
+                AddSheepToHerd(sheepNew);
                 SheepController sheepNewController = sheepNew.GetComponent<SheepController>();
                 dependancyManager.InjectSheepControllerDependencies(sheepNewController);
             }
@@ -120,6 +124,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         }
 
         // create a pool of wolves
+        Pack = new List<GameObject>();
         wolfPool = ObjectPoolUtility.Create("WolfPool", gameObject.transform, wolf, wolfAmountToPool);
 
 
@@ -133,12 +138,36 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     {
         isGameActive = _uiManager.IsGameActive;
         timeRemaining = _uiManager.TimeRemaining;
+    }
 
-        // keep track of herd
-        Herd = GameObject.FindGameObjectsWithTag("Sheep");
+    public void AddSheepToHerd(GameObject gameObject)
+    {
+        Herd.Add(gameObject);
+    }
 
-        // keep track of pack
-        Pack = GameObject.FindGameObjectsWithTag("Wolf");
+    public void RemoveSheepFromHerd(GameObject gameObject)
+    {
+        Herd.Remove(gameObject);
+    }
+
+    public void AddSheepToStrays(GameObject gameObject)
+    {
+        Strays.Add(gameObject);
+    }
+
+    public void RemoveSheepFromStrays(GameObject gameObject)
+    {
+        Strays.Remove(gameObject);
+    }
+
+    public void AddWolfToPack(GameObject gameObject)
+    {
+        Pack.Add(gameObject);
+    }
+
+    public void RemoveWolfFromPack(GameObject gameObject)
+    {
+        Pack.Remove(gameObject);
     }
 
     public bool CheckSheepGrounded()
@@ -260,33 +289,27 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 int straySheepSpawnPositionZ = Random.Range(0, 5);
                 int straySheepTargetPositionZ = straySheepSpawnPositionZ + 6;
 
+                GameObject straySheepNew = ObjectPoolUtility.Get(sheepAmountToPool, sheepPool);
+                AddSheepToStrays(straySheepNew);
+
                 if (spawnSide[sideIndex] == "left")
                 {
                     StraySheepSpawnPosition = new Vector3(-12, 1, straySheepSpawnPositionZ);
                     StraySheepTargetPosition = new Vector3(11, 1, straySheepTargetPositionZ);
 
-                    GameObject straySheepNew = ObjectPoolUtility.Get(sheepAmountToPool, sheepPool);
-                    if (straySheepNew != null)
-                    {
-                        straySheepNew.transform.SetPositionAndRotation(StraySheepSpawnPosition, straySheepNew.transform.rotation);
-                        straySheepNew.SetActive(true);
-                        SheepController sheepStrayController = straySheepNew.GetComponent<SheepController>();
-                        dependancyManager.InjectSheepControllerDependencies(sheepStrayController);
-                    }
                 }
                 else if (spawnSide[sideIndex] == "right")
                 {
                     StraySheepSpawnPosition = new Vector3(12, 1, straySheepSpawnPositionZ);
                     StraySheepTargetPosition = new Vector3(-11, 1, straySheepTargetPositionZ);
+                }
 
-                    GameObject straySheepNew = ObjectPoolUtility.Get(sheepAmountToPool, sheepPool);
-                    if (straySheepNew != null)
-                    {
-                        straySheepNew.transform.SetPositionAndRotation(StraySheepSpawnPosition, straySheepNew.transform.rotation);
-                        straySheepNew.SetActive(true);
-                        SheepController sheepStrayController = straySheepNew.GetComponent<SheepController>();
-                        dependancyManager.InjectSheepControllerDependencies(sheepStrayController);
-                    }
+                if (straySheepNew != null)
+                {
+                    straySheepNew.transform.SetPositionAndRotation(StraySheepSpawnPosition, straySheepNew.transform.rotation);
+                    straySheepNew.SetActive(true);
+                    SheepController sheepStrayController = straySheepNew.GetComponent<SheepController>();
+                    dependancyManager.InjectSheepControllerDependencies(sheepStrayController);
                 }
             }
             Invoke("SpawnStraySheep", 1);
@@ -333,7 +356,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     {
         if (isGameActive)
         {
-            if (Herd.Length > 0)
+            if (Herd.Count > 0)
             {
                 // choose target for wolf to hunt
                 ChooseTarget();
@@ -345,6 +368,9 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                     wolfNew.transform.SetPositionAndRotation(WolfSpawnPosition = ChooseSpawnPosition(), transform.rotation);
 
                     wolfNew.SetActive(true);
+
+                    AddWolfToPack(wolfNew);
+
                     WolfController wolfController = wolfNew.GetComponent<WolfController>();
                     dependancyManager.InjectWolfControllerDependencies(wolfController);
                 }
@@ -359,7 +385,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         int targetIndex;
         string[] huntTarget = { "player", "sheep" };
 
-        if (Herd.Length > 0)
+        if (Herd.Count > 0)
         {
             targetIndex = Random.Range(0, huntTarget.Length);
         }
@@ -422,15 +448,16 @@ public class MockSpawnManager : ISpawnManager
     public bool HasTargetedSheepdog { get; set; }
     public bool HasTargetedHerd { get; set; }
     public Vector3 WolfSpawnPosition { get; set; }
-    public GameObject[] Herd { get; set; }
-    public GameObject[] Pack { get; set; }
+    public List<GameObject> Herd { get; set; }
+    public List<GameObject> Pack { get; set; }
+    public List<GameObject> Strays { get; set; }
     public int TimeSinceLostSheep { get; set; }
     public Vector3 StraySheepSpawnPosition { get; set; }
     public Vector3 StraySheepTargetPosition { get; set; }
 
     public bool CheckSheepGrounded()
     {
-        return Herd != null && Herd.Length > 0;
+        return Herd != null && Herd.Count > 0;
     }
 
     public void ReturnPooledGameObject(GameObject gameObject)
@@ -441,4 +468,11 @@ public class MockSpawnManager : ISpawnManager
     public List<GameObject> SheepCollisionEffectPool { get; set; }
     public int SheepCollisionEffectAmountToPool { get; set; }
     public void ActivateSheepCollisionEffect(GameObject effect) { }
+
+    public void AddSheepToHerd(GameObject gameObject) { }
+    public void RemoveSheepFromHerd(GameObject gameObject) { }
+    public void AddSheepToStrays(GameObject gameObject) { }
+    public void RemoveSheepFromStrays(GameObject gameObject) { }
+    public void AddWolfToPack(GameObject gameObject) { }
+    public void RemoveWolfFromPack(GameObject gameObject) { }
 }

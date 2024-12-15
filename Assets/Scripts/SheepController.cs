@@ -116,6 +116,7 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     void ReturnToPoolAndReset(GameObject gameObject)
     {
         gameObject.tag = "Stray";
+        _spawnManager.RemoveSheepFromHerd(gameObject);
         ObjectPoolUtility.Return(gameObject);
     }
 
@@ -304,12 +305,15 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
             transform.position.x < xBoundary - xAvoidDistance &&
             transform.position.x > -xBoundary + xAvoidDistance)
         {
+            _spawnManager.AddSheepToHerd(gameObject);
+            _spawnManager.RemoveSheepFromStrays(gameObject);
             gameObject.tag = "Sheep";
         }
 
         // stray sheep is gone once beyond the forest boundary
         if (Mathf.Abs(targetPosition.x - transform.position.x) <= 0.2)
         {
+            _spawnManager.RemoveSheepFromStrays(gameObject);
             ReturnToPoolAndReset(gameObject);
         }
     }
@@ -368,7 +372,7 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
         }
     }
 
-    private float CalculateDelay(GameObject[] herd)
+    private float CalculateDelay(List<GameObject> herd)
     {
         float originZ = zBackwardBoundary;
         float frontSheepPosZ = transform.position.z - originZ;
@@ -403,12 +407,6 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
         sheepRb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
         IsGrounded = false;
     }
-
-    //IEnumerator CollisionEffectDuration(GameObject gameObject, float durationTime)
-    //{
-    //    yield return new WaitForSeconds(durationTime);
-    //    ObjectPoolUtility.Return(gameObject);
-    //}
 
     void Jump(Vector3 direction, float force)
     {

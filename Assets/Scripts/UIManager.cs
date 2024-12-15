@@ -24,7 +24,8 @@ public class UIManager : MonoBehaviour, IUIManager
     public int TimeRemaining { get; set; }
     public int Score { get; set; }
 
-    private int herdSize;
+    private int herdCount;
+    private int strayCount;
 
     // player
     private IPlayerController _sheepdog;
@@ -52,7 +53,7 @@ public class UIManager : MonoBehaviour, IUIManager
     {
         // initialise 
         TimeRemaining = 90;
-        herdSize = 3;
+        herdCount = 3;
         Score = 0;
         StartCoroutine(FadeOutTitle());
 
@@ -86,11 +87,10 @@ public class UIManager : MonoBehaviour, IUIManager
             {
                 healthText.text = "Health " + new string('■', sheepdogHealth) + new string('□', 5-sheepdogHealth);
             }
-            GameObject straySheep = GameObject.FindGameObjectWithTag("Stray");
-            GameObject huntedSheep = GameObject.FindGameObjectWithTag("Hunted");
-            herdSize = _spawnManager.Herd.Length + (huntedSheep ? 1 : 0);
+            herdCount = _spawnManager.Herd.Count;
+            strayCount = _spawnManager.Strays.Count;
 
-            if (herdSize == 0 && !straySheep)
+            if (herdCount == 0 && strayCount == 0)
             {
                 reasonText.text = "The herd was lost...";
                 GameOver();
@@ -147,13 +147,13 @@ public class UIManager : MonoBehaviour, IUIManager
             }
             timeRemainingText.text = "Time " + TimeRemaining;
             scoreText.text = "Score " + Score;
-            herdMultiplierText.text = "Herd x" + herdSize;
+            herdMultiplierText.text = "Herd x" + herdCount;
 
             yield return new WaitForSeconds(1);
 
             if (TimeRemaining > 0)
             {
-                Score += (10 * herdSize);
+                Score += (10 * herdCount);
             }
             TimeRemaining -= 1;
             
