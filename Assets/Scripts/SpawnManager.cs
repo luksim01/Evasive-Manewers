@@ -32,6 +32,9 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     public int spawnInterval = 20;
     private List<GameObject> sheepPool;
     private int sheepAmountToPool = 8;
+    public GameObject warningPrompt;
+    private List<GameObject> warningPromptPool;
+    private int warningPromptAmountToPool = 5;
 
     // particle
     public GameObject sheepCollisionEffect;
@@ -88,6 +91,9 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         {
             trailLanesPos[laneIndex] = trailLanes[laneIndex].transform.position.x;
         }
+
+        // creating a pool of warning prompts
+        warningPromptPool = ObjectPoolUtility.Create("WarningPromptPool", gameObject.transform, warningPrompt, warningPromptAmountToPool);
 
         // creating a pool of boundary trees
         backgroundTreePool = ObjectPoolUtility.Create("BoundaryTreePool", gameObject.transform, backgroundTree, treeAmountToPool);
@@ -203,21 +209,54 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         if(noOfLanes == "Single")
         {
             _audioManager.HasDetectedWarnSingle = true;
-            laneWarningsText[singleLaneIndex].SetActive(true);
+            float warningPromptPositionX = trailLanesPos[singleLaneIndex];
+            GameObject warningPromptNew = ObjectPoolUtility.Get(warningPromptAmountToPool, warningPromptPool);
+
+            Vector3 warningPromptNewPosition = new Vector3(warningPromptPositionX, warningPromptNew.transform.position.y, warningPromptNew.transform.position.z);
+
+            if (warningPromptNew != null)
+            {
+                warningPromptNew.transform.SetPositionAndRotation(warningPromptNewPosition, warningPromptNew.transform.rotation);
+                warningPromptNew.SetActive(true);
+            }
+            //laneWarningsText[singleLaneIndex].SetActive(true);
             yield return new WaitForSeconds(2);
-            laneWarningsText[singleLaneIndex].SetActive(false);
+
+            ObjectPoolUtility.Return(warningPromptNew);
+
+            //laneWarningsText[singleLaneIndex].SetActive(false);
         }
         else if (noOfLanes == "All")
         {
             _audioManager.HasDetectedWarnAll = true;
+
+            GameObject[] warningPromptArray = new GameObject[warningPromptAmountToPool];
+
             for (int laneIndex = 0; laneIndex < laneWarningsText.Length; laneIndex++)
             {
-                laneWarningsText[laneIndex].SetActive(true);
+                float warningPromptPositionX = trailLanesPos[laneIndex];
+                GameObject warningPromptNew = ObjectPoolUtility.Get(warningPromptAmountToPool, warningPromptPool);
+
+                Vector3 warningPromptNewPosition = new Vector3(warningPromptPositionX, warningPromptNew.transform.position.y, warningPromptNew.transform.position.z);
+
+                if (warningPromptNew != null)
+                {
+                    warningPromptNew.transform.SetPositionAndRotation(warningPromptNewPosition, warningPromptNew.transform.rotation);
+                    warningPromptNew.SetActive(true);
+                }
+
+                warningPromptArray[laneIndex] = warningPromptNew;
+
+                //laneWarningsText[laneIndex].SetActive(true);
             }
+
             yield return new WaitForSeconds(2);
+
             for (int laneIndex = 0; laneIndex < laneWarningsText.Length; laneIndex++)
             {
-                laneWarningsText[laneIndex].SetActive(false);
+
+                ObjectPoolUtility.Return(warningPromptArray[laneIndex]);
+                //laneWarningsText[laneIndex].SetActive(false);
             }
         }
     }
