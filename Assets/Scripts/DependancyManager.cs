@@ -7,7 +7,6 @@ public class DependancyManager : MonoBehaviour
 
     [SerializeField] private PlayerController playerController;
     [SerializeField] private SpawnManager spawnManager;
-    [SerializeField] private CameraController cameraController;
 
     void Start()
     {
@@ -45,15 +44,6 @@ public class DependancyManager : MonoBehaviour
         else
         {
             Debug.LogError("SpawnManager is not assigned in GameManager.");
-        }
-
-        if (cameraController != null)
-        {
-            cameraController.SetDependencies(uiManager);
-        }
-        else
-        {
-            Debug.LogError("CameraController is not assigned in GameManager.");
         }
     }
 

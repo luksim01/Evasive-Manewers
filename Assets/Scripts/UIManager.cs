@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.Profiling;
+using UnityEngine.Rendering.PostProcessing;
 
 public class UIManager : MonoBehaviour, IUIManager
 {
@@ -49,9 +50,15 @@ public class UIManager : MonoBehaviour, IUIManager
     // pause
     [SerializeField] private bool isPaused = false;
 
+    // camera
+    PostProcessVolume postprocessVolume;
+    PostProcessLayer postprocessLayer;
+
     private void Awake()
     {
         IsGameActive = true;
+        postprocessVolume = Camera.main.gameObject.GetComponent<PostProcessVolume>();
+        postprocessLayer = Camera.main.gameObject.GetComponent<PostProcessLayer>();
     }
 
     void Start()
@@ -128,11 +135,24 @@ public class UIManager : MonoBehaviour, IUIManager
         }
     }
 
+    public void EnablePostProcessing()
+    {
+        postprocessLayer.enabled = true;
+        postprocessVolume.enabled = true;
+    }
+
+    public void DisablePostProcessing()
+    {
+        postprocessLayer.enabled = false;
+        postprocessVolume.enabled = false;
+    }
+
     void PauseGame()
     {
         isPaused = true;
         Profiler.enabled = false;
         Time.timeScale = 0f;
+        EnablePostProcessing();
     }
 
     void ResumeGame()
@@ -140,6 +160,7 @@ public class UIManager : MonoBehaviour, IUIManager
         isPaused = false;
         Profiler.enabled = true;
         Time.timeScale = 1f;
+        DisablePostProcessing();
     }
 
     IEnumerator FadeOutTitle()
@@ -197,6 +218,7 @@ public class UIManager : MonoBehaviour, IUIManager
         hudScreen.SetActive(false);
         gameOverScreen.SetActive(true);
         IsGameActive = false;
+        EnablePostProcessing();
     }
 
     public void BeginGame()
