@@ -101,11 +101,11 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     {
         sheepdogRb = GetComponent<Rigidbody>();
 
-        sheepdogBodyAnim = this.transform.Find("sheepdog_body").GetComponent<Animator>();
-        sheepdogHeadAnim = this.transform.Find("sheepdog_head").GetComponent<Animator>();
+        sheepdogBodyAnim = PlayerTransform.Find("sheepdog_body").GetComponent<Animator>();
+        sheepdogHeadAnim = PlayerTransform.Find("sheepdog_head").GetComponent<Animator>();
 
         // creating a pool of collision effects
-        collisionEffectPool = ObjectPoolUtility.Create("DogCollisionPool", gameObject.transform, sheepdogCollisionEffect, collisionEffectAmountToPool);
+        collisionEffectPool = ObjectPoolUtility.Create("DogCollisionPool", PlayerTransform, sheepdogCollisionEffect, collisionEffectAmountToPool);
     }
 
     // Update is called once per frame
@@ -123,8 +123,6 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
             CheckPlayerDeath();
         }
-
-        PlayerTransform = transform;
     }
 
     private void MovementControl(float forwardSpeed, float backwardSpeed, float sidewardSpeed, float jumpForce, float jumpMovementSpeed)
@@ -151,28 +149,28 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
     public void Move(Vector3 direction, float input, float speed)
     {
-        transform.Translate(direction * input * Time.deltaTime * speed * (isGrounded ? 1 : jumpMovementSpeed));
+        PlayerTransform.Translate(direction * input * Time.deltaTime * speed * (isGrounded ? 1 : jumpMovementSpeed));
     }
 
     private void MovementBoundaries(float xBoundary, float zBoundary)
     {
         // player movement boundaries - left/right
-        if (transform.position.x < -xBoundary)
+        if (PlayerTransform.position.x < -xBoundary)
         {
-            transform.position = new Vector3(-xBoundary, transform.position.y, transform.position.z);
+            PlayerTransform.position = new Vector3(-xBoundary, PlayerTransform.position.y, PlayerTransform.position.z);
         }
-        if (transform.position.x > xBoundary)
+        if (PlayerTransform.position.x > xBoundary)
         {
-            transform.position = new Vector3(xBoundary, transform.position.y, transform.position.z);
+            PlayerTransform.position = new Vector3(xBoundary, PlayerTransform.position.y, PlayerTransform.position.z);
         }
         // player movement boundaries - forwards/backwards
-        if (transform.position.z < -zBoundary)
+        if (PlayerTransform.position.z < -zBoundary)
         {
-            transform.position = new Vector3(transform.position.x, transform.position.y, -zBoundary);
+            PlayerTransform.position = new Vector3(PlayerTransform.position.x, PlayerTransform.position.y, -zBoundary);
         }
-        if (transform.position.z > zBoundary)
+        if (PlayerTransform.position.z > zBoundary)
         {
-            transform.position = new Vector3(transform.position.x, transform.position.y, zBoundary);
+            PlayerTransform.position = new Vector3(PlayerTransform.position.x, PlayerTransform.position.y, zBoundary);
         }
     }
 
@@ -253,7 +251,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         GameObject sheepdogCollisionEffect = ObjectPoolUtility.Get(collisionEffectAmountToPool, collisionEffectPool);
         if (sheepdogCollisionEffect != null)
         {
-            sheepdogCollisionEffect.transform.SetPositionAndRotation(transform.position, transform.rotation);
+            sheepdogCollisionEffect.transform.SetPositionAndRotation(PlayerTransform.position, PlayerTransform.rotation);
             sheepdogCollisionEffect.SetActive(true);
             StartCoroutine(CollisionEffectDuration(sheepdogCollisionEffect, 2f));
         }

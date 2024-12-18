@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class WolfController : MonoBehaviour, ICollidable
 {
-    // wolf 
+    // wolf
+    private Transform WolfTransform { get; set; }
     private bool hasBitten;
 
     // hunt target
@@ -45,7 +46,7 @@ public class WolfController : MonoBehaviour, ICollidable
 
     void Start()
     {
-        wolfHeadAnim = this.transform.Find("wolf_head").GetComponent<Animator>();
+        
     }
 
     // Update is called once per frame
@@ -74,6 +75,8 @@ public class WolfController : MonoBehaviour, ICollidable
     void InitialiseWolf()
     {
         wolfSpawnPositionX = _spawnManager.WolfSpawnPosition.x;
+        WolfTransform = this.transform;
+        wolfHeadAnim = WolfTransform.Find("wolf_head").GetComponent<Animator>();
         hasTargetedSheepdog = _spawnManager.HasTargetedSheepdog;
         hasTargetedHerd = _spawnManager.HasTargetedHerd;
         hasInitialisedWolf = true;
@@ -95,7 +98,7 @@ public class WolfController : MonoBehaviour, ICollidable
     private void DestroyBoundaries(float xBoundaryRight, float xBoundaryLeft, float zBoundaryForward, float zBoundaryBackward)
     {
         // destroy if out of bounds
-        if (transform.position.x > xBoundaryRight || transform.position.x < xBoundaryLeft)
+        if (WolfTransform.position.x > xBoundaryRight || WolfTransform.position.x < xBoundaryLeft)
         {
             if (!hasBitten && hasTargetedSheepdog)
             {
@@ -103,7 +106,7 @@ public class WolfController : MonoBehaviour, ICollidable
             }
             ReturnToPoolAndReset(gameObject);
         }
-        if (transform.position.z > zBoundaryForward || transform.position.z < zBoundaryBackward)
+        if (WolfTransform.position.z > zBoundaryForward || WolfTransform.position.z < zBoundaryBackward)
         {
             if (!hasBitten && hasTargetedSheepdog)
             {
@@ -120,9 +123,9 @@ public class WolfController : MonoBehaviour, ICollidable
 
         for (int i = 0; i < _spawnManager.Herd.Count; i++)
         {
-            if (Mathf.Abs(_spawnManager.Herd[i].transform.position.x - transform.position.x) < closestSheep)
+            if (Mathf.Abs(_spawnManager.Herd[i].transform.position.x - WolfTransform.position.x) < closestSheep)
             {
-                closestSheep = Mathf.Abs(_spawnManager.Herd[i].transform.position.x - transform.position.x);
+                closestSheep = Mathf.Abs(_spawnManager.Herd[i].transform.position.x - WolfTransform.position.x);
                 targetIndex = i;
             }
         }
@@ -145,8 +148,8 @@ public class WolfController : MonoBehaviour, ICollidable
         if (targetSheep)
         {
             // sheep proximity
-            float sheepProximityX = targetSheep.transform.position.x - transform.position.x;
-            float sheepProximityZ = targetSheep.transform.position.z - transform.position.z;
+            float sheepProximityX = targetSheep.transform.position.x - WolfTransform.position.x;
+            float sheepProximityZ = targetSheep.transform.position.z - WolfTransform.position.z;
             Vector3 sheepProximity = new Vector3(sheepProximityX, 0, sheepProximityZ);
 
             if (Mathf.Abs(sheepProximityX) > 2 || Mathf.Abs(sheepProximityZ) > 4)
@@ -155,15 +158,15 @@ public class WolfController : MonoBehaviour, ICollidable
             }
 
             // player proximity
-            float sheepDogProximityX = _sheepdog.PlayerTransform.position.x - transform.position.x;
-            float sheepDogProximityZ = _sheepdog.PlayerTransform.position.z - transform.position.z;
+            float sheepDogProximityX = _sheepdog.PlayerTransform.position.x - WolfTransform.position.x;
+            float sheepDogProximityZ = _sheepdog.PlayerTransform.position.z - WolfTransform.position.z;
 
             // wolf hunt sequence can be interrupted
             if (isBarkedAt &&
                 Mathf.Abs(sheepDogProximityX) < 3 &&
                 Mathf.Abs(sheepDogProximityZ) < 5 &&
-                transform.position.x < 5.4 &&
-                transform.position.x > -5.4)
+                WolfTransform.position.x < 5.4 &&
+                WolfTransform.position.x > -5.4)
             {
                 wolfHeadAnim.SetTrigger("isBiting");
                 targetSheep.tag = "Sheep";
@@ -178,7 +181,7 @@ public class WolfController : MonoBehaviour, ICollidable
 
         if (isCharging)
         {
-            TravelTowards(new Vector3(transform.position.x, 0f, zBoundary), 18.0f);
+            TravelTowards(new Vector3(WolfTransform.position.x, 0f, zBoundary), 18.0f);
         }
         else if (!targetSheep.activeSelf)
         {
@@ -190,8 +193,8 @@ public class WolfController : MonoBehaviour, ICollidable
 
     private void HuntPlayer()
     {
-        float sheepDogProximityX = _sheepdog.PlayerTransform.transform.position.x - transform.position.x;
-        float sheepDogProximityZ = _sheepdog.PlayerTransform.position.z - transform.position.z;
+        float sheepDogProximityX = _sheepdog.PlayerTransform.transform.position.x - WolfTransform.position.x;
+        float sheepDogProximityZ = _sheepdog.PlayerTransform.position.z - WolfTransform.position.z;
         Vector3 sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
 
         // track player position
@@ -202,7 +205,7 @@ public class WolfController : MonoBehaviour, ICollidable
         }
 
         // once close enough, charge at player in one direction
-        if (sheepDogProximity.z <= 8 && transform.position.x < 7.7f && transform.position.x > -7.7f)
+        if (sheepDogProximity.z <= 8 && WolfTransform.position.x < 7.7f && WolfTransform.position.x > -7.7f)
         {
             isCharging = true;
         }
@@ -227,16 +230,16 @@ public class WolfController : MonoBehaviour, ICollidable
         Vector3 alignDirection = (direction).normalized;
         if (alignDirection != Vector3.zero && !hasBitten)
         {
-            transform.rotation = Quaternion.LookRotation(alignDirection);
+            WolfTransform.rotation = Quaternion.LookRotation(alignDirection);
         }
-        transform.Translate(alignDirection * 10.0f * Time.deltaTime);
+        WolfTransform.Translate(alignDirection * 10.0f * Time.deltaTime);
     }
 
 
     private void TravelTowards(Vector3 direction, float speed)
     {
         Vector3 alignDirection = (direction).normalized;
-        transform.Translate(alignDirection * speed * Time.deltaTime);
+        WolfTransform.Translate(alignDirection * speed * Time.deltaTime);
     }
 
     public void OnCollision(GameObject collidingObject)
