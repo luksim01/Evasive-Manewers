@@ -10,9 +10,13 @@ public class UIManager : MonoBehaviour, IUIManager
 {
     public TextMeshProUGUI titleScreenText;
     public TextMeshProUGUI healthText;
+    public TextMeshProUGUI healthBarText;
+    public TextMeshProUGUI timeText;
     public TextMeshProUGUI timeRemainingText;
+    public TextMeshProUGUI herdText;
     public TextMeshProUGUI herdMultiplierText;
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI scoreValueText;
 
     public TextMeshProUGUI finalScoreText;
     public TextMeshProUGUI reasonText;
@@ -23,13 +27,16 @@ public class UIManager : MonoBehaviour, IUIManager
     public bool IsGameActive { get; set; }
     public int TimeRemaining { get; set; }
     public int Score { get; set; }
+    private int previousScore;
 
     private int herdCount;
+    private int previousHerdCount;
     private int strayCount;
 
     // player
     private IPlayerController _sheepdog;
     private int sheepdogHealth;
+    private int previousSheepdogHealth;
 
     // spawn manager
     private ISpawnManager _spawnManager;
@@ -59,9 +66,13 @@ public class UIManager : MonoBehaviour, IUIManager
 
         // make GUI invisible initially
         healthText.CrossFadeAlpha(0.0f, 0.0f, false);
+        healthBarText.CrossFadeAlpha(0.0f, 0.0f, false);
+        timeText.CrossFadeAlpha(0.0f, 0.0f, false);
         timeRemainingText.CrossFadeAlpha(0.0f, 0.0f, false);
+        herdText.CrossFadeAlpha(0.0f, 0.0f, false);
         herdMultiplierText.CrossFadeAlpha(0.0f, 0.0f, false);
         scoreText.CrossFadeAlpha(0.0f, 0.0f, false);
+        scoreValueText.CrossFadeAlpha(0.0f, 0.0f, false);
 
         StartCoroutine(FadeInHUD());
     }
@@ -83,12 +94,24 @@ public class UIManager : MonoBehaviour, IUIManager
         if (IsGameActive)
         {
             sheepdogHealth = _sheepdog.Health;
-            if (sheepdogHealth >= 0)
+
+            if (sheepdogHealth != previousSheepdogHealth)
             {
-                healthText.text = "Health " + new string('■', sheepdogHealth) + new string('□', 5-sheepdogHealth);
+                healthBarText.text = new string('O', sheepdogHealth) + new string('-', 5 - sheepdogHealth); ;
             }
+
             herdCount = _spawnManager.Herd.Count;
             strayCount = _spawnManager.Strays.Count;
+
+            if (herdCount != previousHerdCount)
+            {
+                herdMultiplierText.text = herdCount.ToString();
+            }
+
+            if (Score != previousScore)
+            {
+                scoreValueText.text = Score.ToString();
+            }
 
             if (herdCount == 0 && strayCount == 0)
             {
@@ -100,6 +123,10 @@ public class UIManager : MonoBehaviour, IUIManager
                 reasonText.text = "The dog is too weak to continue...";
                 GameOver();
             }
+
+            previousSheepdogHealth = sheepdogHealth;
+            previousHerdCount = herdCount;
+            previousScore = Score;
         }
     }
 
@@ -128,36 +155,41 @@ public class UIManager : MonoBehaviour, IUIManager
         yield return new WaitForSeconds(2);
 
         healthText.CrossFadeAlpha(1.0f, 1.0f, false);
+        healthBarText.CrossFadeAlpha(1.0f, 1.0f, false);
+        timeText.CrossFadeAlpha(1.0f, 1.0f, false);
         timeRemainingText.CrossFadeAlpha(1.0f, 1.0f, false);
+        herdText.CrossFadeAlpha(1.0f, 1.0f, false);
         herdMultiplierText.CrossFadeAlpha(1.0f, 1.0f, false);
         scoreText.CrossFadeAlpha(1.0f, 1.0f, false);
-        
+        scoreValueText.CrossFadeAlpha(1.0f, 1.0f, false);
+
         StartCoroutine(TimeCountdown());
     }
 
     IEnumerator TimeCountdown()
     {
-        while (IsGameActive)
+        timeRemainingText.text = TimeRemaining.ToString();
+
+        yield return new WaitForSeconds(1);
+
+        TimeRemaining -= 1;
+
+        if (TimeRemaining >= 0)
         {
-            if (TimeRemaining < 0)
-            {
-                reasonText.text = "You have escaped the forest!";
-                GameOver();
-                IsGameActive = false;
-            }
-            timeRemainingText.text = "Time " + TimeRemaining;
-            scoreText.text = "Score " + Score;
-            herdMultiplierText.text = "Herd x" + herdCount;
-
-            yield return new WaitForSeconds(1);
-
-            if (TimeRemaining > 0)
-            {
-                Score += (10 * herdCount);
-            }
-            TimeRemaining -= 1;
-            
+            Score += (10 * herdCount);
         }
+
+        if (TimeRemaining >= 0)
+        {
+            StartCoroutine(TimeCountdown());
+        }
+
+        if (TimeRemaining < 0)
+        {
+            reasonText.text = "You have escaped the forest!";
+            IsGameActive = false;
+            GameOver();
+        }   
     }
 
     public void GameOver()
