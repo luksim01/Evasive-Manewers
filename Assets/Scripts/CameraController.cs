@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 
@@ -8,7 +6,6 @@ public class CameraController : MonoBehaviour
     PostProcessVolume ppVolume;
 
     // ui
-    private bool isGameActive;
     private IUIManager _uiManager;
 
     // dependancies
@@ -25,9 +22,7 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        isGameActive = _uiManager.IsGameActive;
-
-        if (!isGameActive)
+        if (!_uiManager.IsGameActive)
         {
             ppVolume.enabled = true;
         }

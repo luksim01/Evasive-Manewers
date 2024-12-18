@@ -54,7 +54,6 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     private IAudioManager _audioManager;
 
     // ui
-    private bool isGameActive;
     private IUIManager _uiManager;
 
     // spawn manager
@@ -111,9 +110,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     // Update is called once per frame
     void Update()
     {
-        isGameActive = _uiManager.IsGameActive;
-
-        if (isGameActive)
+        if (_uiManager.IsGameActive)
         {
             MovementBoundaries(xBoundary, zBoundary);
 

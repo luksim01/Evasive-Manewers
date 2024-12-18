@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 
 public class SheepController : MonoBehaviour, ISheepController, ICollidable
 {
@@ -66,7 +65,6 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     private IAudioManager _audioManager;
 
     // ui
-    private bool isGameActive;
     private IUIManager _uiManager;
 
     // spawn manager
@@ -98,14 +96,12 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     // Update is called once per frame
     void Update()
     {
-        isGameActive = _uiManager.IsGameActive;
-
         if (!hasInitialisedSheep)
         {
             InitialiseSheep();
         }
 
-        if (isGameActive)
+        if (_uiManager.IsGameActive && hasInitialisedSheep)
         {
             CheckPlayerActivity();
 

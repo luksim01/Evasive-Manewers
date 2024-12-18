@@ -5461,8 +5461,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2522443253259909722, guid: cd65224ff91b645de9bb0f48749a8136, type: 3}
-      propertyPath: m_Enabled
-      value: 0
+      propertyPath: m_ShowToolkit
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2522443253259909722, guid: cd65224ff91b645de9bb0f48749a8136, type: 3}
+      propertyPath: m_ShowCustomSorter
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2522443253259909722, guid: cd65224ff91b645de9bb0f48749a8136, type: 3}
+      propertyPath: volumeLayer.m_Bits
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 3587525373425881095, guid: cd65224ff91b645de9bb0f48749a8136, type: 3}
       propertyPath: m_Name

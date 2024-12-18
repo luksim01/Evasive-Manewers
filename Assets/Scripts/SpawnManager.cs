@@ -53,8 +53,6 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     private IAudioManager _audioManager;
 
     // ui
-    private bool isGameActive;
-    private int timeRemaining;
     private IUIManager _uiManager;
 
     // player
@@ -138,12 +136,6 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         Invoke("SpawnBackground", 1);
         TimeSinceLostSheep = 0;
         Invoke("SpawnStraySheep", 3);
-    }
-
-    void Update()
-    {
-        isGameActive = _uiManager.IsGameActive;
-        timeRemaining = _uiManager.TimeRemaining;
     }
 
     public void AddSheepToHerd(GameObject gameObject)
@@ -274,7 +266,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
     private void SpawnBackground()
     {
-        if (isGameActive)
+        if (_uiManager.IsGameActive)
         {
             GameObject foregroundTreeNew = ObjectPoolUtility.Get(treeAmountToPool, backgroundTreePool);
             if(foregroundTreeNew != null)
@@ -294,7 +286,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 dependancyManager.InjectObstacleControllerDependencies(obstacleControllerBackground);
             }
 
-            if (timeRemaining > 10)
+            if (_uiManager.TimeRemaining > 10)
             {
                 Invoke("SpawnBackground", 1);
             }
@@ -317,7 +309,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
     private void SpawnStraySheep()
     {
-        if (isGameActive)
+        if (_uiManager.IsGameActive)
         {
             if (CheckTimeSinceLostSheep(spawnInterval))
             {
@@ -357,7 +349,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
     private void SpawnObstacle()
     {
-        if (isGameActive)
+        if (_uiManager.IsGameActive)
         {
             int obstacleIndex = Random.Range(0, obstacles.Length);
             GameObject obstacleNew = ObjectPoolUtility.Get(obstacleAmountToPool, obstaclePool[obstacleIndex]);
@@ -393,7 +385,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
     private void SpawnWolf()
     {
-        if (isGameActive)
+        if (_uiManager.IsGameActive)
         {
             if (Herd.Count > 0)
             {

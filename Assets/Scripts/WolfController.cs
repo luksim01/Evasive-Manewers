@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class WolfController : MonoBehaviour, ICollidable
@@ -17,7 +15,6 @@ public class WolfController : MonoBehaviour, ICollidable
     private bool isCharging = false;
 
     // ui
-    private bool isGameActive;
     private IUIManager _uiManager;
 
     // spawn manager
@@ -52,14 +49,12 @@ public class WolfController : MonoBehaviour, ICollidable
     // Update is called once per frame
     void Update()
     {
-        isGameActive = _uiManager.IsGameActive;
-
         if (!hasInitialisedWolf)
         {
             InitialiseWolf();
         }
 
-        if (isGameActive && hasInitialisedWolf)
+        if (_uiManager.IsGameActive && hasInitialisedWolf)
         {
             if (hasTargetedSheepdog)
             {
