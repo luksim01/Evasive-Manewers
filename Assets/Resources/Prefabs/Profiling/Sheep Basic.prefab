@@ -179,7 +179,7 @@ GameObject:
   - component: {fileID: 1726622030027172507}
   - component: {fileID: 3227285108991186763}
   m_Layer: 0
-  m_Name: Sheep
+  m_Name: Sheep Basic
   m_TagString: Stray
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -264,4 +264,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isSlowingDown: 1
   isHerdSheep: 0
-  sheepCollisionEffect: {fileID: 3432256878017962716, guid: 408d451c21e714a59b9a04ce1358ed47, type: 3}

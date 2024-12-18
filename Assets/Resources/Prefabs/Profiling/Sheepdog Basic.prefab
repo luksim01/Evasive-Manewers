@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 994967483104251912}
   - component: {fileID: 3563461813198268385}
   m_Layer: 0
-  m_Name: Sheepdog
+  m_Name: Sheepdog Basic
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
