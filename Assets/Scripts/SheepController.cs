@@ -53,8 +53,8 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     private float xDistanceFromBoundary = 1.5f;
 
     // animation
-    private Animator sheepBodyAnim;
-    private Animator sheepHeadAnim;
+    //private Animator sheepBodyAnim;
+    //private Animator sheepHeadAnim;
 
     //// particle
     //public GameObject sheepCollisionEffect;
@@ -113,8 +113,8 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     void InitialiseSheep()
     {
         SheepTransform = this.transform;
-        sheepBodyAnim = SheepTransform.Find("sheep_body").GetComponent<Animator>();
-        sheepHeadAnim = SheepTransform.Find("sheep_head").GetComponent<Animator>();
+        //sheepBodyAnim = SheepTransform.Find("sheep_body").GetComponent<Animator>();
+        //sheepHeadAnim = SheepTransform.Find("sheep_head").GetComponent<Animator>();
         hasInitialisedSheep = true;
     }
 
@@ -398,8 +398,8 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     void Hop(float force)
     {
         hopDirectionX = Random.Range(-0.2f, 0.2f);
-        sheepBodyAnim.SetTrigger("isJumping");
-        sheepHeadAnim.SetTrigger("isJumping");
+        //sheepBodyAnim.SetTrigger("isJumping");
+        //sheepHeadAnim.SetTrigger("isJumping");
         sheepRb.AddForce(new Vector3(hopDirectionX, hopDirectionY, hopDirectionZ) * force, ForceMode.Impulse);
         IsGrounded = false;
     }
@@ -407,16 +407,16 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     IEnumerator StaggeredJump(float delay)
     {
         yield return new WaitForSeconds(delay);
-        sheepBodyAnim.SetTrigger("isJumping");
-        sheepHeadAnim.SetTrigger("isJumping");
+        //sheepBodyAnim.SetTrigger("isJumping");
+        //sheepHeadAnim.SetTrigger("isJumping");
         sheepRb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
         IsGrounded = false;
     }
 
     void Jump(Vector3 direction, float force)
     {
-        sheepBodyAnim.SetTrigger("isJumping");
-        sheepHeadAnim.SetTrigger("isJumping");
+        //sheepBodyAnim.SetTrigger("isJumping");
+        //sheepHeadAnim.SetTrigger("isJumping");
         sheepRb.AddForce(direction * force, ForceMode.Impulse);
         IsGrounded = false;
     }

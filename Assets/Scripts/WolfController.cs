@@ -36,7 +36,7 @@ public class WolfController : MonoBehaviour, ICollidable
     }
 
     // animation
-    private Animator wolfHeadAnim;
+    //private Animator wolfHeadAnim;
 
     // collision
     public bool HasCollided { get; set; }
@@ -71,7 +71,7 @@ public class WolfController : MonoBehaviour, ICollidable
     {
         wolfSpawnPositionX = _spawnManager.WolfSpawnPosition.x;
         WolfTransform = this.transform;
-        wolfHeadAnim = WolfTransform.Find("wolf_head").GetComponent<Animator>();
+        //wolfHeadAnim = WolfTransform.Find("wolf_head").GetComponent<Animator>();
         hasTargetedSheepdog = _spawnManager.HasTargetedSheepdog;
         hasTargetedHerd = _spawnManager.HasTargetedHerd;
         hasInitialisedWolf = true;
@@ -163,7 +163,7 @@ public class WolfController : MonoBehaviour, ICollidable
                 WolfTransform.position.x < 5.4 &&
                 WolfTransform.position.x > -5.4)
             {
-                wolfHeadAnim.SetTrigger("isBiting");
+                //wolfHeadAnim.SetTrigger("isBiting");
                 targetSheep.tag = "Sheep";
                 isCharging = true;
             }
@@ -208,7 +208,7 @@ public class WolfController : MonoBehaviour, ICollidable
         {
             if (Mathf.Abs(sheepDogProximityZ) < 6)
             {
-                wolfHeadAnim.SetTrigger("isBiting");
+                //wolfHeadAnim.SetTrigger("isBiting");
             }
             Track(collisionCourse);
         }

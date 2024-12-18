@@ -42,8 +42,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     [SerializeField] private float heightTrigger = 2f;
 
     // animation
-    private Animator sheepdogBodyAnim;
-    private Animator sheepdogHeadAnim;
+    //private Animator sheepdogBodyAnim;
+    //private Animator sheepdogHeadAnim;
 
     // particle
     public GameObject sheepdogCollisionEffect;
@@ -100,8 +100,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     {
         sheepdogRb = GetComponent<Rigidbody>();
 
-        sheepdogBodyAnim = PlayerTransform.Find("sheepdog_body").GetComponent<Animator>();
-        sheepdogHeadAnim = PlayerTransform.Find("sheepdog_head").GetComponent<Animator>();
+        //sheepdogBodyAnim = PlayerTransform.Find("sheepdog_body").GetComponent<Animator>();
+        //sheepdogHeadAnim = PlayerTransform.Find("sheepdog_head").GetComponent<Animator>();
 
         // creating a pool of collision effects
         collisionEffectPool = ObjectPoolUtility.Create("DogCollisionPool", PlayerTransform, sheepdogCollisionEffect, collisionEffectAmountToPool);
@@ -179,7 +179,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         if (barkMoveInput && !HasBarkedMove)
         {
             HasBarkedMove = true;
-            sheepdogHeadAnim.SetTrigger("isBarkingMove");
+            //sheepdogHeadAnim.SetTrigger("isBarkingMove");
             barkEffect.Play();
             _audioManager.HasDetectedBarkMove = true;
             StartCoroutine(BarkMoveCooldown(1.0f));
@@ -191,7 +191,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         // keep track of herd to check they're grounded to trigger jump
         if (barkJumpInput && !HasBarkedJump && _spawnManager.CheckSheepGrounded())
         {
-            sheepdogHeadAnim.SetTrigger("isBarkingJump");
+            //sheepdogHeadAnim.SetTrigger("isBarkingJump");
             HasBarkedJump = true;
             barkEffect.Play();
             _audioManager.HasDetectedBarkJump = true;
@@ -211,8 +211,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     private void Jump(float jumpForce)
     {
         isGrounded = false;
-        sheepdogBodyAnim.SetTrigger("isJumping");
-        sheepdogHeadAnim.SetTrigger("isJumping");
+        //sheepdogBodyAnim.SetTrigger("isJumping");
+        //sheepdogHeadAnim.SetTrigger("isJumping");
         sheepdogRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 
