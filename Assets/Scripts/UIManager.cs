@@ -89,10 +89,12 @@ public class UIManager : MonoBehaviour, IUIManager
             if (!isPaused)
             {
                 PauseGame();
+                PauseProfiler();
             }
             else
             {
                 ResumeGame();
+                ResumeProfiler();
             }
         }
 
@@ -150,17 +152,25 @@ public class UIManager : MonoBehaviour, IUIManager
     void PauseGame()
     {
         isPaused = true;
-        Profiler.enabled = false;
         Time.timeScale = 0f;
         EnablePostProcessing();
+    }
+
+    void PauseProfiler()
+    {
+        Profiler.enabled = false;
     }
 
     void ResumeGame()
     {
         isPaused = false;
-        Profiler.enabled = true;
         Time.timeScale = 1f;
         DisablePostProcessing();
+    }
+
+    void ResumeProfiler()
+    {
+        Profiler.enabled = true;
     }
 
     IEnumerator FadeOutTitle()
@@ -219,15 +229,18 @@ public class UIManager : MonoBehaviour, IUIManager
         gameOverScreen.SetActive(true);
         IsGameActive = false;
         EnablePostProcessing();
+        PauseGame();
     }
 
     public void BeginGame()
     {
+        ResumeGame();
         SceneManager.LoadScene(0);
     }
 
     public void SubmitScore()
     {
+        ResumeGame();
         SceneManager.LoadScene(1);
     }
 }

@@ -977,7 +977,7 @@ MonoBehaviour:
   - {fileID: 0}
   straySheep: {fileID: 8556721056771768410, guid: 78973d6fd81094c5d9727611e21638f8, type: 3}
   spawnInterval: 20
-  warningPrompt: {fileID: 3647415299353994028, guid: 9ec2f4365bc1f4ccb96d19a891fbd60d, type: 3}
+  warningPrompt: {fileID: 6759886423024977674, guid: f5f5ce892c33c48a0aa3def076ddfa6e, type: 3}
   sheepCollisionEffect: {fileID: 3432256878017962716, guid: 408d451c21e714a59b9a04ce1358ed47, type: 3}
   backgroundTree: {fileID: 7482210213955898927, guid: 6c13af00da5944f71963f6aec404f55a, type: 3}
   trailLanes:
