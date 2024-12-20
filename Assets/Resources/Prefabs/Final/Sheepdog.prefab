@@ -97,7 +97,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22c584d3614024658bdea4ca436901d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  horizontalInput: 0
   isGrounded: 0
   barkEffect: {fileID: 8167083343983946080}
   thrownSpeed: 6
@@ -112,6 +111,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3581904086150010942}
     m_Modifications:
+    - target: {fileID: -9172887544129844899, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -152,9 +155,49 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -8346678734929702574, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7202866764824208307, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7150470194424700505, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5517430155200901857, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -1631716856111175457, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
       propertyPath: m_Name
       value: sheepdog_head
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1177546891333071570, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3436699230872115151, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4072366164838935934, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8061872097459280320, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -243,9 +286,73 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -8105279084718524966, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -6163320736055034433, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5821845118473113879, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -4511826171884987000, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -3163135282262106848, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -409681964359796362, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -90681645823063095, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
       propertyPath: m_Name
       value: sheepdog_body
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2210561805070414637, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2944368508493832218, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4344451072579999545, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4799499780189936640, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6734571923940077497, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7465293985228267018, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8110626910284981225, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8725186571117286586, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -377,6 +484,10 @@ PrefabInstance:
     - target: {fileID: 8143522650238690288, guid: 353bb324f74d141b88ed24c046465eca, type: 3}
       propertyPath: m_Name
       value: BarkEffect
+      objectReference: {fileID: 0}
+    - target: {fileID: 8143522650238690288, guid: 353bb324f74d141b88ed24c046465eca, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

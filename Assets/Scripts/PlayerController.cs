@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour, IPlayerController
+public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 {
     // self
     public Transform PlayerTransform { get; set; }
@@ -47,12 +47,13 @@ public class PlayerController : MonoBehaviour, IPlayerController
 
     // particle
     public GameObject sheepdogCollisionEffect;
+    private List<GameObject> collisionEffectPool;
+    private int collisionEffectAmountToPool = 2;
 
     // audio
     private IAudioManager _audioManager;
 
     // ui
-    private bool isGameActive;
     private IUIManager _uiManager;
 
     // spawn manager
@@ -85,6 +86,9 @@ public class PlayerController : MonoBehaviour, IPlayerController
     // dependancy manager
     [SerializeField] private DependancyManager dependancyManager;
 
+    // collision
+    public bool HasCollided { get; set; }
+
     private void Awake()
     {
         PlayerTransform = this.transform;
@@ -96,16 +100,17 @@ public class PlayerController : MonoBehaviour, IPlayerController
     {
         sheepdogRb = GetComponent<Rigidbody>();
 
-        sheepdogBodyAnim = this.transform.Find("sheepdog_body").GetComponent<Animator>();
-        sheepdogHeadAnim = this.transform.Find("sheepdog_head").GetComponent<Animator>();
+        sheepdogBodyAnim = PlayerTransform.Find("sheepdog_body").GetComponent<Animator>();
+        sheepdogHeadAnim = PlayerTransform.Find("sheepdog_head").GetComponent<Animator>();
+
+        // creating a pool of collision effects
+        collisionEffectPool = ObjectPoolUtility.Create("DogCollisionPool", PlayerTransform, sheepdogCollisionEffect, collisionEffectAmountToPool);
     }
 
     // Update is called once per frame
     void Update()
     {
-        isGameActive = _uiManager.IsGameActive;
-
-        if (isGameActive)
+        if (_uiManager.IsGameActive)
         {
             MovementBoundaries(xBoundary, zBoundary);
 
@@ -115,8 +120,6 @@ public class PlayerController : MonoBehaviour, IPlayerController
 
             CheckPlayerDeath();
         }
-
-        PlayerTransform = transform;
     }
 
     private void MovementControl(float forwardSpeed, float backwardSpeed, float sidewardSpeed, float jumpForce, float jumpMovementSpeed)
@@ -143,28 +146,28 @@ public class PlayerController : MonoBehaviour, IPlayerController
 
     public void Move(Vector3 direction, float input, float speed)
     {
-        transform.Translate(direction * input * Time.deltaTime * speed * (isGrounded ? 1 : jumpMovementSpeed));
+        PlayerTransform.Translate(direction * input * Time.deltaTime * speed * (isGrounded ? 1 : jumpMovementSpeed));
     }
 
     private void MovementBoundaries(float xBoundary, float zBoundary)
     {
         // player movement boundaries - left/right
-        if (transform.position.x < -xBoundary)
+        if (PlayerTransform.position.x < -xBoundary)
         {
-            transform.position = new Vector3(-xBoundary, transform.position.y, transform.position.z);
+            PlayerTransform.position = new Vector3(-xBoundary, PlayerTransform.position.y, PlayerTransform.position.z);
         }
-        if (transform.position.x > xBoundary)
+        if (PlayerTransform.position.x > xBoundary)
         {
-            transform.position = new Vector3(xBoundary, transform.position.y, transform.position.z);
+            PlayerTransform.position = new Vector3(xBoundary, PlayerTransform.position.y, PlayerTransform.position.z);
         }
         // player movement boundaries - forwards/backwards
-        if (transform.position.z < -zBoundary)
+        if (PlayerTransform.position.z < -zBoundary)
         {
-            transform.position = new Vector3(transform.position.x, transform.position.y, -zBoundary);
+            PlayerTransform.position = new Vector3(PlayerTransform.position.x, PlayerTransform.position.y, -zBoundary);
         }
-        if (transform.position.z > zBoundary)
+        if (PlayerTransform.position.z > zBoundary)
         {
-            transform.position = new Vector3(transform.position.x, transform.position.y, zBoundary);
+            PlayerTransform.position = new Vector3(PlayerTransform.position.x, PlayerTransform.position.y, zBoundary);
         }
     }
 
@@ -201,7 +204,7 @@ public class PlayerController : MonoBehaviour, IPlayerController
         // player death
         if (Health <= 0)
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
     }
 
@@ -227,52 +230,63 @@ public class PlayerController : MonoBehaviour, IPlayerController
         HasBarkedJump = false;
     }
 
-    void PlaySheepdogCollisionEffect()
+    // Coroutine to wait for grace period to cool down
+    IEnumerator DamageCooldown(float damageCooldownTime)
     {
-        Instantiate(sheepdogCollisionEffect, transform.position, transform.rotation);
+        yield return new WaitForSeconds(damageCooldownTime);
+        HasCollided = false;
     }
 
-    private void OnCollisionEnter(Collision collision)
+    IEnumerator CollisionEffectDuration(GameObject gameObject, float durationTime)
     {
-        // bitten by wolf
-        if(collision.gameObject.CompareTag("Wolf"))
-        {
-            WolfController wolfController = collision.gameObject.GetComponent<WolfController>();
-            dependancyManager.InjectWolfControllerDependancyIntoPlayerController(wolfController);
-            if (!_wolfController.HasBitten)
-            {
-                _audioManager.HasDetectedCollision = true;
-                _wolfController.HasBitten = true;
-                PlaySheepdogCollisionEffect();
-                Health -= 1;
-            }
-            
-        }
+        yield return new WaitForSeconds(durationTime);
+        ObjectPoolUtility.Return(gameObject);
+    }
 
-        // collided with obstacle
-        if (collision.gameObject.CompareTag("Obstacle") && !collision.gameObject.GetComponent<ObstacleController>().hasHitPlayer) // dependency
+    void PlaySheepdogCollisionEffect()
+    {
+        GameObject sheepdogCollisionEffect = ObjectPoolUtility.Get(collisionEffectAmountToPool, collisionEffectPool);
+        if (sheepdogCollisionEffect != null)
+        {
+            sheepdogCollisionEffect.transform.SetPositionAndRotation(PlayerTransform.position, PlayerTransform.rotation);
+            sheepdogCollisionEffect.SetActive(true);
+            StartCoroutine(CollisionEffectDuration(sheepdogCollisionEffect, 2f));
+        }
+    }
+
+    public void OnCollision(GameObject collidingObject)
+    {
+        if (collidingObject.CompareTag("Wolf") || collidingObject.CompareTag("Obstacle"))
         {
             _audioManager.HasDetectedCollision = true;
-            collision.gameObject.GetComponent<ObstacleController>().hasHitPlayer = true; // dependency
             PlaySheepdogCollisionEffect();
             Health -= 1;
+            HasCollided = true;
+            StartCoroutine(DamageCooldown(1f));
         }
 
-        // is grounded
-        if (collision.gameObject.CompareTag("Trail Lane"))
+        if (collidingObject.CompareTag("Trail Lane"))
         {
             isGrounded = true;
         }
 
-        // player thrown off by sheep if they land on top of them
-        if (collision.gameObject.CompareTag("Sheep"))
+        if (collidingObject.CompareTag("Sheep"))
         {
-            SheepController sheepController = collision.gameObject.GetComponent<SheepController>();
+            SheepController sheepController = collidingObject.gameObject.GetComponent<SheepController>();
             dependancyManager.InjectSheepControllerDependancyIntoPlayerController(sheepController);
             if (PlayerTransform.position.y - _sheepController.SheepTransform.position.y > heightTrigger)
             {
                 sheepdogRb.AddForce(Vector3.up * thrownSpeed, ForceMode.Impulse);
             }
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        ICollidable collidable = collision.gameObject.GetComponent<ICollidable>();
+        if (collidable != null && !collidable.HasCollided)
+        {
+            collidable.OnCollision(this.gameObject);
         }
     }
 }

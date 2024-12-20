@@ -7,7 +7,6 @@ public class DependancyManager : MonoBehaviour
 
     [SerializeField] private PlayerController playerController;
     [SerializeField] private SpawnManager spawnManager;
-    [SerializeField] private CameraController cameraController;
 
     void Start()
     {
@@ -40,20 +39,11 @@ public class DependancyManager : MonoBehaviour
 
         if (spawnManager != null)
         {
-            spawnManager.SetDependencies(audioManager, uiManager, playerController);
+            spawnManager.SetDependencies(audioManager, uiManager, playerController, spawnManager);
         }
         else
         {
             Debug.LogError("SpawnManager is not assigned in GameManager.");
-        }
-
-        if (cameraController != null)
-        {
-            cameraController.SetDependencies(uiManager);
-        }
-        else
-        {
-            Debug.LogError("CameraController is not assigned in GameManager.");
         }
     }
 
@@ -77,7 +67,7 @@ public class DependancyManager : MonoBehaviour
     {
         if (obstacleController != null)
         {
-            obstacleController.SetDependencies(uiManager);
+            obstacleController.SetDependencies(uiManager, spawnManager);
         }
     }
 

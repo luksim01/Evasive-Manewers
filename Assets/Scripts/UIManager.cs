@@ -1,17 +1,21 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+using UnityEngine.Profiling;
+using UnityEngine.Rendering.PostProcessing;
 
 public class UIManager : MonoBehaviour, IUIManager
 {
     public TextMeshProUGUI titleScreenText;
     public TextMeshProUGUI healthText;
+    public TextMeshProUGUI healthBarText;
+    public TextMeshProUGUI timeText;
     public TextMeshProUGUI timeRemainingText;
+    public TextMeshProUGUI herdText;
     public TextMeshProUGUI herdMultiplierText;
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI scoreValueText;
 
     public TextMeshProUGUI finalScoreText;
     public TextMeshProUGUI reasonText;
@@ -22,12 +26,16 @@ public class UIManager : MonoBehaviour, IUIManager
     public bool IsGameActive { get; set; }
     public int TimeRemaining { get; set; }
     public int Score { get; set; }
+    private int previousScore;
 
-    private int herdSize;
+    private int herdCount;
+    private int previousHerdCount;
+    private int strayCount;
 
     // player
     private IPlayerController _sheepdog;
     private int sheepdogHealth;
+    private int previousSheepdogHealth;
 
     // spawn manager
     private ISpawnManager _spawnManager;
@@ -39,42 +47,80 @@ public class UIManager : MonoBehaviour, IUIManager
         _spawnManager = spawnManager;
     }
 
+    // pause
+    [SerializeField] private bool isPaused = false;
+
+    // camera
+    PostProcessVolume postprocessVolume;
+    PostProcessLayer postprocessLayer;
+
     private void Awake()
     {
         IsGameActive = true;
+        postprocessVolume = Camera.main.gameObject.GetComponent<PostProcessVolume>();
+        postprocessLayer = Camera.main.gameObject.GetComponent<PostProcessLayer>();
     }
 
     void Start()
     {
         // initialise 
         TimeRemaining = 90;
-        herdSize = 3;
+        herdCount = 3;
         Score = 0;
         StartCoroutine(FadeOutTitle());
 
         // make GUI invisible initially
         healthText.CrossFadeAlpha(0.0f, 0.0f, false);
+        healthBarText.CrossFadeAlpha(0.0f, 0.0f, false);
+        timeText.CrossFadeAlpha(0.0f, 0.0f, false);
         timeRemainingText.CrossFadeAlpha(0.0f, 0.0f, false);
+        herdText.CrossFadeAlpha(0.0f, 0.0f, false);
         herdMultiplierText.CrossFadeAlpha(0.0f, 0.0f, false);
         scoreText.CrossFadeAlpha(0.0f, 0.0f, false);
+        scoreValueText.CrossFadeAlpha(0.0f, 0.0f, false);
 
         StartCoroutine(FadeInHUD());
     }
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (!isPaused)
+            {
+                PauseGame();
+                PauseProfiler();
+            }
+            else
+            {
+                ResumeGame();
+                ResumeProfiler();
+            }
+        }
+
         if (IsGameActive)
         {
             sheepdogHealth = _sheepdog.Health;
-            if (sheepdogHealth >= 0)
-            {
-                healthText.text = "Health " + new string('■', sheepdogHealth) + new string('□', 5-sheepdogHealth);
-            }
-            GameObject straySheep = GameObject.FindGameObjectWithTag("Stray");
-            GameObject huntedSheep = GameObject.FindGameObjectWithTag("Hunted");
-            herdSize = _spawnManager.Herd.Length + (huntedSheep ? 1 : 0);
 
-            if (herdSize == 0 && !straySheep)
+            if (sheepdogHealth != previousSheepdogHealth)
+            {
+                healthBarText.text = new string('O', sheepdogHealth) + new string('-', 5 - sheepdogHealth); ;
+            }
+
+            herdCount = _spawnManager.Herd.Count;
+            strayCount = _spawnManager.Strays.Count;
+
+            if (herdCount != previousHerdCount)
+            {
+                herdMultiplierText.text = herdCount.ToString();
+            }
+
+            if (Score != previousScore)
+            {
+                scoreValueText.text = Score.ToString();
+            }
+
+            if (herdCount == 0 && strayCount == 0)
             {
                 reasonText.text = "The herd was lost...";
                 GameOver();
@@ -84,7 +130,47 @@ public class UIManager : MonoBehaviour, IUIManager
                 reasonText.text = "The dog is too weak to continue...";
                 GameOver();
             }
+
+            previousSheepdogHealth = sheepdogHealth;
+            previousHerdCount = herdCount;
+            previousScore = Score;
         }
+    }
+
+    public void EnablePostProcessing()
+    {
+        postprocessLayer.enabled = true;
+        postprocessVolume.enabled = true;
+    }
+
+    public void DisablePostProcessing()
+    {
+        postprocessLayer.enabled = false;
+        postprocessVolume.enabled = false;
+    }
+
+    void PauseGame()
+    {
+        isPaused = true;
+        Time.timeScale = 0f;
+        EnablePostProcessing();
+    }
+
+    void PauseProfiler()
+    {
+        Profiler.enabled = false;
+    }
+
+    void ResumeGame()
+    {
+        isPaused = false;
+        Time.timeScale = 1f;
+        DisablePostProcessing();
+    }
+
+    void ResumeProfiler()
+    {
+        Profiler.enabled = true;
     }
 
     IEnumerator FadeOutTitle()
@@ -98,36 +184,41 @@ public class UIManager : MonoBehaviour, IUIManager
         yield return new WaitForSeconds(2);
 
         healthText.CrossFadeAlpha(1.0f, 1.0f, false);
+        healthBarText.CrossFadeAlpha(1.0f, 1.0f, false);
+        timeText.CrossFadeAlpha(1.0f, 1.0f, false);
         timeRemainingText.CrossFadeAlpha(1.0f, 1.0f, false);
+        herdText.CrossFadeAlpha(1.0f, 1.0f, false);
         herdMultiplierText.CrossFadeAlpha(1.0f, 1.0f, false);
         scoreText.CrossFadeAlpha(1.0f, 1.0f, false);
-        
+        scoreValueText.CrossFadeAlpha(1.0f, 1.0f, false);
+
         StartCoroutine(TimeCountdown());
     }
 
     IEnumerator TimeCountdown()
     {
-        while (IsGameActive)
+        timeRemainingText.text = TimeRemaining.ToString();
+
+        yield return new WaitForSeconds(1);
+
+        TimeRemaining -= 1;
+
+        if (TimeRemaining >= 0)
         {
-            if (TimeRemaining < 0)
-            {
-                reasonText.text = "You have escaped the forest!";
-                GameOver();
-                IsGameActive = false;
-            }
-            timeRemainingText.text = "Time " + TimeRemaining;
-            scoreText.text = "Score " + Score;
-            herdMultiplierText.text = "Herd x" + herdSize;
-
-            yield return new WaitForSeconds(1);
-
-            if (TimeRemaining > 0)
-            {
-                Score += (10 * herdSize);
-            }
-            TimeRemaining -= 1;
-            
+            Score += (10 * herdCount);
         }
+
+        if (TimeRemaining >= 0)
+        {
+            StartCoroutine(TimeCountdown());
+        }
+
+        if (TimeRemaining < 0)
+        {
+            reasonText.text = "You have escaped the forest!";
+            IsGameActive = false;
+            GameOver();
+        }   
     }
 
     public void GameOver()
@@ -137,15 +228,19 @@ public class UIManager : MonoBehaviour, IUIManager
         hudScreen.SetActive(false);
         gameOverScreen.SetActive(true);
         IsGameActive = false;
+        EnablePostProcessing();
+        PauseGame();
     }
 
     public void BeginGame()
     {
+        ResumeGame();
         SceneManager.LoadScene(0);
     }
 
     public void SubmitScore()
     {
+        ResumeGame();
         SceneManager.LoadScene(1);
     }
 }

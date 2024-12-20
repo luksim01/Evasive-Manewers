@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ObstacleController : MonoBehaviour
@@ -7,35 +5,57 @@ public class ObstacleController : MonoBehaviour
     private int speed = 5;
     private int bounds = 35;
     public bool hasHitPlayer = false;
+    private Transform ObstacleTransform;
+    private bool hasInitialisedObstacle = false;
 
     // ui
-    private bool isGameActive;
     private IUIManager _uiManager;
 
+    // spawn manager
+    private ISpawnManager _spawnManager;
+
     // dependancies
-    public void SetDependencies(IUIManager uiManager)
+    public void SetDependencies(IUIManager uiManager, SpawnManager spawnManager)
     {
         _uiManager = uiManager;
+        _spawnManager = spawnManager;
     }
 
     void FixedUpdate()
     {
-        isGameActive = _uiManager.IsGameActive;
-
-        if (isGameActive)
+        if (!hasInitialisedObstacle)
         {
-            transform.Translate(Vector3.back * Time.deltaTime * speed);
+            InitialiseObstacle();
+        }
 
-            if (gameObject.CompareTag("Obstacle") && transform.position.z < -bounds)
+        if (_uiManager.IsGameActive && hasInitialisedObstacle)
+        {
+            ObstacleTransform.Translate(Vector3.back * Time.deltaTime * speed);
+
+            if (gameObject.CompareTag("Obstacle") && ObstacleTransform.position.z < -bounds)
             {
                 _uiManager.Score += 100;
-                Destroy(gameObject);
+                ObjectPoolUtility.Return(gameObject);
             }
-            if (gameObject.CompareTag("Background Tree") && transform.position.z < -bounds)
+            if (gameObject.CompareTag("Background Tree") && ObstacleTransform.position.z < -bounds)
             {
-                Destroy(gameObject);
+                ObjectPoolUtility.Return(gameObject);
             }
         }
     }
 
+    void InitialiseObstacle()
+    {
+        ObstacleTransform = this.transform;
+        hasInitialisedObstacle = true;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        ICollidable collidable = collision.gameObject.GetComponent<ICollidable>();
+        if (collidable != null && !collidable.HasCollided)
+        {
+            collidable.OnCollision(this.gameObject);
+        }
+    }
 }

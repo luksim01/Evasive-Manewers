@@ -61,12 +61,10 @@ public class MoveBoundaryTests
             GameObject mainCamera = Object.Instantiate(mainCameraPrefab, mainCameraPrefab.transform.position, mainCameraPrefab.transform.rotation);
             mainCamera.name = "MainCamera";
             mainCamera.GetComponent<AudioSource>().enabled = false;
-            CameraController cameraController = mainCamera.GetComponent<CameraController>();
 
             MockUIManager mockUIManager = new MockUIManager();
             mockUIManager.IsGameActive = true;
 
-            cameraController.SetDependencies(mockUIManager);
             tearDownList.Add(mainCamera);
         }
 

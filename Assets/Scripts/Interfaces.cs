@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public interface IAudioManager
 {
@@ -25,11 +26,26 @@ public interface ISpawnManager
 
     bool HasTargetedSheepdog { get; set; }
     bool HasTargetedHerd { get; set; }
+    Vector3 WolfSpawnPosition { get; set; }
 
-    GameObject[] Herd { get; set; }
+    List<GameObject> Herd { get; set; }
+    List<GameObject> Pack { get; set; }
+    List<GameObject> Strays { get; set; }
+
     int TimeSinceLostSheep { get; set; }
     Vector3 StraySheepSpawnPosition { get; set; }
     Vector3 StraySheepTargetPosition { get; set; }
+
+    List<GameObject> SheepCollisionEffectPool { get; set; }
+    int SheepCollisionEffectAmountToPool { get; set; }
+    void ActivateSheepCollisionEffect(GameObject effect);
+
+    void AddSheepToHerd(GameObject gameObject);
+    void RemoveSheepFromHerd(GameObject gameObject);
+    void AddSheepToStrays(GameObject gameObject);
+    void RemoveSheepFromStrays(GameObject gameObject);
+    void AddWolfToPack(GameObject gameObject);
+    void RemoveWolfFromPack(GameObject gameObject);
 }
 
 public interface IPlayerController
@@ -40,15 +56,21 @@ public interface IPlayerController
     bool HasBarkedJump { get; set; }
 }
 
-public interface IWolfController
-{
-    bool HasBitten { get; set; }
-}
-
 public interface ISheepController
 {
     Transform SheepTransform { get; set; }
     bool IsGrounded { get; set; }
-    bool HasEnteredWolfSpace { get; set; }
-    bool HasAvoidedWolf { get; set; }
+}
+
+public interface ICollidable
+{
+    bool HasCollided { get; set; }
+    void OnCollision(GameObject collidingObject);
+}
+
+public interface IObjectPool
+{
+    List<GameObject> CreateGameObjectPool(string poolName, Transform poolParent, GameObject poolObject, int poolSize);
+    GameObject GetPooledGameObject(int poolSize, List<GameObject> pool);
+    void ReturnPooledGameObject(GameObject gameObject);
 }

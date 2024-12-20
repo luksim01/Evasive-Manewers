@@ -261,8 +261,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb3baca978a3e4e0ab1d3cdac2b7d70b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
-  bounds: 35
   hasHitPlayer: 0
 --- !u!1 &5364451421702360340
 GameObject:
@@ -725,9 +723,29 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6154040043717978524}
     m_Modifications:
+    - target: {fileID: 756922258190841700, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1925000273738161778, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2226034218922357627, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3714266323769892126, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3817190461136372789, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
       propertyPath: m_Name
       value: fence_obstacle
+      objectReference: {fileID: 0}
+    - target: {fileID: 3817190461136372789, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3817190461136372789, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
       propertyPath: m_TagString
@@ -771,6 +789,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4589926874955341455, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4649725578403896946, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5629295588945844311, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7086729189351329858, guid: 0c1462f6961b149369de857f638fdb64, type: 3}
+      propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
