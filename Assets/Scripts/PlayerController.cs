@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 {
@@ -9,12 +10,13 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     public int Health { get; set; }
 
     // inputs
-    private float horizontalInput;
-    private float forwardInput;
-    private float backwardInput;
-    private bool jumpInput;
-    private bool barkMoveInput;
-    private bool barkJumpInput;
+    public PlayerInputActions playerControls;
+    private InputAction move;
+    private InputAction jump;
+    private InputAction barkMove;
+    private InputAction barkJump;
+    private InputAction pause;
+    Vector2 moveDirection = Vector2.zero;
 
     // boundary control
     private readonly float xBoundary = 7.0f;
@@ -93,6 +95,38 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     {
         PlayerTransform = this.transform;
         Health = 5;
+        playerControls = new PlayerInputActions();
+    }
+
+    void OnEnable()
+    {
+        move = playerControls.Player.Move;
+        move.Enable();
+
+        jump = playerControls.Player.Jump;
+        jump.Enable();
+        jump.performed += Jump;
+
+        barkMove = playerControls.Player.BarkMove;
+        barkMove.Enable();
+        barkMove.performed += BarkMove;
+
+        barkJump = playerControls.Player.BarkJump;
+        barkJump.Enable();
+        barkJump.performed += BarkJump;
+
+        pause = playerControls.Player.Pause;
+        pause.Enable();
+        pause.performed += Pause;
+    }
+
+    void OnDisable()
+    {
+        move.Disable();
+        jump.Disable();
+        barkMove.Disable();
+        barkJump.Disable();
+        pause.Disable();
     }
 
     // Start is called before the first frame update
@@ -114,33 +148,28 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         {
             MovementBoundaries(xBoundary, zBoundary);
 
-            MovementControl(forwardSpeed, backwardSpeed, sidewardSpeed, jumpForce, jumpMovementSpeed);
-
-            CheckBarkCommand();
+            MovementControl(forwardSpeed, backwardSpeed, sidewardSpeed);
 
             CheckPlayerDeath();
         }
     }
 
-    private void MovementControl(float forwardSpeed, float backwardSpeed, float sidewardSpeed, float jumpForce, float jumpMovementSpeed)
+    private void MovementControl(float forwardSpeed, float backwardSpeed, float sidewardSpeed)
     {
+        moveDirection = move.ReadValue<Vector2>();
+
         // horizontal movement, slower movement while jumping
-        horizontalInput = Input.GetAxis("Horizontal");
-        Move(Vector3.right, horizontalInput, sidewardSpeed);
-
-        // forwards movement, slower movement while jumping
-        forwardInput = Input.GetAxis("Forward");
-        Move(Vector3.forward, forwardInput, forwardSpeed);
-
-        // backwards movement, slower movement while jumping
-        backwardInput = Input.GetAxis("Backward");
-        Move(Vector3.forward, backwardInput, backwardSpeed);
-
-        // jump
-        jumpInput = Input.GetKeyDown(KeyCode.LeftShift);
-        if (jumpInput && isGrounded)
+        Move(Vector3.right, moveDirection.x, sidewardSpeed);
+        
+        if(moveDirection.y > 0)
         {
-            Jump(jumpForce);
+            // forwards movement, slower movement while jumping
+            Move(Vector3.forward, moveDirection.y, forwardSpeed);
+        }
+        else if (moveDirection.y < 0)
+        {
+            // backwards movement, slower movement while jumping
+            Move(Vector3.forward, moveDirection.y, backwardSpeed);
         }
     }
 
@@ -171,34 +200,6 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         }
     }
 
-    private void CheckBarkCommand()
-    {
-        // player bark move command
-        barkMoveInput = Input.GetKeyDown(KeyCode.Space);
-
-        if (barkMoveInput && !HasBarkedMove)
-        {
-            HasBarkedMove = true;
-            sheepdogHeadAnim.SetTrigger("isBarkingMove");
-            barkEffect.Play();
-            _audioManager.HasDetectedBarkMove = true;
-            StartCoroutine(BarkMoveCooldown(1.0f));
-        }
-
-        // player bark jump command
-        barkJumpInput = Input.GetKeyDown(KeyCode.Tab);
-
-        // keep track of herd to check they're grounded to trigger jump
-        if (barkJumpInput && !HasBarkedJump && _spawnManager.CheckSheepGrounded())
-        {
-            sheepdogHeadAnim.SetTrigger("isBarkingJump");
-            HasBarkedJump = true;
-            barkEffect.Play();
-            _audioManager.HasDetectedBarkJump = true;
-            StartCoroutine(BarkJumpCooldown(1.0f));
-        }
-    }
-
     private void CheckPlayerDeath()
     {
         // player death
@@ -208,12 +209,15 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         }
     }
 
-    private void Jump(float jumpForce)
+    private void Jump(InputAction.CallbackContext context)
     {
-        isGrounded = false;
-        sheepdogBodyAnim.SetTrigger("isJumping");
-        sheepdogHeadAnim.SetTrigger("isJumping");
-        sheepdogRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        if (isGrounded)
+        {
+            isGrounded = false;
+            sheepdogBodyAnim.SetTrigger("isJumping");
+            sheepdogHeadAnim.SetTrigger("isJumping");
+            sheepdogRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
     }
 
     // Coroutine to wait for bark to cool down
@@ -288,5 +292,35 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         {
             collidable.OnCollision(this.gameObject);
         }
+    }
+
+    private void BarkMove(InputAction.CallbackContext context)
+    {
+        if (!HasBarkedMove)
+        {
+            HasBarkedMove = true;
+            sheepdogHeadAnim.SetTrigger("isBarkingMove");
+            barkEffect.Play();
+            _audioManager.HasDetectedBarkMove = true;
+            StartCoroutine(BarkMoveCooldown(1.0f));
+        }
+    }
+
+    private void BarkJump(InputAction.CallbackContext context)
+    {
+        // keep track of herd to check they're grounded to trigger jump
+        if (!HasBarkedJump && _spawnManager.CheckSheepGrounded())
+        {
+            HasBarkedJump = true;
+            sheepdogHeadAnim.SetTrigger("isBarkingJump");
+            barkEffect.Play();
+            _audioManager.HasDetectedBarkJump = true;
+            StartCoroutine(BarkJumpCooldown(1.0f));
+        }
+    }
+
+    private void Pause(InputAction.CallbackContext context)
+    {
+        _uiManager.PauseResume();
     }
 }

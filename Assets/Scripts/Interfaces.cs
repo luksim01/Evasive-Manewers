@@ -18,6 +18,7 @@ public interface IUIManager
     bool IsGameActive { get; set; }
     int TimeRemaining { get; set; }
     int Score { get; set; }
+    void PauseResume();
 }
 
 public interface ISpawnManager

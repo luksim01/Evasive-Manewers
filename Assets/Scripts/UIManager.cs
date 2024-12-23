@@ -84,20 +84,6 @@ public class UIManager : MonoBehaviour, IUIManager
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            if (!isPaused)
-            {
-                PauseGame();
-                PauseProfiler();
-            }
-            else
-            {
-                ResumeGame();
-                ResumeProfiler();
-            }
-        }
-
         if (IsGameActive)
         {
             sheepdogHealth = _sheepdog.Health;
@@ -134,6 +120,20 @@ public class UIManager : MonoBehaviour, IUIManager
             previousSheepdogHealth = sheepdogHealth;
             previousHerdCount = herdCount;
             previousScore = Score;
+        }
+    }
+
+    public void PauseResume()
+    {
+        if (!isPaused)
+        {
+            PauseGame();
+            PauseProfiler();
+        }
+        else
+        {
+            ResumeGame();
+            ResumeProfiler();
         }
     }
 
@@ -250,4 +250,5 @@ public class MockUIManager : IUIManager
     public bool IsGameActive { get; set; }
     public int TimeRemaining { get; set; }
     public int Score { get; set; }
+    public void PauseResume() { }
 }
