@@ -36,7 +36,7 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     private float hopDirectionX;
     private float hopDirectionY = 0.5f;
     private float hopDirectionZ = -0.2f;
-    private Vector3 jumpDirection = new Vector3(0, 1.2f, 0.1f);
+    private Vector3 jumpDirection = new Vector3(0, 1, 0.1f);
     private float heightTrigger = 2.2f;
 
     // staggered jump
@@ -51,6 +51,10 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     // stray sheep
     public bool isHerdSheep;
     private float xDistanceFromBoundary = 1.5f;
+
+    [SerializeField] private float jumpHeight = 6f;
+    [SerializeField] private float riseGravityScale = 2.8f;
+    [SerializeField] private float fallGravityScale = 0.9f;
 
     // animation
     private Animator sheepBodyAnim;
@@ -81,25 +85,11 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     // collision
     public bool HasCollided { get; set; }
 
-    // Start is called before the first frame update
     void Start()
     {
         sheepRb = GetComponent<Rigidbody>();
         pastBarkJumpState = isBarkedJumpAt;
     }
-
-    // Update is called once per frame
-    //void Update()
-    //{
-
-    //    if (_uiManager.IsGameActive && hasInitialisedSheep)
-    //    {
-    //        CheckPlayerActivity();
-
-    //        // sheep behaviour based on tag
-    //        DetermineSheepBehaviour();
-    //    }
-    //}
 
     void OnEnable()
     {
@@ -114,6 +104,8 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
 
             // sheep behaviour based on tag
             DetermineSheepBehaviour();
+
+            MovementUtility.Fall(sheepRb, riseGravityScale, fallGravityScale);
         }
     }
 
@@ -216,10 +208,7 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
 
             if (Mathf.Abs(wolfProximityX) < 5.0f && Mathf.Abs(wolfProximityZ) < 7.0f)
             {
-                if (IsGrounded)
-                {
-                    Jump(jumpDirection, jumpForce);
-                }
+                Jump();
                 Avoid(wolfProximity, avoidSpeed);
             }
         }
@@ -273,10 +262,7 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
         if (SheepTransform.position.x < xBoundary + xDistanceFromBoundary && SheepTransform.position.x > -xBoundary - xDistanceFromBoundary)
         {
             sheepRb.isKinematic = false;
-            if (IsGrounded)
-            {
-                Jump(jumpDirection, jumpForce);
-            }
+            Jump();
         }
         else
         {
@@ -414,18 +400,18 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     IEnumerator StaggeredJump(float delay)
     {
         yield return new WaitForSeconds(delay);
-        sheepBodyAnim.SetTrigger("isJumping");
-        sheepHeadAnim.SetTrigger("isJumping");
-        sheepRb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
-        IsGrounded = false;
+        Jump();
     }
 
-    void Jump(Vector3 direction, float force)
+    void Jump()
     {
-        sheepBodyAnim.SetTrigger("isJumping");
-        sheepHeadAnim.SetTrigger("isJumping");
-        sheepRb.AddForce(direction * force, ForceMode.Impulse);
-        IsGrounded = false;
+        if (IsGrounded)
+        {
+            IsGrounded = false;
+            sheepBodyAnim.SetTrigger("isJumping");
+            sheepHeadAnim.SetTrigger("isJumping");
+            MovementUtility.Jump(sheepRb, jumpDirection, riseGravityScale, jumpHeight);
+        }
     }
 
     void Avoid(Vector3 direction, float speed)

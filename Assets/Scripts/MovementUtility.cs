@@ -18,9 +18,9 @@ public static class MovementUtility
         rigidbody.AddForce(gravity, ForceMode.Acceleration);
     }
 
-    public static void Jump(Rigidbody rigidbody, float riseGravityScale, float jumpHeight)
+    public static void Jump(Rigidbody rigidbody, Vector3 direction, float riseGravityScale, float jumpHeight)
     {
         float jumpForce = Mathf.Sqrt(jumpHeight * (Physics.gravity.y * riseGravityScale) * -2) * rigidbody.mass;
-        rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        rigidbody.AddForce(direction * jumpForce, ForceMode.Impulse);
     }
 }

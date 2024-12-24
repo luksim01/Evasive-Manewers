@@ -31,9 +31,9 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     private Rigidbody sheepdogRb;
     private readonly float jumpMovementSpeed = 0.4f;
     [SerializeField] private bool isGrounded = false;
-    public float jumpHeight = 6f;
-    public float riseGravityScale = 1f;
-    public float fallGravityScale = 2.5f;
+    [SerializeField] private float jumpHeight = 6f;
+    [SerializeField] private float riseGravityScale = 1f;
+    [SerializeField] private float fallGravityScale = 2.5f;
 
     // bark control
     public bool HasBarkedMove { get; set; }
@@ -222,7 +222,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
             isGrounded = false;
             sheepdogBodyAnim.SetTrigger("isJumping");
             sheepdogHeadAnim.SetTrigger("isJumping");
-            MovementUtility.Jump(sheepdogRb, riseGravityScale, jumpHeight);
+            MovementUtility.Jump(sheepdogRb, Vector3.up, riseGravityScale, jumpHeight);
         }
     }
 
