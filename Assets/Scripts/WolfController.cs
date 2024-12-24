@@ -41,19 +41,13 @@ public class WolfController : MonoBehaviour, ICollidable
     // collision
     public bool HasCollided { get; set; }
 
-    void Start()
+    void OnEnable()
     {
-        
+        InitialiseWolf();
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        if (!hasInitialisedWolf)
-        {
-            InitialiseWolf();
-        }
-
         if (_uiManager.IsGameActive && hasInitialisedWolf)
         {
             if (hasTargetedSheepdog)
@@ -69,11 +63,15 @@ public class WolfController : MonoBehaviour, ICollidable
 
     void InitialiseWolf()
     {
-        wolfSpawnPositionX = _spawnManager.WolfSpawnPosition.x;
+        if(_spawnManager != null)
+        {
+            wolfSpawnPositionX = _spawnManager.WolfSpawnPosition.x;
+            hasTargetedSheepdog = _spawnManager.HasTargetedSheepdog;
+            hasTargetedHerd = _spawnManager.HasTargetedHerd;
+        }
+        
         WolfTransform = this.transform;
         wolfHeadAnim = WolfTransform.Find("wolf_head").GetComponent<Animator>();
-        hasTargetedSheepdog = _spawnManager.HasTargetedSheepdog;
-        hasTargetedHerd = _spawnManager.HasTargetedHerd;
         hasInitialisedWolf = true;
     }
 

@@ -56,11 +56,6 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     private Animator sheepBodyAnim;
     private Animator sheepHeadAnim;
 
-    //// particle
-    //public GameObject sheepCollisionEffect;
-    //private List<GameObject> collisionEffectPool;
-    //private int collisionEffectAmountToPool = 8;
-
     // audio
     private IAudioManager _audioManager;
 
@@ -94,13 +89,25 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        if (!hasInitialisedSheep)
-        {
-            InitialiseSheep();
-        }
+    //void Update()
+    //{
 
+    //    if (_uiManager.IsGameActive && hasInitialisedSheep)
+    //    {
+    //        CheckPlayerActivity();
+
+    //        // sheep behaviour based on tag
+    //        DetermineSheepBehaviour();
+    //    }
+    //}
+
+    void OnEnable()
+    {
+        InitialiseSheep();
+    }
+
+    void FixedUpdate()
+    {
         if (_uiManager.IsGameActive && hasInitialisedSheep)
         {
             CheckPlayerActivity();

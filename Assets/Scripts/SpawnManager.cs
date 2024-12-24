@@ -131,7 +131,6 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         Pack = new List<GameObject>();
         wolfPool = ObjectPoolUtility.Create("WolfPool", gameObject.transform, wolf, wolfAmountToPool);
 
-
         InvokeEncounter(8);
         Invoke("SpawnBackground", 1);
         TimeSinceLostSheep = 0;
@@ -211,12 +210,9 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 warningPromptNew.transform.SetPositionAndRotation(warningPromptNewPosition, warningPromptNew.transform.rotation);
                 warningPromptNew.SetActive(true);
             }
-            //laneWarningsText[singleLaneIndex].SetActive(true);
             yield return new WaitForSeconds(2);
 
             ObjectPoolUtility.Return(warningPromptNew);
-
-            //laneWarningsText[singleLaneIndex].SetActive(false);
         }
         else if (noOfLanes == "All")
         {
@@ -238,17 +234,13 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 }
 
                 warningPromptArray[laneIndex] = warningPromptNew;
-
-                //laneWarningsText[laneIndex].SetActive(true);
             }
 
             yield return new WaitForSeconds(2);
 
             for (int laneIndex = 0; laneIndex < laneWarningsText.Length; laneIndex++)
             {
-
                 ObjectPoolUtility.Return(warningPromptArray[laneIndex]);
-                //laneWarningsText[laneIndex].SetActive(false);
             }
         }
     }
@@ -398,12 +390,12 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 {
                     wolfNew.transform.SetPositionAndRotation(WolfSpawnPosition = ChooseSpawnPosition(), transform.rotation);
 
+                    WolfController wolfController = wolfNew.GetComponent<WolfController>();
+                    dependancyManager.InjectWolfControllerDependencies(wolfController);
+
                     wolfNew.SetActive(true);
 
                     AddWolfToPack(wolfNew);
-
-                    WolfController wolfController = wolfNew.GetComponent<WolfController>();
-                    dependancyManager.InjectWolfControllerDependencies(wolfController);
                 }
             }
 

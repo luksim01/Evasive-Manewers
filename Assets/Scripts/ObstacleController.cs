@@ -21,13 +21,13 @@ public class ObstacleController : MonoBehaviour
         _spawnManager = spawnManager;
     }
 
+    private void OnEnable()
+    {
+        InitialiseObstacle();
+    }
+
     void FixedUpdate()
     {
-        if (!hasInitialisedObstacle)
-        {
-            InitialiseObstacle();
-        }
-
         if (_uiManager.IsGameActive && hasInitialisedObstacle)
         {
             ObstacleTransform.Translate(Vector3.back * Time.deltaTime * speed);
