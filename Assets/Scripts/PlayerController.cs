@@ -156,10 +156,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
             CheckPlayerDeath();
 
-            if (!isGrounded)
-            {
-                MovementUtility.Fall(sheepdogRb, riseGravityScale, fallGravityScale);
-            }
+            MovementUtility.Fall(sheepdogRb, riseGravityScale, fallGravityScale);
         }
     }
 
