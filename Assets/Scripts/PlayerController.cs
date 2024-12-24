@@ -26,11 +26,14 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     private readonly float forwardSpeed = 9.0f;
     private readonly float backwardSpeed = 6.0f;
     public readonly float sidewardSpeed = 7.0f;
+
     // movement settings : jump
     private Rigidbody sheepdogRb;
-    private readonly float jumpForce = 9.0f;
     private readonly float jumpMovementSpeed = 0.4f;
     [SerializeField] private bool isGrounded = false;
+    public float jumpHeight = 6f;
+    public float riseGravityScale = 1f;
+    public float fallGravityScale = 2.5f;
 
     // bark control
     public bool HasBarkedMove { get; set; }
@@ -133,6 +136,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     void Start()
     {
         sheepdogRb = GetComponent<Rigidbody>();
+        sheepdogRb.useGravity = false;
 
         sheepdogBodyAnim = PlayerTransform.Find("sheepdog_body").GetComponent<Animator>();
         sheepdogHeadAnim = PlayerTransform.Find("sheepdog_head").GetComponent<Animator>();
@@ -142,7 +146,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (_uiManager.IsGameActive)
         {
@@ -151,6 +155,11 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
             MovementControl(forwardSpeed, backwardSpeed, sidewardSpeed);
 
             CheckPlayerDeath();
+
+            if (!isGrounded)
+            {
+                MovementUtility.Fall(sheepdogRb, riseGravityScale, fallGravityScale);
+            }
         }
     }
 
@@ -216,7 +225,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
             isGrounded = false;
             sheepdogBodyAnim.SetTrigger("isJumping");
             sheepdogHeadAnim.SetTrigger("isJumping");
-            sheepdogRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            MovementUtility.Jump(sheepdogRb, riseGravityScale, jumpHeight);
         }
     }
 
