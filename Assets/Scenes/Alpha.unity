@@ -1424,7 +1424,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_FirstSelected: {fileID: 0}
+  m_FirstSelected: {fileID: 1022728782}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
 --- !u!4 &828261919
@@ -1808,7 +1808,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 0.76470596, b: 0.2901961, a: 1}
     m_HighlightedColor: {r: 0.30113026, g: 0.9528302, b: 0.66111696, a: 1}
     m_PressedColor: {r: 0.29803923, g: 0.95294124, b: 0.6627451, a: 1}
-    m_SelectedColor: {r: 1, g: 0.76470596, b: 0.2901961, a: 1}
+    m_SelectedColor: {r: 0.29803923, g: 0.95294124, b: 0.6627451, a: 1}
     m_DisabledColor: {r: 0, g: 0, b: 0, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -2171,7 +2171,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 0.76470596, b: 0.2901961, a: 1}
     m_HighlightedColor: {r: 0.30113026, g: 0.9528302, b: 0.66111696, a: 1}
     m_PressedColor: {r: 0.29803923, g: 0.95294124, b: 0.6627451, a: 1}
-    m_SelectedColor: {r: 1, g: 0.76470596, b: 0.2901961, a: 1}
+    m_SelectedColor: {r: 0.29803923, g: 0.95294124, b: 0.6627451, a: 1}
     m_DisabledColor: {r: 0, g: 0, b: 0, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
