@@ -94,6 +94,22 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     // collision
     public bool HasCollided { get; set; }
 
+    // interactivity
+    private Ray ray;
+    [SerializeField] private Vector3 playerCenter;
+    [SerializeField] private float rayHeightOffset = 1.5f;
+    [SerializeField] private float rayRange = 3.5f;
+    [SerializeField] private float rayRangeDiag = 2.5f;
+    [SerializeField] private float interactionRange = 5f;
+    private float previousInteractionRange;
+    private GameObject playerInteractivityIndicator;
+    public GameObject interactivityIndicator;
+    private GameObject interactivitySphereIndicator;
+    private GameObject interactivityRingIndicator;
+    private List<Collider> trackedCollidedList;
+    private List<Collider> removeCollidedList;
+
+
     private void Awake()
     {
         PlayerTransform = this.transform;
@@ -143,6 +159,11 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
         // creating a pool of collision effects
         collisionEffectPool = ObjectPoolUtility.Create("DogCollisionPool", PlayerTransform, sheepdogCollisionEffect, collisionEffectAmountToPool);
+
+        // interactivity
+        CreateInteractivityIndicator(interactionRange);
+        trackedCollidedList = new List<Collider>();
+        removeCollidedList = new List<Collider>();
     }
 
     // Update is called once per frame
@@ -157,7 +178,108 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
             CheckPlayerDeath();
 
             MovementUtility.Fall(sheepdogRb, riseGravityScale, fallGravityScale);
+
+            if(interactionRange != previousInteractionRange)
+            {
+                UpdateInteractivityIndicator(playerInteractivityIndicator, interactionRange);
+            }
+            previousInteractionRange = interactionRange;
+
+            CastRadius(interactionRange);
+
         }
+    }
+
+    private void CreateInteractivityIndicator(float range)
+    {
+        playerInteractivityIndicator = Object.Instantiate(interactivityIndicator, interactivityIndicator.transform.position, interactivityIndicator.transform.rotation);
+        playerInteractivityIndicator.transform.localScale = Vector3.one * range * 2;
+        playerInteractivityIndicator.gameObject.transform.parent = PlayerTransform;
+
+        interactivitySphereIndicator = playerInteractivityIndicator.transform.Find("Sphere").gameObject;
+        interactivityRingIndicator = playerInteractivityIndicator.transform.Find("Ring").gameObject;
+    }
+
+    private void UpdateInteractivityIndicator(GameObject interactivityIndicator, float range)
+    {
+        interactivityIndicator.transform.localScale = Vector3.one * range * 2;
+    }
+
+    public void CastRadius(float range)
+    {
+        int includeLayer = LayerMask.NameToLayer("Interactive");
+        int mask = (1 << includeLayer);
+
+        Collider[] collidedCharacterArray = Physics.OverlapSphere(playerInteractivityIndicator.transform.position, range, mask);
+
+        foreach (Collider collidedCharacter in collidedCharacterArray)
+        {
+            // check that the interactive character isn't self and isn't already in tracked list
+            if (!trackedCollidedList.Contains(collidedCharacter) && collidedCharacter.transform != PlayerTransform)
+            {
+                //Debug.Log($"{collidedCharacter.gameObject.name} is added to tracked list.");
+                trackedCollidedList.Add(collidedCharacter);
+            }
+        }
+
+        foreach (Collider collidedCharacter in trackedCollidedList)
+        {
+            // check that the interactive character hasn't disappeared from character list
+            bool isPresent = false;
+
+            for (int i = 0; i < collidedCharacterArray.Length; i++)
+            {
+                if (collidedCharacter == collidedCharacterArray[i])
+                {
+                    isPresent = true;
+                    break;
+                }
+            }
+
+            if (!isPresent)
+            {
+                removeCollidedList.Add(collidedCharacter);
+            }
+        }
+
+        if(removeCollidedList.Count > 0)
+        {
+            foreach (Collider collidedCharacter in removeCollidedList)
+            {
+                //Debug.Log($"{collidedCharacter.gameObject.name} is removed from tracked list.");
+                trackedCollidedList.Remove(collidedCharacter);
+            }
+
+            removeCollidedList.Clear();
+        }
+    }
+
+    private void CheckSurroundings()
+    {
+        playerCenter = PlayerTransform.position + new Vector3(0f, rayHeightOffset, 0f);
+
+        // forward, backward
+        Debug.DrawRay(playerCenter, new Vector3(0f, 0f, rayRange), Color.red);
+        Debug.DrawRay(playerCenter, new Vector3(0f, 0f, -rayRange), Color.red);
+
+        // right, left
+        Debug.DrawRay(playerCenter, new Vector3(rayRange, 0f, 0f), Color.red);
+        Debug.DrawRay(playerCenter, new Vector3(-rayRange, 0f, 0f), Color.red);
+
+        // diagonal forward
+        Debug.DrawRay(playerCenter, new Vector3(rayRangeDiag, 0f, rayRangeDiag), Color.red);
+        Debug.DrawRay(playerCenter, new Vector3(-rayRangeDiag, 0f, rayRangeDiag), Color.red);
+
+        // diagonal backward
+        Debug.DrawRay(playerCenter, new Vector3(rayRangeDiag, 0f, -rayRangeDiag), Color.red);
+        Debug.DrawRay(playerCenter, new Vector3(-rayRangeDiag, 0f, -rayRangeDiag), Color.red);
+
+        //ray = new Ray(playerCenter, new Vector3(0f, 0f, rayRange));
+
+        //if (Physics.Raycast(ray, out RaycastHit hit, rayRange))
+        //{
+        //    Debug.Log($"{hit.collider.name} was hit by ray.");
+        //}
     }
 
     private void MovementControl(float forwardSpeed, float backwardSpeed, float sidewardSpeed)
@@ -308,7 +430,17 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
             sheepdogHeadAnim.SetTrigger("isBarkingMove");
             barkEffect.Play();
             _audioManager.HasDetectedBarkMove = true;
+            InteractInZone();
             StartCoroutine(BarkMoveCooldown(1.0f));
+        }
+    }
+
+    private void InteractInZone()
+    {
+        foreach (Collider collidedCharacter in trackedCollidedList)
+        {
+            BaseCharacterController interactiveCharacterController = collidedCharacter.GetComponent<BaseCharacterController>();
+            interactiveCharacterController.Interact();
         }
     }
 

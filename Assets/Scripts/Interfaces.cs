@@ -75,3 +75,8 @@ public interface IObjectPool
     GameObject GetPooledGameObject(int poolSize, List<GameObject> pool);
     void ReturnPooledGameObject(GameObject gameObject);
 }
+
+public interface IInteractiveCharacter
+{
+    void Interact();
+}

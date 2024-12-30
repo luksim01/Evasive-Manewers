@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SheepController : MonoBehaviour, ISheepController, ICollidable
+public class SheepController : BaseCharacterController, ISheepController, ICollidable
 {
     public Transform SheepTransform { get; set; }
 
@@ -12,7 +12,7 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     private bool pastBarkJumpState;
     private Rigidbody sheepRb;
 
-    public bool isSlowingDown = true;
+    public bool isSlowingDown = false;
 
     // interaction boundaries
     private float xBoundary = 7.3f;
@@ -22,8 +22,6 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     private int zBackwardBoundary = -32;
 
     // escape controls
-    private Vector3 fleeDirection;
-    private float speedBurst = 4.0f;
     private float jumpForce = 8.0f;
     private float throwForce = 8.0f;
 
@@ -44,7 +42,7 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     private float jumpDelayModifier = 7.5f;
 
     // player proximity
-    private Vector3 sheepDogProximity;
+    [SerializeField] private Vector3 sheepDogProximity;
     private float sheepDogProximityX;
     private float sheepDogProximityZ;
     
@@ -74,7 +72,7 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     private IPlayerController _sheepdog;
 
     // dependancies
-    public void SetDependencies(IAudioManager audioManager, IUIManager uiManager, ISpawnManager spawnManager, IPlayerController playerController)
+    public override void SetDependencies(IAudioManager audioManager, IUIManager uiManager, ISpawnManager spawnManager, IPlayerController playerController)
     {
         _audioManager = audioManager;
         _uiManager = uiManager;
@@ -84,6 +82,14 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
 
     // collision
     public bool HasCollided { get; set; }
+
+    // interactivity
+    [SerializeField] private float targetFleeTime;
+    [SerializeField] private float targetFleeDistance;
+    [SerializeField] private float elapsedFleeTime;
+    [SerializeField] private bool isFleeing;
+    [SerializeField] private Vector3 startFleePosition;
+    [SerializeField] private Vector3 targetFleePosition;
 
     void Start()
     {
@@ -100,7 +106,7 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     {
         if (_uiManager.IsGameActive && hasInitialisedSheep)
         {
-            CheckPlayerActivity();
+            //CheckPlayerActivity();
 
             // sheep behaviour based on tag
             DetermineSheepBehaviour();
@@ -114,6 +120,12 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
         SheepTransform = this.transform;
         sheepBodyAnim = SheepTransform.Find("sheep_body").GetComponent<Animator>();
         sheepHeadAnim = SheepTransform.Find("sheep_head").GetComponent<Animator>();
+
+        targetFleeTime = 0.1f;
+        targetFleeDistance = 1.5f;
+        elapsedFleeTime = 0f;
+        isFleeing = false;
+
         hasInitialisedSheep = true;
     }
 
@@ -124,10 +136,14 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
         ObjectPoolUtility.Return(gameObject);
     }
 
-    private void CheckPlayerActivity()
+    public override void Interact()
+    {
+        isBarkedAt = true;
+    }
+
+    private void CheckPlayerProximity()
     {
         // keep track of barks
-        isBarkedAt = _sheepdog.HasBarkedMove;
         isBarkedJumpAt = _sheepdog.HasBarkedJump;
 
         // player proximity
@@ -159,7 +175,7 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
         // avoid player
         if (Mathf.Abs(sheepDogProximityX) < 2.5f && Mathf.Abs(sheepDogProximityZ) < 7.0f)
         {
-            Avoid(sheepDogProximity, avoidSpeed);
+            //Avoid(sheepDogProximity, avoidSpeed);
         }
         else if (isSlowingDown)
         {
@@ -168,10 +184,26 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
         }
 
         // sheep flee bark if within certain distance of it
-        if (isBarkedAt && Mathf.Abs(sheepDogProximityX) < 6.0f && Mathf.Abs(sheepDogProximityZ) < 10.0f)
+        if (isBarkedAt)
         {
-            FleeBark(sheepDogProximity);
+            isBarkedAt = false;
+            isFleeing = true;
+            CheckPlayerProximity();
+            startFleePosition = SheepTransform.position;
+            targetFleePosition = startFleePosition + sheepDogProximity.normalized * targetFleeDistance;
         }
+
+        if (isFleeing)
+        {
+            elapsedFleeTime = MovementUtility.Flee(sheepRb, startFleePosition, sheepDogProximity, targetFleeDistance, targetFleeTime, targetFleePosition, elapsedFleeTime);
+
+            if(SheepTransform.position == targetFleePosition || elapsedFleeTime >= targetFleeTime)
+            {
+                isFleeing = false;
+                elapsedFleeTime = 0f;
+            }
+        }
+
 
         // stagger jump of herd
         if (isBarkedJumpAt != pastBarkJumpState && !pastBarkJumpState)
@@ -418,14 +450,6 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     {
         Vector3 alignDirection = (direction).normalized;
         SheepTransform.Translate(alignDirection * speed * Time.deltaTime);
-    }
-
-    void FleeBark(Vector3 direction)
-    {
-        fleeDirection = (direction).normalized;
-        float fleeDirectionX = fleeDirection.x;
-        float fleeDirectionZ = fleeDirection.z;
-        SheepTransform.Translate(new Vector3(fleeDirectionX, 0, fleeDirectionZ) * speedBurst * Time.deltaTime);
     }
 
     void PlayCollisionEffect()

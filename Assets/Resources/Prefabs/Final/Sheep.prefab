@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1933699500287286307}
   - component: {fileID: 1726622030027172507}
   - component: {fileID: 3227285108991186763}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sheep
   m_TagString: Stray
   m_Icon: {fileID: 0}
@@ -96,11 +96,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbe1b0008a22e4e30940215a38250d0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isSlowingDown: 1
+  isSlowingDown: 0
+  sheepDogProximity: {x: 0, y: 0, z: 0}
   isHerdSheep: 0
   jumpHeight: 6
   riseGravityScale: 2.8
   fallGravityScale: 0.9
+  targetFleeTime: 0.2
+  targetFleeDistance: 1.5
+  elapsedFleeTime: 0
+  isFleeing: 0
+  startFleePosition: {x: 0, y: 0, z: 0}
+  targetFleePosition: {x: 0, y: 0, z: 0}
 --- !u!1001 &5382863644890653774
 PrefabInstance:
   m_ObjectHideFlags: 0

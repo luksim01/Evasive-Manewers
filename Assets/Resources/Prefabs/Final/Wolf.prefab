@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9205828477710063172}
   - component: {fileID: 7749028405238713883}
   - component: {fileID: 7964132763429636560}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Wolf
   m_TagString: Wolf
   m_Icon: {fileID: 0}

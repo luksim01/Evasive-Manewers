@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class WolfController : MonoBehaviour, ICollidable
+public class WolfController : BaseCharacterController, ICollidable
 {
     // wolf
     private Transform WolfTransform { get; set; }
@@ -28,7 +28,7 @@ public class WolfController : MonoBehaviour, ICollidable
     // player
     private IPlayerController _sheepdog;
 
-    public void SetDependencies(IUIManager uiManager, ISpawnManager spawnManager, IPlayerController playerController)
+    public override void SetDependencies(IAudioManager audioManager, IUIManager uiManager, ISpawnManager spawnManager, IPlayerController playerController)
     {
         _uiManager = uiManager;
         _spawnManager = spawnManager;
@@ -86,6 +86,11 @@ public class WolfController : MonoBehaviour, ICollidable
         isCharging = false;
         hasBitten = false;
         ObjectPoolUtility.Return(gameObject);
+    }
+
+    public override void Interact()
+    {
+
     }
 
     private void DestroyBoundaries(float xBoundaryRight, float xBoundaryLeft, float zBoundaryForward, float zBoundaryBackward)

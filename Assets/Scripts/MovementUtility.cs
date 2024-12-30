@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public static class MovementUtility
 {
@@ -22,5 +23,27 @@ public static class MovementUtility
     {
         float jumpForce = Mathf.Sqrt(jumpHeight * (Physics.gravity.y * riseGravityScale) * -2) * rigidbody.mass;
         rigidbody.AddForce(direction * jumpForce, ForceMode.Impulse);
+    }
+
+    public static float Flee(Rigidbody rigidbody, Vector3 startPosition, Vector3 direction, float distance, float time, Vector3 targetPosition, float elapsedTime)
+    {
+        if (elapsedTime < time)
+        {
+            // location of next position to move
+            float step = (distance / time) * Time.fixedDeltaTime;
+            Vector3 nextPosition = rigidbody.position + direction.normalized * step;
+
+            // if distance covered then snap to target position
+            if (Vector3.Distance(nextPosition, startPosition) > distance)
+            {
+                nextPosition = targetPosition;
+            }
+
+            // move and keep track of time 
+            rigidbody.MovePosition(nextPosition);
+            elapsedTime += Time.fixedDeltaTime;
+        }
+
+        return elapsedTime;
     }
 }
