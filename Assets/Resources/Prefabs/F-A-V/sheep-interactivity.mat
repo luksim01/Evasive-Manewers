@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: orange-warning
+  m_Name: sheep-interactivity
   m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -84,6 +84,6 @@ Material:
     - _UVSec: 0
     - _ZWrite: 0
     m_Colors:
-    - _Color: {r: 1, g: 0.1537725, b: 0, a: 0}
-    - _EmissionColor: {r: 0.35355338, g: 0.089742005, b: 0, a: 1}
+    - _Color: {r: 1, g: 0.72379285, b: 0, a: 0}
+    - _EmissionColor: {r: 0.3529412, g: 0.30447268, b: 0, a: 1}
   m_BuildTextureStacks: []

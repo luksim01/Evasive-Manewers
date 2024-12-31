@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 
 public static class MovementUtility
 {
@@ -45,5 +44,19 @@ public static class MovementUtility
         }
 
         return elapsedTime;
+    }
+
+    public static void MoveSmooth(Rigidbody rigidbody, Vector3 direction, float speed, float smoothTime)
+    {
+        Vector3 targetPosition = rigidbody.position + direction.normalized * Time.fixedDeltaTime * speed;
+        targetPosition = Vector3.Lerp(rigidbody.position, targetPosition, smoothTime);
+
+        rigidbody.MovePosition(targetPosition);
+    }
+
+    public static void Move(Rigidbody rigidbody, Vector3 direction, float speed)
+    {
+        Vector3 targetPosition = rigidbody.position + direction.normalized * Time.fixedDeltaTime * speed;
+        rigidbody.MovePosition(targetPosition);
     }
 }

@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 {
     // self
     public Transform PlayerTransform { get; set; }
+    public Rigidbody PlayerRigidbody { get; set; }
+    public Collider PlayerCollider { get; set; }
     public int Health { get; set; }
 
     // inputs
@@ -16,19 +18,22 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     private InputAction barkMove;
     private InputAction barkJump;
     private InputAction pause;
-    Vector2 moveDirection = Vector2.zero;
+    Vector2 moveInput = Vector2.zero;
+    Vector3 moveDirection;
+    float verticalMoveSpeed;
+    float horizontalMoveSpeed;
 
     // boundary control
     private readonly float xBoundary = 7.0f;
     private readonly float zBoundary = 15.0f;
 
     // movement settings : ground
-    private readonly float forwardSpeed = 9.0f;
-    private readonly float backwardSpeed = 6.0f;
-    public readonly float sidewardSpeed = 7.0f;
+    private readonly float forwardSpeed = 13.0f;
+    private readonly float backwardSpeed = 9.0f;
+    public readonly float sidewardSpeed = 10.0f;
 
     // movement settings : jump
-    private Rigidbody sheepdogRb;
+    //private Rigidbody sheepdogRb;
     private readonly float jumpMovementSpeed = 0.4f;
     [SerializeField] private bool isGrounded = false;
     [SerializeField] private float jumpHeight = 6f;
@@ -95,17 +100,12 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     public bool HasCollided { get; set; }
 
     // interactivity
-    private Ray ray;
-    [SerializeField] private Vector3 playerCenter;
-    [SerializeField] private float rayHeightOffset = 1.5f;
-    [SerializeField] private float rayRange = 3.5f;
-    [SerializeField] private float rayRangeDiag = 2.5f;
-    [SerializeField] private float interactionRange = 5f;
+    [SerializeField] private float interactionRange;
     private float previousInteractionRange;
     private GameObject playerInteractivityIndicator;
     public GameObject interactivityIndicator;
-    private GameObject interactivitySphereIndicator;
-    private GameObject interactivityRingIndicator;
+    public Material indicatorMaterial;
+    [SerializeField] private Vector3 indicatorPositionOffset;
     private List<Collider> trackedCollidedList;
     private List<Collider> removeCollidedList;
 
@@ -151,8 +151,10 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     // Start is called before the first frame update
     void Start()
     {
-        sheepdogRb = GetComponent<Rigidbody>();
-        sheepdogRb.useGravity = false;
+        PlayerRigidbody = GetComponent<Rigidbody>();
+        PlayerRigidbody.useGravity = false;
+
+        PlayerCollider = GetComponent<Collider>();
 
         sheepdogBodyAnim = PlayerTransform.Find("sheepdog_body").GetComponent<Animator>();
         sheepdogHeadAnim = PlayerTransform.Find("sheepdog_head").GetComponent<Animator>();
@@ -161,10 +163,15 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         collisionEffectPool = ObjectPoolUtility.Create("DogCollisionPool", PlayerTransform, sheepdogCollisionEffect, collisionEffectAmountToPool);
 
         // interactivity
-        CreateInteractivityIndicator(interactionRange);
+        playerInteractivityIndicator = InteractivityUtility.CreateInteractivityIndicator(PlayerTransform, interactivityIndicator, indicatorMaterial, indicatorPositionOffset, interactionRange);
         trackedCollidedList = new List<Collider>();
         removeCollidedList = new List<Collider>();
     }
+
+    //void Update()
+    //{
+    //    MovementMonitor();
+    //}
 
     // Update is called once per frame
     void FixedUpdate()
@@ -177,134 +184,55 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
             CheckPlayerDeath();
 
-            MovementUtility.Fall(sheepdogRb, riseGravityScale, fallGravityScale);
+            MovementUtility.Fall(PlayerRigidbody, riseGravityScale, fallGravityScale);
 
             if(interactionRange != previousInteractionRange)
             {
-                UpdateInteractivityIndicator(playerInteractivityIndicator, interactionRange);
+                InteractivityUtility.UpdateInteractivityIndicator(playerInteractivityIndicator, interactionRange);
             }
             previousInteractionRange = interactionRange;
 
-            CastRadius(interactionRange);
-
+            trackedCollidedList = InteractivityUtility.CastRadius(PlayerTransform, playerInteractivityIndicator.transform.position, trackedCollidedList, removeCollidedList, interactionRange);
         }
     }
 
-    private void CreateInteractivityIndicator(float range)
+    private void MovementMonitor()
     {
-        playerInteractivityIndicator = Object.Instantiate(interactivityIndicator, interactivityIndicator.transform.position, interactivityIndicator.transform.rotation);
-        playerInteractivityIndicator.transform.localScale = Vector3.one * range * 2;
-        playerInteractivityIndicator.gameObject.transform.parent = PlayerTransform;
-
-        interactivitySphereIndicator = playerInteractivityIndicator.transform.Find("Sphere").gameObject;
-        interactivityRingIndicator = playerInteractivityIndicator.transform.Find("Ring").gameObject;
-    }
-
-    private void UpdateInteractivityIndicator(GameObject interactivityIndicator, float range)
-    {
-        interactivityIndicator.transform.localScale = Vector3.one * range * 2;
-    }
-
-    public void CastRadius(float range)
-    {
-        int includeLayer = LayerMask.NameToLayer("Interactive");
-        int mask = (1 << includeLayer);
-
-        Collider[] collidedCharacterArray = Physics.OverlapSphere(playerInteractivityIndicator.transform.position, range, mask);
-
-        foreach (Collider collidedCharacter in collidedCharacterArray)
-        {
-            // check that the interactive character isn't self and isn't already in tracked list
-            if (!trackedCollidedList.Contains(collidedCharacter) && collidedCharacter.transform != PlayerTransform)
-            {
-                //Debug.Log($"{collidedCharacter.gameObject.name} is added to tracked list.");
-                trackedCollidedList.Add(collidedCharacter);
-            }
-        }
-
-        foreach (Collider collidedCharacter in trackedCollidedList)
-        {
-            // check that the interactive character hasn't disappeared from character list
-            bool isPresent = false;
-
-            for (int i = 0; i < collidedCharacterArray.Length; i++)
-            {
-                if (collidedCharacter == collidedCharacterArray[i])
-                {
-                    isPresent = true;
-                    break;
-                }
-            }
-
-            if (!isPresent)
-            {
-                removeCollidedList.Add(collidedCharacter);
-            }
-        }
-
-        if(removeCollidedList.Count > 0)
-        {
-            foreach (Collider collidedCharacter in removeCollidedList)
-            {
-                //Debug.Log($"{collidedCharacter.gameObject.name} is removed from tracked list.");
-                trackedCollidedList.Remove(collidedCharacter);
-            }
-
-            removeCollidedList.Clear();
-        }
-    }
-
-    private void CheckSurroundings()
-    {
-        playerCenter = PlayerTransform.position + new Vector3(0f, rayHeightOffset, 0f);
-
-        // forward, backward
-        Debug.DrawRay(playerCenter, new Vector3(0f, 0f, rayRange), Color.red);
-        Debug.DrawRay(playerCenter, new Vector3(0f, 0f, -rayRange), Color.red);
-
-        // right, left
-        Debug.DrawRay(playerCenter, new Vector3(rayRange, 0f, 0f), Color.red);
-        Debug.DrawRay(playerCenter, new Vector3(-rayRange, 0f, 0f), Color.red);
-
-        // diagonal forward
-        Debug.DrawRay(playerCenter, new Vector3(rayRangeDiag, 0f, rayRangeDiag), Color.red);
-        Debug.DrawRay(playerCenter, new Vector3(-rayRangeDiag, 0f, rayRangeDiag), Color.red);
-
-        // diagonal backward
-        Debug.DrawRay(playerCenter, new Vector3(rayRangeDiag, 0f, -rayRangeDiag), Color.red);
-        Debug.DrawRay(playerCenter, new Vector3(-rayRangeDiag, 0f, -rayRangeDiag), Color.red);
-
-        //ray = new Ray(playerCenter, new Vector3(0f, 0f, rayRange));
-
-        //if (Physics.Raycast(ray, out RaycastHit hit, rayRange))
-        //{
-        //    Debug.Log($"{hit.collider.name} was hit by ray.");
-        //}
+        moveInput = move.ReadValue<Vector2>();
     }
 
     private void MovementControl(float forwardSpeed, float backwardSpeed, float sidewardSpeed)
     {
-        moveDirection = move.ReadValue<Vector2>();
+        moveInput = move.ReadValue<Vector2>();
 
         // horizontal movement, slower movement while jumping
-        Move(Vector3.right, moveDirection.x, sidewardSpeed);
-        
-        if(moveDirection.y > 0)
+        if (moveInput.x != 0)
+        {
+            moveDirection = Vector3.right * moveInput.x;
+            horizontalMoveSpeed = sidewardSpeed * (isGrounded ? 1 : jumpMovementSpeed);
+            MovementUtility.Move(PlayerRigidbody, moveDirection, horizontalMoveSpeed);
+        }
+
+        if (moveInput.y > 0)
         {
             // forwards movement, slower movement while jumping
-            Move(Vector3.forward, moveDirection.y, forwardSpeed);
+            moveDirection = Vector3.forward * moveInput.y;
+            verticalMoveSpeed = forwardSpeed * (isGrounded ? 1 : jumpMovementSpeed);
+            MovementUtility.Move(PlayerRigidbody, moveDirection, verticalMoveSpeed);
         }
-        else if (moveDirection.y < 0)
+        else if (moveInput.y < 0)
         {
             // backwards movement, slower movement while jumping
-            Move(Vector3.forward, moveDirection.y, backwardSpeed);
+            moveDirection = Vector3.forward * moveInput.y;
+            verticalMoveSpeed = backwardSpeed * (isGrounded ? 1 : jumpMovementSpeed);
+            MovementUtility.Move(PlayerRigidbody, moveDirection, verticalMoveSpeed);
         }
     }
 
-    public void Move(Vector3 direction, float input, float speed)
-    {
-        PlayerTransform.Translate(direction * input * Time.deltaTime * speed * (isGrounded ? 1 : jumpMovementSpeed));
-    }
+    //public void Move(Vector3 direction, float input, float speed)
+    //{
+    //    PlayerTransform.Translate(direction * input * Time.deltaTime * speed * (isGrounded ? 1 : jumpMovementSpeed));
+    //}
 
     private void MovementBoundaries(float xBoundary, float zBoundary)
     {
@@ -344,7 +272,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
             isGrounded = false;
             sheepdogBodyAnim.SetTrigger("isJumping");
             sheepdogHeadAnim.SetTrigger("isJumping");
-            MovementUtility.Jump(sheepdogRb, Vector3.up, riseGravityScale, jumpHeight);
+            MovementUtility.Jump(PlayerRigidbody, Vector3.up, riseGravityScale, jumpHeight);
         }
     }
 
@@ -402,13 +330,14 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
             isGrounded = true;
         }
 
+        // player bounce on sheep - revisit make this trigger if excluding interactive layer collisions
         if (collidingObject.CompareTag("Sheep"))
         {
             SheepController sheepController = collidingObject.gameObject.GetComponent<SheepController>();
             dependancyManager.InjectSheepControllerDependancyIntoPlayerController(sheepController);
             if (PlayerTransform.position.y - _sheepController.SheepTransform.position.y > heightTrigger)
             {
-                sheepdogRb.AddForce(Vector3.up * thrownSpeed, ForceMode.Impulse);
+                PlayerRigidbody.AddForce(Vector3.up * thrownSpeed, ForceMode.Impulse);
             }
         }
     }
@@ -431,7 +360,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
             barkEffect.Play();
             _audioManager.HasDetectedBarkMove = true;
             InteractInZone();
-            StartCoroutine(BarkMoveCooldown(1.0f));
+            StartCoroutine(BarkMoveCooldown(0.5f));
         }
     }
 
@@ -447,13 +376,22 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     private void BarkJump(InputAction.CallbackContext context)
     {
         // keep track of herd to check they're grounded to trigger jump
-        if (!HasBarkedJump && _spawnManager.CheckSheepGrounded())
+        if (_spawnManager.CheckSheepGrounded())
         {
-            HasBarkedJump = true;
             sheepdogHeadAnim.SetTrigger("isBarkingJump");
             barkEffect.Play();
             _audioManager.HasDetectedBarkJump = true;
-            StartCoroutine(BarkJumpCooldown(1.0f));
+            StaggeredJump();
+            StartCoroutine(BarkJumpCooldown(0.5f));
+        }
+    }
+
+    private void StaggeredJump()
+    {
+        foreach (GameObject sheep in _spawnManager.Herd)
+        {
+            SheepController sheepController = sheep.GetComponent<SheepController>();
+            sheepController.InteractJump();
         }
     }
 

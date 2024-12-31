@@ -317,14 +317,14 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
                 if (spawnSide[sideIndex] == "left")
                 {
-                    StraySheepSpawnPosition = new Vector3(-12, 1, straySheepSpawnPositionZ);
-                    StraySheepTargetPosition = new Vector3(11, 1, straySheepTargetPositionZ);
+                    StraySheepSpawnPosition = new Vector3(-12, 0, straySheepSpawnPositionZ);
+                    StraySheepTargetPosition = new Vector3(11, 0, straySheepTargetPositionZ);
 
                 }
                 else if (spawnSide[sideIndex] == "right")
                 {
-                    StraySheepSpawnPosition = new Vector3(12, 1, straySheepSpawnPositionZ);
-                    StraySheepTargetPosition = new Vector3(-11, 1, straySheepTargetPositionZ);
+                    StraySheepSpawnPosition = new Vector3(12, 0, straySheepSpawnPositionZ);
+                    StraySheepTargetPosition = new Vector3(-11, 0, straySheepTargetPositionZ);
                 }
 
                 if (straySheepNew != null)

@@ -52,6 +52,8 @@ public interface ISpawnManager
 public interface IPlayerController
 {
     Transform PlayerTransform { get; set; }
+    Rigidbody PlayerRigidbody { get; set; }
+    Collider PlayerCollider { get; set; }
     int Health { get; set; }
     bool HasBarkedMove { get; set; }
     bool HasBarkedJump { get; set; }
