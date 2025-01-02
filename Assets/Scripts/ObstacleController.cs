@@ -26,19 +26,18 @@ public class ObstacleController : MonoBehaviour
         InitialiseObstacle();
     }
 
-    void FixedUpdate()
+    void Update()
     {
         if (_uiManager.IsGameActive && hasInitialisedObstacle)
         {
             ObstacleTransform.Translate(Vector3.back * Time.deltaTime * speed);
 
-            if (gameObject.CompareTag("Obstacle") && ObstacleTransform.position.z < -bounds)
+            if (ObstacleTransform.position.z < -bounds)
             {
-                _uiManager.Score += 100;
-                ObjectPoolUtility.Return(gameObject);
-            }
-            if (gameObject.CompareTag("Background Tree") && ObstacleTransform.position.z < -bounds)
-            {
+                if (gameObject.CompareTag("Obstacle"))
+                {
+                    _uiManager.Score += 100;
+                }
                 ObjectPoolUtility.Return(gameObject);
             }
         }
@@ -53,6 +52,15 @@ public class ObstacleController : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         ICollidable collidable = collision.gameObject.GetComponent<ICollidable>();
+        if (collidable != null && !collidable.HasCollided)
+        {
+            collidable.OnCollision(this.gameObject);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        ICollidable collidable = other.gameObject.GetComponent<ICollidable>();
         if (collidable != null && !collidable.HasCollided)
         {
             collidable.OnCollision(this.gameObject);

@@ -309,7 +309,7 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
         MovementUtility.Move(sheepRb, targetDirection, 3f);
 
         // stray sheep added to herd with close proximity bark within trail
-        if (isBarkedAt)
+        if (isBarkedAt && SheepTransform.position.x < 6.2 && SheepTransform.position.x > -6.2)
         {
             isBarkedAt = false;
             _spawnManager.AddSheepToHerd(gameObject);
@@ -512,6 +512,15 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
     private void OnCollisionEnter(Collision collision)
     {
         ICollidable collidable = collision.gameObject.GetComponent<ICollidable>();
+        if (collidable != null && !collidable.HasCollided)
+        {
+            collidable.OnCollision(this.gameObject);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        ICollidable collidable = other.gameObject.GetComponent<ICollidable>();
         if (collidable != null && !collidable.HasCollided)
         {
             collidable.OnCollision(this.gameObject);

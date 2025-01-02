@@ -49,9 +49,9 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 257
+    m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -100,7 +100,6 @@ MonoBehaviour:
   interactivityIndicator: {fileID: 828274026707722583, guid: b036a800df6ee4966a4e797d03256cad, type: 3}
   indicatorMaterial: {fileID: 2100000, guid: 0d3005a98c6ad41d4a06665ce1cebcea, type: 2}
   indicatorPositionOffset: {x: 0, y: 0, z: 0}
-  proximity: {x: 0, y: 0, z: 0}
   targetDirection: {x: 0, y: 0, z: 0}
 --- !u!1001 &3743661574775535673
 PrefabInstance:

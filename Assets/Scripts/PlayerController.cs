@@ -351,6 +351,15 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        ICollidable collidable = other.gameObject.GetComponent<ICollidable>();
+        if (collidable != null && !collidable.HasCollided)
+        {
+            collidable.OnCollision(this.gameObject);
+        }
+    }
+
     private void BarkMove(InputAction.CallbackContext context)
     {
         if (!HasBarkedMove)
