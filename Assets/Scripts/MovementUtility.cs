@@ -59,4 +59,10 @@ public static class MovementUtility
         Vector3 targetPosition = rigidbody.position + direction.normalized * Time.fixedDeltaTime * speed;
         rigidbody.MovePosition(targetPosition);
     }
+
+    public static void LookAt(Rigidbody rigidbody, Vector3 direction)
+    {
+        Vector3 directionPosition = direction.normalized * Time.fixedDeltaTime;
+        rigidbody.MoveRotation(Quaternion.LookRotation(directionPosition));
+    }
 }

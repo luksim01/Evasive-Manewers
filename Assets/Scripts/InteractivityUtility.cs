@@ -79,4 +79,22 @@ public static class InteractivityUtility
 
         return trackedCollidedList;
     }
+
+    public static Vector3 GetTowardDirection(Vector3 selfPosition, Vector3 targetPosition)
+    {
+        float directionX = targetPosition.x - selfPosition.x;
+        float directionZ = targetPosition.z - selfPosition.z;
+        Vector3 direction = new Vector3(directionX, 0, directionZ);
+
+        return direction;
+    }
+
+    public static Vector3 GetAwayDirection(Vector3 selfPosition, Vector3 fleePosition)
+    {
+        float directionX = selfPosition.x - fleePosition.x;
+        float directionZ = selfPosition.z - fleePosition.z;
+        Vector3 direction = new Vector3(directionX, 0, directionZ);
+
+        return direction;
+    }
 }

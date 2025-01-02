@@ -1,10 +1,12 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class WolfController : BaseCharacterController, ICollidable
 {
     // wolf
     private Transform WolfTransform { get; set; }
     private bool hasBitten;
+    private Rigidbody wolfRb;
 
     // hunt target
     private GameObject targetSheep;
@@ -41,6 +43,32 @@ public class WolfController : BaseCharacterController, ICollidable
     // collision
     public bool HasCollided { get; set; }
 
+    // interactivity
+    [SerializeField] private float interactionRange;
+    private float previousInteractionRange;
+    private GameObject wolfInteractivityIndicator;
+    public GameObject interactivityIndicator;
+    public Material indicatorMaterial;
+    [SerializeField] private Vector3 indicatorPositionOffset;
+    private Ray ray;
+    private List<Collider> trackedCollidedList;
+    private List<Collider> removeCollidedList;
+
+    // player proximity
+    //[SerializeField] private Vector3 travelDirection;
+    [SerializeField] private Vector3 targetDirection;
+    bool hasEngaged;
+
+    void Start()
+    {
+        wolfRb = GetComponent<Rigidbody>();
+
+        // interactivity
+        wolfInteractivityIndicator = InteractivityUtility.CreateInteractivityIndicator(WolfTransform, interactivityIndicator, indicatorMaterial, indicatorPositionOffset, interactionRange);
+        trackedCollidedList = new List<Collider>();
+        removeCollidedList = new List<Collider>();
+    }
+
     void OnEnable()
     {
         InitialiseWolf();
@@ -50,6 +78,15 @@ public class WolfController : BaseCharacterController, ICollidable
     {
         if (_uiManager.IsGameActive && hasInitialisedWolf)
         {
+            if (interactionRange != previousInteractionRange)
+            {
+                InteractivityUtility.UpdateInteractivityIndicator(wolfInteractivityIndicator, interactionRange);
+            }
+            previousInteractionRange = interactionRange;
+
+            trackedCollidedList = InteractivityUtility.CastRadius(WolfTransform, wolfInteractivityIndicator.transform.position, trackedCollidedList, removeCollidedList, interactionRange);
+
+
             if (hasTargetedSheepdog)
             {
                 HuntPlayer();
@@ -69,7 +106,9 @@ public class WolfController : BaseCharacterController, ICollidable
             hasTargetedSheepdog = _spawnManager.HasTargetedSheepdog;
             hasTargetedHerd = _spawnManager.HasTargetedHerd;
         }
-        
+
+        hasEngaged = false;
+
         WolfTransform = this.transform;
         wolfHeadAnim = WolfTransform.Find("wolf_head").GetComponent<Animator>();
         hasInitialisedWolf = true;
@@ -85,12 +124,13 @@ public class WolfController : BaseCharacterController, ICollidable
         hasTargetedSheep = false;
         isCharging = false;
         hasBitten = false;
+        isBarkedAt = false;
         ObjectPoolUtility.Return(gameObject);
     }
 
     public override void Interact()
     {
-
+        isBarkedAt = true;
     }
 
     private void DestroyBoundaries(float xBoundaryRight, float xBoundaryLeft, float zBoundaryForward, float zBoundaryBackward)
@@ -132,9 +172,6 @@ public class WolfController : BaseCharacterController, ICollidable
 
     private void HuntSheep()
     {
-        // keep track of bark
-        isBarkedAt = _sheepdog.HasBarkedMove;
-
         // target one sheep
         if (!hasTargetedSheep)
         {
@@ -145,26 +182,27 @@ public class WolfController : BaseCharacterController, ICollidable
 
         if (targetSheep)
         {
-            // sheep proximity
-            float sheepProximityX = targetSheep.transform.position.x - WolfTransform.position.x;
-            float sheepProximityZ = targetSheep.transform.position.z - WolfTransform.position.z;
-            Vector3 sheepProximity = new Vector3(sheepProximityX, 0, sheepProximityZ);
+            // move towards target sheep
+            targetDirection = InteractivityUtility.GetTowardDirection(wolfRb.position, targetSheep.transform.position);
 
-            if (Mathf.Abs(sheepProximityX) > 2 || Mathf.Abs(sheepProximityZ) > 4)
+            if (trackedCollidedList.Contains(targetSheep.GetComponent<Collider>()))
             {
-                TravelTowards(sheepProximity, 8.0f);
+                hasEngaged = true;
             }
 
-            // player proximity
-            float sheepDogProximityX = _sheepdog.PlayerTransform.position.x - WolfTransform.position.x;
-            float sheepDogProximityZ = _sheepdog.PlayerTransform.position.z - WolfTransform.position.z;
+            if (!hasEngaged)
+            {
+                
+                MovementUtility.MoveSmooth(wolfRb, targetDirection, 10f, 0.9f);
+            }
+            else
+            {
+                MovementUtility.MoveSmooth(wolfRb, targetDirection, 5f, 0.9f);
+            }
+            
 
             // wolf hunt sequence can be interrupted
-            if (isBarkedAt &&
-                Mathf.Abs(sheepDogProximityX) < 3 &&
-                Mathf.Abs(sheepDogProximityZ) < 5 &&
-                WolfTransform.position.x < 5.4 &&
-                WolfTransform.position.x > -5.4)
+            if (isBarkedAt && WolfTransform.position.x < 6.2 && WolfTransform.position.x > -6.2)
             {
                 wolfHeadAnim.SetTrigger("isBiting");
                 targetSheep.tag = "Sheep";
@@ -179,7 +217,8 @@ public class WolfController : BaseCharacterController, ICollidable
 
         if (isCharging)
         {
-            TravelTowards(new Vector3(WolfTransform.position.x, 0f, zBoundary), 18.0f);
+            targetDirection = new Vector3(0f, 0f, zBoundary);
+            MovementUtility.MoveSmooth(wolfRb, targetDirection, 20f, 1f);
         }
         else if (!targetSheep.activeSelf)
         {
@@ -191,53 +230,32 @@ public class WolfController : BaseCharacterController, ICollidable
 
     private void HuntPlayer()
     {
-        float sheepDogProximityX = _sheepdog.PlayerTransform.transform.position.x - WolfTransform.position.x;
-        float sheepDogProximityZ = _sheepdog.PlayerTransform.position.z - WolfTransform.position.z;
-        Vector3 sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
-
         // track player position
         if (!isCharging)
         {
-            collisionCourse = sheepDogProximity;
-            Track(sheepDogProximity);
+            targetDirection = InteractivityUtility.GetTowardDirection(wolfRb.position, _sheepdog.PlayerRigidbody.position);
+            MovementUtility.MoveSmooth(wolfRb, targetDirection, 10f, 0.9f);
+            MovementUtility.LookAt(wolfRb, targetDirection);
         }
 
         // once close enough, charge at player in one direction
-        if (sheepDogProximity.z <= 8 && WolfTransform.position.x < 7.7f && WolfTransform.position.x > -7.7f)
+        if (trackedCollidedList.Contains(_sheepdog.PlayerCollider) & !isCharging)
         {
             isCharging = true;
         }
+
         if (isCharging)
         {
-            if (Mathf.Abs(sheepDogProximityZ) < 6)
-            {
-                wolfHeadAnim.SetTrigger("isBiting");
-            }
-            Track(collisionCourse);
+            wolfHeadAnim.SetTrigger("isBiting");
+            MovementUtility.MoveSmooth(wolfRb, targetDirection, 10f, 0.9f);
+            MovementUtility.LookAt(wolfRb, targetDirection);
         }
 
-        float xBoundaryLeft = 40.0f;
-        float xBoundaryRight = -40.0f;
+        float xBoundaryLeft = 12.0f;
+        float xBoundaryRight = -13.0f;
         float zBoundary = 40.0f;
 
         DestroyBoundaries(xBoundaryLeft, xBoundaryRight, zBoundary, -zBoundary);
-    }
-
-    private void Track(Vector3 direction)
-    {
-        Vector3 alignDirection = (direction).normalized;
-        if (alignDirection != Vector3.zero && !hasBitten)
-        {
-            WolfTransform.rotation = Quaternion.LookRotation(alignDirection);
-        }
-        WolfTransform.Translate(alignDirection * 10.0f * Time.deltaTime);
-    }
-
-
-    private void TravelTowards(Vector3 direction, float speed)
-    {
-        Vector3 alignDirection = (direction).normalized;
-        WolfTransform.Translate(alignDirection * speed * Time.deltaTime);
     }
 
     public void OnCollision(GameObject collidingObject)

@@ -444,22 +444,22 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         {
             if (HasTargetedSheepdog)
             {
-                wolfSpawnPos = new Vector3(30.0f, 0, sheepDogPosZ + Random.Range(-15, -5));
+                wolfSpawnPos = new Vector3(11.0f, 0, sheepDogPosZ + Random.Range(-8, -8));
             }
             else if (HasTargetedHerd)
             {
-                wolfSpawnPos = new Vector3(11.0f, 0, Random.Range(-4, 1));
+                wolfSpawnPos = new Vector3(11.0f, 0, Random.Range(-15, -5));
             }
         }
         if (wolfOrigin[wolfOriginIndex] == "left")
         {
             if (HasTargetedSheepdog)
             {
-                wolfSpawnPos = new Vector3(-30.0f, 0, sheepDogPosZ + Random.Range(-15, -5));
+                wolfSpawnPos = new Vector3(-12.0f, 0, sheepDogPosZ + Random.Range(-8, -8));
             }
             else if (HasTargetedHerd)
             {
-                wolfSpawnPos = new Vector3(-12.0f, 0, Random.Range(-4, 1));
+                wolfSpawnPos = new Vector3(-12.0f, 0, Random.Range(-15, -5));
             }
         }
         return wolfSpawnPos;
