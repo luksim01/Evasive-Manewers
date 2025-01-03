@@ -3,7 +3,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.Profiling;
-using UnityEngine.Rendering.PostProcessing;
+//using UnityEngine.Rendering.PostProcessing;
 
 public class UIManager : MonoBehaviour, IUIManager
 {
@@ -51,14 +51,14 @@ public class UIManager : MonoBehaviour, IUIManager
     [SerializeField] private bool isPaused = false;
 
     // camera
-    PostProcessVolume postprocessVolume;
-    PostProcessLayer postprocessLayer;
+    //PostProcessVolume postprocessVolume;
+    //PostProcessLayer postprocessLayer;
 
     private void Awake()
     {
         IsGameActive = true;
-        postprocessVolume = Camera.main.gameObject.GetComponent<PostProcessVolume>();
-        postprocessLayer = Camera.main.gameObject.GetComponent<PostProcessLayer>();
+        //postprocessVolume = Camera.main.gameObject.GetComponent<PostProcessVolume>();
+        //postprocessLayer = Camera.main.gameObject.GetComponent<PostProcessLayer>();
     }
 
     void Start()
@@ -137,23 +137,23 @@ public class UIManager : MonoBehaviour, IUIManager
         }
     }
 
-    public void EnablePostProcessing()
-    {
-        postprocessLayer.enabled = true;
-        postprocessVolume.enabled = true;
-    }
+    //public void EnablePostProcessing()
+    //{
+    //    postprocessLayer.enabled = true;
+    //    postprocessVolume.enabled = true;
+    //}
 
-    public void DisablePostProcessing()
-    {
-        postprocessLayer.enabled = false;
-        postprocessVolume.enabled = false;
-    }
+    //public void DisablePostProcessing()
+    //{
+    //    postprocessLayer.enabled = false;
+    //    postprocessVolume.enabled = false;
+    //}
 
     void PauseGame()
     {
         isPaused = true;
         Time.timeScale = 0f;
-        EnablePostProcessing();
+        //EnablePostProcessing();
     }
 
     void PauseProfiler()
@@ -165,7 +165,7 @@ public class UIManager : MonoBehaviour, IUIManager
     {
         isPaused = false;
         Time.timeScale = 1f;
-        DisablePostProcessing();
+        //DisablePostProcessing();
     }
 
     void ResumeProfiler()
@@ -228,7 +228,7 @@ public class UIManager : MonoBehaviour, IUIManager
         hudScreen.SetActive(false);
         gameOverScreen.SetActive(true);
         IsGameActive = false;
-        EnablePostProcessing();
+        //EnablePostProcessing();
         PauseGame();
     }
 
