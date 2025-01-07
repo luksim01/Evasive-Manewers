@@ -65,4 +65,11 @@ public static class MovementUtility
         Vector3 directionPosition = direction.normalized * Time.fixedDeltaTime;
         rigidbody.MoveRotation(Quaternion.LookRotation(directionPosition));
     }
+
+    public static Vector3 MovementConstraints(Vector3 position, float forwardBoundary, float backBoundary, float rightBoundary, float leftBoundary)
+    {
+        float positionX = Mathf.Clamp(position.x, leftBoundary, rightBoundary);
+        float positionZ = Mathf.Clamp(position.z, backBoundary, forwardBoundary);
+        return new Vector3(positionX, position.y, positionZ);
+    }
 }

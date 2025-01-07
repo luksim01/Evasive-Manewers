@@ -49,7 +49,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -76,7 +76,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
@@ -98,6 +98,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isSlowingDown: 0
   avoidSpeed: 4
+  isJumping: 0
   sheepDogProximity: {x: 0, y: 0, z: 0}
   isHerdSheep: 0
   jumpHeight: 6

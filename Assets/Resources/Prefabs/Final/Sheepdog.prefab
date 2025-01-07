@@ -110,6 +110,8 @@ MonoBehaviour:
   interactivityIndicator: {fileID: 828274026707722583, guid: b036a800df6ee4966a4e797d03256cad, type: 3}
   indicatorMaterial: {fileID: 2100000, guid: b014047aae379405b84fe13830ebf1bb, type: 2}
   indicatorPositionOffset: {x: 0, y: 0, z: 0}
+  targetDirection: {x: 0, y: 0, z: 0}
+  repositionSpeed: 0
 --- !u!1001 &6624665172525430974
 PrefabInstance:
   m_ObjectHideFlags: 0
