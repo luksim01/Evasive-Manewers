@@ -3,7 +3,6 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.Profiling;
-//using UnityEngine.Rendering.PostProcessing;
 
 public class UIManager : MonoBehaviour, IUIManager
 {
@@ -22,6 +21,7 @@ public class UIManager : MonoBehaviour, IUIManager
 
     public GameObject gameOverScreen;
     public GameObject hudScreen;
+    public GameObject pauseScreen;
 
     public bool IsGameActive { get; set; }
     public int TimeRemaining { get; set; }
@@ -40,6 +40,9 @@ public class UIManager : MonoBehaviour, IUIManager
     // spawn manager
     private ISpawnManager _spawnManager;
 
+    // post processing
+    public GameObject postprocessingVolume;
+
     // dependancies
     public void SetDependencies(IPlayerController playerController, SpawnManager spawnManager)
     {
@@ -50,15 +53,9 @@ public class UIManager : MonoBehaviour, IUIManager
     // pause
     [SerializeField] private bool isPaused = false;
 
-    // camera
-    //PostProcessVolume postprocessVolume;
-    //PostProcessLayer postprocessLayer;
-
     private void Awake()
     {
         IsGameActive = true;
-        //postprocessVolume = Camera.main.gameObject.GetComponent<PostProcessVolume>();
-        //postprocessLayer = Camera.main.gameObject.GetComponent<PostProcessLayer>();
     }
 
     void Start()
@@ -129,31 +126,31 @@ public class UIManager : MonoBehaviour, IUIManager
         {
             PauseGame();
             PauseProfiler();
+            EnablePauseScreen();
         }
         else
         {
             ResumeGame();
             ResumeProfiler();
+            DisablePauseScreen();
         }
     }
 
-    //public void EnablePostProcessing()
-    //{
-    //    postprocessLayer.enabled = true;
-    //    postprocessVolume.enabled = true;
-    //}
+    public void EnablePostProcessing()
+    {
+        postprocessingVolume.SetActive(true);
+    }
 
-    //public void DisablePostProcessing()
-    //{
-    //    postprocessLayer.enabled = false;
-    //    postprocessVolume.enabled = false;
-    //}
+    public void DisablePostProcessing()
+    {
+        postprocessingVolume.SetActive(false);
+    }
 
     void PauseGame()
     {
         isPaused = true;
         Time.timeScale = 0f;
-        //EnablePostProcessing();
+        EnablePostProcessing();
     }
 
     void PauseProfiler()
@@ -165,7 +162,17 @@ public class UIManager : MonoBehaviour, IUIManager
     {
         isPaused = false;
         Time.timeScale = 1f;
-        //DisablePostProcessing();
+        DisablePostProcessing();
+    }
+
+    void EnablePauseScreen()
+    {
+        pauseScreen.SetActive(true);
+    }
+
+    void DisablePauseScreen()
+    {
+        pauseScreen.SetActive(false);
     }
 
     void ResumeProfiler()
@@ -228,7 +235,7 @@ public class UIManager : MonoBehaviour, IUIManager
         hudScreen.SetActive(false);
         gameOverScreen.SetActive(true);
         IsGameActive = false;
-        //EnablePostProcessing();
+        EnablePostProcessing();
         PauseGame();
     }
 

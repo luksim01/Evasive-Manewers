@@ -108,6 +108,9 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     [SerializeField] private Vector3 targetDirection;
     [SerializeField] private float repositionSpeed;
 
+    private Vector3 playerInteractivityIndicatorPosition;
+    private Vector3 castPosition;
+
     private void Awake()
     {
         PlayerTransform = this.transform;
@@ -162,6 +165,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
         // interactivity
         playerInteractivityIndicator = InteractivityUtility.CreateInteractivityIndicator(PlayerTransform, interactivityIndicator, indicatorMaterial, indicatorPositionOffset, interactionRange);
+        playerInteractivityIndicatorPosition = playerInteractivityIndicator.transform.localPosition;
+        playerInteractivityIndicator.SetActive(false);
         trackedCollidedList = new List<Collider>();
         removeCollidedList = new List<Collider>();
         historicalTrackedCollidedList = new List<Collider>();
@@ -190,13 +195,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
             MovementUtility.Fall(PlayerRigidbody, riseGravityScale, fallGravityScale);
 
-            if (interactionRange != previousInteractionRange)
-            {
-                InteractivityUtility.UpdateInteractivityIndicator(playerInteractivityIndicator, interactionRange);
-            }
-            previousInteractionRange = interactionRange;
-
-            trackedCollidedList = InteractivityUtility.CastRadius(PlayerTransform, playerInteractivityIndicator.transform.position, trackedCollidedList, removeCollidedList, interactionRange);
+            castPosition = this.transform.position + indicatorPositionOffset + playerInteractivityIndicatorPosition;
+            trackedCollidedList = InteractivityUtility.CastRadius(PlayerTransform, castPosition, trackedCollidedList, removeCollidedList, interactionRange);
 
             OutlineInteractiveCharacters();
         }

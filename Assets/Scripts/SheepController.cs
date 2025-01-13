@@ -149,19 +149,15 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
         isJumping = false;
         isOutlined = false;
 
-        //sheepInteractivityIndicator.SetActive(false);
-
         hasInitialisedSheep = true;
     }
 
     void ReturnToPoolAndReset(GameObject gameObject)
     {
         gameObject.tag = "Stray";
-
+        _spawnManager.RemoveSheepFromHerd(gameObject);
         trackedCollidedList.Clear();
         removeCollidedList.Clear();
-
-        _spawnManager.RemoveSheepFromHerd(gameObject);
         ObjectPoolUtility.Return(gameObject);
     }
 
