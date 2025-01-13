@@ -13,10 +13,10 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
     // inputs
     public PlayerInputActions playerControls;
-    private InputAction move;
-    private InputAction jump;
-    private InputAction barkMove;
-    private InputAction barkJump;
+    public InputAction Move { get; set; }
+    public InputAction Jump { get; set; }
+    public InputAction BarkMove { get; set; }
+    public InputAction BarkJump { get; set; }
     private InputAction pause;
     Vector2 moveInput = Vector2.zero;
     Vector3 moveDirection;
@@ -120,20 +120,20 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
     void OnEnable()
     {
-        move = playerControls.Player.Move;
-        move.Enable();
+        Move = playerControls.Player.Move;
+        Move.Enable();
 
-        jump = playerControls.Player.Jump;
-        jump.Enable();
-        jump.performed += Jump;
+        Jump = playerControls.Player.Jump;
+        Jump.Enable();
+        Jump.performed += DoJump;
 
-        barkMove = playerControls.Player.BarkMove;
-        barkMove.Enable();
-        barkMove.performed += BarkMove;
+        BarkMove = playerControls.Player.BarkMove;
+        BarkMove.Enable();
+        BarkMove.performed += DoBarkMove;
 
-        barkJump = playerControls.Player.BarkJump;
-        barkJump.Enable();
-        barkJump.performed += BarkJump;
+        BarkJump = playerControls.Player.BarkJump;
+        BarkJump.Enable();
+        BarkJump.performed += DoBarkJump;
 
         pause = playerControls.Player.Pause;
         pause.Enable();
@@ -142,10 +142,10 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
     void OnDisable()
     {
-        move.Disable();
-        jump.Disable();
-        barkMove.Disable();
-        barkJump.Disable();
+        Move.Disable();
+        Jump.Disable();
+        BarkMove.Disable();
+        BarkJump.Disable();
         pause.Disable();
     }
 
@@ -204,7 +204,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
     private void MovementMonitor()
     {
-        moveInput = move.ReadValue<Vector2>();
+        moveInput = Move.ReadValue<Vector2>();
     }
 
     private void MovementControl(float speed)
@@ -221,7 +221,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         }
     }
 
-    private void Jump(InputAction.CallbackContext context)
+    private void DoJump(InputAction.CallbackContext context)
     {
         if (isGrounded)
         {
@@ -305,7 +305,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         }
     }
 
-    private void BarkMove(InputAction.CallbackContext context)
+    private void DoBarkMove(InputAction.CallbackContext context)
     {
         if (!HasBarkedMove)
         {
@@ -351,7 +351,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         }
     }
 
-    private void BarkJump(InputAction.CallbackContext context)
+    private void DoBarkJump(InputAction.CallbackContext context)
     {
         // keep track of herd to check they're grounded to trigger jump
         sheepdogHeadAnim.SetTrigger("isBarkingJump");

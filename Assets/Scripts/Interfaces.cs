@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 public interface IAudioManager
 {
@@ -55,6 +56,10 @@ public interface IPlayerController
     Transform PlayerTransform { get; set; }
     Rigidbody PlayerRigidbody { get; set; }
     Collider PlayerCollider { get; set; }
+    InputAction Move { get; set; }
+    InputAction Jump { get; set; }
+    InputAction BarkMove { get; set; }
+    InputAction BarkJump { get; set; }
     int Health { get; set; }
     bool HasBarkedMove { get; set; }
     bool HasBarkedJump { get; set; }

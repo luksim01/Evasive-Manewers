@@ -22,6 +22,7 @@ public class UIManager : MonoBehaviour, IUIManager
     public GameObject gameOverScreen;
     public GameObject hudScreen;
     public GameObject pauseScreen;
+    public GameObject instructionScreen;
 
     public bool IsGameActive { get; set; }
     public int TimeRemaining { get; set; }
@@ -149,6 +150,10 @@ public class UIManager : MonoBehaviour, IUIManager
     void PauseGame()
     {
         isPaused = true;
+        _sheepdog.Move.Disable();
+        _sheepdog.Jump.Disable();
+        _sheepdog.BarkMove.Disable();
+        _sheepdog.BarkJump.Disable();
         Time.timeScale = 0f;
         EnablePostProcessing();
     }
@@ -161,18 +166,32 @@ public class UIManager : MonoBehaviour, IUIManager
     void ResumeGame()
     {
         isPaused = false;
+        _sheepdog.Move.Enable();
+        _sheepdog.Jump.Enable();
+        _sheepdog.BarkMove.Enable();
+        _sheepdog.BarkJump.Enable();
         Time.timeScale = 1f;
         DisablePostProcessing();
     }
 
     void EnablePauseScreen()
     {
+        _sheepdog.Move.Disable();
+        _sheepdog.Jump.Disable();
+        _sheepdog.BarkMove.Disable();
+        _sheepdog.BarkJump.Disable();
         pauseScreen.SetActive(true);
+        instructionScreen.SetActive(true);
     }
 
     void DisablePauseScreen()
     {
+        _sheepdog.Move.Enable();
+        _sheepdog.Jump.Enable();
+        _sheepdog.BarkMove.Enable();
+        _sheepdog.BarkJump.Enable();
         pauseScreen.SetActive(false);
+        instructionScreen.SetActive(false);
     }
 
     void ResumeProfiler()
