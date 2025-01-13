@@ -28,9 +28,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     private readonly float zBoundary = 15.0f;
 
     // movement settings : ground
-    private readonly float forwardSpeed = 13.0f;
-    private readonly float backwardSpeed = 9.0f;
-    public readonly float sidewardSpeed = 10.0f;
+    private readonly float speed = 10f;
 
     // movement settings : jump
     //private Rigidbody sheepdogRb;
@@ -182,7 +180,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         if (_uiManager.IsGameActive)
         {
             //CheckWithinBounds(zBoundary, -zBoundary, xBoundary, -xBoundary);
-            MovementControl(forwardSpeed, backwardSpeed, sidewardSpeed);
+            MovementControl(speed);
 
             CheckPlayerDeath();
 
@@ -203,30 +201,9 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         moveInput = move.ReadValue<Vector2>();
     }
 
-    private void MovementControl(float forwardSpeed, float backwardSpeed, float sidewardSpeed)
+    private void MovementControl(float speed)
     {
-        // horizontal movement, slower movement while jumping
-        if (moveInput.x != 0)
-        {
-            moveDirection = Vector3.right * moveInput.x;
-            horizontalMoveSpeed = sidewardSpeed * (isGrounded ? 1 : jumpMovementSpeed);
-            MovementUtility.Move(PlayerRigidbody, moveDirection, horizontalMoveSpeed);
-        }
-
-        if (moveInput.y > 0)
-        {
-            // forwards movement, slower movement while jumping
-            moveDirection = Vector3.forward * moveInput.y;
-            verticalMoveSpeed = forwardSpeed * (isGrounded ? 1 : jumpMovementSpeed);
-            MovementUtility.Move(PlayerRigidbody, moveDirection, verticalMoveSpeed);
-        }
-        else if (moveInput.y < 0)
-        {
-            // backwards movement, slower movement while jumping
-            moveDirection = Vector3.forward * moveInput.y;
-            verticalMoveSpeed = backwardSpeed * (isGrounded ? 1 : jumpMovementSpeed);
-            MovementUtility.Move(PlayerRigidbody, moveDirection, verticalMoveSpeed);
-        }
+        MovementUtility.Move(PlayerRigidbody, new Vector3(moveInput.x, 0, moveInput.y), speed * (isGrounded ? 1 : jumpMovementSpeed));
     }
 
     private void CheckPlayerDeath()
