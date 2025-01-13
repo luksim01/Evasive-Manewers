@@ -398,6 +398,8 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                     WolfController wolfController = wolfNew.GetComponent<WolfController>();
                     dependancyManager.InjectWolfControllerDependencies(wolfController);
 
+                    _audioManager.HasDetectedSpawnWolf = true;
+
                     wolfNew.SetActive(true);
 
                     AddWolfToPack(wolfNew);

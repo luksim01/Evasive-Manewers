@@ -11,6 +11,7 @@ public interface IAudioManager
     bool HasDetectedLostSheep { get; set; }
     bool HasDetectedWarnSingle { get; set; }
     bool HasDetectedWarnAll { get; set; }
+    bool HasDetectedSpawnWolf { get; set; }
 }
 
 public interface IUIManager

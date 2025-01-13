@@ -142,7 +142,7 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
         sheepHeadAnim = SheepTransform.Find("sheep_head").GetComponent<Animator>();
 
         targetFleeTime = 0.2f;
-        targetFleeDistance = 2f;
+        targetFleeDistance = 3f;
         elapsedFleeTime = 0f;
         isFleeing = false;
         isJumping = false;
@@ -245,6 +245,7 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
         // sheep is lost if allowed to drift back too far
         if (SheepTransform.position.z < zBackwardBoundary)
         {
+            PlayCollisionEffect();
             _audioManager.HasDetectedLostSheep = true;
             _spawnManager.TimeSinceLostSheep = 0;
             ReturnToPoolAndReset(gameObject);
@@ -253,9 +254,6 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
 
     void StraySheepBehaviour()
     {
-        // avoid player, other sheep, wolves
-        AvoidOthers();
-
         //unaffected by physics while outside of trail
         if (SheepTransform.position.x < 10.8f && SheepTransform.position.x > -10.8f)
         {
@@ -267,6 +265,9 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
         }
         else
         {
+            // avoid player, other sheep, wolves
+            AvoidOthers();
+
             if (!sheepRb.isKinematic)
             {
                 sheepRb.isKinematic = true;
@@ -440,22 +441,25 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
                 }
                 else
                 {
-                    targetDirection = InteractivityUtility.GetAwayDirection(sheepRb.position, collidedCharacter.attachedRigidbody.position);
-                    MovementUtility.MoveSmooth(sheepRb, targetDirection * 1.2f, 5f * 1.2f, 0.8f);
+                    if (collidedCharacter)
+                    {
+                        targetDirection = InteractivityUtility.GetAwayDirection(sheepRb.position, collidedCharacter.attachedRigidbody.position);
+                        MovementUtility.MoveSmooth(sheepRb, targetDirection * 1.2f, 5f * 1.2f, 0.8f);
 
-                    // check for interactive characters in direction of movement
-                    ray = new Ray(sheepRb.position, targetDirection);
-                    if (Physics.Raycast(ray, interactionRange * 1.5f, InteractivityUtility.mask))
-                    {
-                        // if interactive characters ahead, move faster and further than usual
-                        MovementUtility.MoveSmooth(sheepRb, targetDirection * 1.1f, avoidSpeed * 1.1f, 0.8f);
+                        // check for interactive characters in direction of movement
+                        ray = new Ray(sheepRb.position, targetDirection);
+                        if (Physics.Raycast(ray, interactionRange * 1.5f, InteractivityUtility.mask))
+                        {
+                            // if interactive characters ahead, move faster and further than usual
+                            MovementUtility.MoveSmooth(sheepRb, targetDirection * 1.1f, avoidSpeed * 1.1f, 0.8f);
+                        }
+                        else
+                        {
+                            // if no interactive characters ahead, move even fast and further than usual
+                            MovementUtility.MoveSmooth(sheepRb, targetDirection * 1.2f, avoidSpeed * 1.2f, 0.5f);
+                        }
+                        //Debug.DrawRay(sheepRb.position, targetDirection, Color.red, 1f);
                     }
-                    else
-                    {
-                        // if no interactive characters ahead, move even fast and further than usual
-                        MovementUtility.MoveSmooth(sheepRb, targetDirection * 1.2f, avoidSpeed * 1.2f, 0.5f);
-                    }
-                    //Debug.DrawRay(sheepRb.position, targetDirection, Color.red, 1f);
                 }
             }
         }
