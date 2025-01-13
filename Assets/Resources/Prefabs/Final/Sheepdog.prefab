@@ -102,8 +102,6 @@ MonoBehaviour:
   riseGravityScale: 1
   fallGravityScale: 2.5
   barkEffect: {fileID: 8167083343983946080}
-  thrownSpeed: 6
-  heightTrigger: 2
   sheepdogCollisionEffect: {fileID: 2395051611644406233, guid: d5207754cf43c44e4a3a12ee85bf2cb8, type: 3}
   dependancyManager: {fileID: 0}
   interactionRange: 4
@@ -188,10 +186,18 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -6225786530723313020, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 8be58563be04f46d280f84f3bfb2eebe, type: 2}
     - target: {fileID: -5517430155200901857, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -4509764942508484749, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 8be58563be04f46d280f84f3bfb2eebe, type: 2}
     - target: {fileID: -1631716856111175457, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
       propertyPath: m_Layer
       value: 0
@@ -208,6 +214,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1677392532973850733, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 8be58563be04f46d280f84f3bfb2eebe, type: 2}
     - target: {fileID: 3436699230872115151, guid: 52668091f66b342a4b38a492fee637d6, type: 3}
       propertyPath: m_Layer
       value: 0
@@ -323,6 +333,14 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -6945635531155576094, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 8be58563be04f46d280f84f3bfb2eebe, type: 2}
+    - target: {fileID: -6905558691121544555, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 8be58563be04f46d280f84f3bfb2eebe, type: 2}
     - target: {fileID: -6163320736055034433, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
       propertyPath: m_Layer
       value: 0
@@ -355,6 +373,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1732699902610995682, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 8be58563be04f46d280f84f3bfb2eebe, type: 2}
     - target: {fileID: 2210561805070414637, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
       propertyPath: m_Layer
       value: 0
@@ -371,6 +393,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6073627093594270746, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 8be58563be04f46d280f84f3bfb2eebe, type: 2}
     - target: {fileID: 6734571923940077497, guid: 09f6af25fc95c4c629be81f0cefc8505, type: 3}
       propertyPath: m_Layer
       value: 0

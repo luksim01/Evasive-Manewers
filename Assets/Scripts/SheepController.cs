@@ -9,31 +9,28 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
     // bark interaction
     private bool isBarkedAt;
     private bool isBarkedJumpAt;
-    private bool pastBarkJumpState;
     private Rigidbody sheepRb;
 
-    public bool isSlowingDown = false;
+    public bool isSlowingDown = true;
 
     // interaction boundaries
     private float xBoundary = 7.3f;
     private float xAvoidDistance = 1.2f;
     private int zForwardBoundary = 15;
-    private int zBackwardBoundary = -32;
+    private int zBackwardBoundary = -13;
 
-
-    //private float sheepSlowdownSpeed = 0.5f;
     [SerializeField] private int avoidSpeed;
 
     private float hopDirectionX;
     private float hopDirectionY = 0.5f;
     private float hopDirectionZ = -0.2f;
-    private Vector3 jumpDirection = new Vector3(0, 1, 0.1f);
+    private Vector3 jumpDirection = Vector3.up;
     private float heightTrigger;
 
     // staggered jump
     public bool IsGrounded { get; set; }
     public bool isJumping;
-    private float jumpDelayModifier = 7.5f;
+    private float jumpDelayModifier = 3.2f;
 
     // player proximity
     [SerializeField] private Vector3 sheepDogProximity;
@@ -214,12 +211,6 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
 
         // avoid being near boundary
         AvoidBoundary();
-
-        //else if (isSlowingDown)
-        //{
-        //    // sheep gradually falls behind
-        //    SheepTransform.Translate(Vector3.back * sheepSlowdownSpeed * Time.deltaTime);
-        //}
 
         // sheep flee bark if within certain distance of it
         if (isBarkedAt)
@@ -421,6 +412,8 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
         // avoid sheep dog, avoidance takes priority
         if (trackedCollidedList.Contains(_sheepdog.PlayerCollider))
         {
+            isSlowingDown = false;
+
             targetDirection = InteractivityUtility.GetAwayDirection(sheepRb.position, _sheepdog.PlayerRigidbody.position);
             MovementUtility.MoveSmooth(sheepRb, targetDirection, avoidSpeed, 1f);
 
@@ -435,6 +428,8 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
         // if fleeing, won't be avoiding others
         else if (!isFleeing && !disableAvoidance)
         {
+            isSlowingDown = true;
+
             // all characters in interactive area
             foreach (Collider collidedCharacter in trackedCollidedList)
             {
@@ -460,10 +455,16 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
                         // if no interactive characters ahead, move even fast and further than usual
                         MovementUtility.MoveSmooth(sheepRb, targetDirection * 1.2f, avoidSpeed * 1.2f, 0.5f);
                     }
-
                     //Debug.DrawRay(sheepRb.position, targetDirection, Color.red, 1f);
                 }
             }
+        }
+
+        // sheep gradually falls behind
+        if (isSlowingDown)
+        {
+            targetDirection = InteractivityUtility.GetTowardDirection(sheepRb.position, sheepRb.position + Vector3.back);
+            MovementUtility.MoveSmooth(sheepRb, targetDirection, 2f, 0.1f);
         }
     }
 

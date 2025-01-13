@@ -347,14 +347,11 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     private void BarkJump(InputAction.CallbackContext context)
     {
         // keep track of herd to check they're grounded to trigger jump
-        if (_spawnManager.CheckSheepGrounded())
-        {
-            sheepdogHeadAnim.SetTrigger("isBarkingJump");
-            barkEffect.Play();
-            _audioManager.HasDetectedBarkJump = true;
-            StaggeredJump();
-            StartCoroutine(BarkJumpCooldown(0.5f));
-        }
+        sheepdogHeadAnim.SetTrigger("isBarkingJump");
+        barkEffect.Play();
+        _audioManager.HasDetectedBarkJump = true;
+        StaggeredJump();
+        StartCoroutine(BarkJumpCooldown(0.5f));
     }
 
     private void StaggeredJump()

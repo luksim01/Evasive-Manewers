@@ -132,7 +132,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         wolfPool = ObjectPoolUtility.Create("WolfPool", gameObject.transform, wolf, wolfAmountToPool);
 
         InvokeEncounter(8);
-        Invoke("SpawnBackground", 1);
+        Invoke("SpawnBackground", 0.7f);
         TimeSinceLostSheep = 0;
         Invoke("SpawnStraySheep", 3);
     }
@@ -178,7 +178,6 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         }
         return allGrounded;
     }
-
 
     private void InvokeEncounter(float encounterInterval)
     {
@@ -260,10 +259,12 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     {
         if (_uiManager.IsGameActive)
         {
+            float angle = 8f;
             GameObject foregroundTreeNew = ObjectPoolUtility.Get(treeAmountToPool, backgroundTreePool);
             if(foregroundTreeNew != null)
             {
-                foregroundTreeNew.transform.SetPositionAndRotation(new Vector3(14, 0, 40), foregroundTreeNew.transform.rotation);
+                Quaternion rotation = Quaternion.Euler(Random.Range(-angle, angle), 0f, Random.Range(-angle, angle));
+                foregroundTreeNew.transform.SetPositionAndRotation(new Vector3(14, 0, 40), rotation);
                 foregroundTreeNew.SetActive(true);
                 ObstacleController obstacleControllerForeground = foregroundTreeNew.GetComponent<ObstacleController>();
                 dependancyManager.InjectObstacleControllerDependencies(obstacleControllerForeground);
@@ -272,7 +273,8 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
             GameObject backgroundTreeNew = ObjectPoolUtility.Get(treeAmountToPool, backgroundTreePool);
             if (backgroundTreeNew != null)
             {
-                backgroundTreeNew.transform.SetPositionAndRotation(new Vector3(-9, 0, 40), backgroundTreeNew.transform.rotation);
+                Quaternion rotation = Quaternion.Euler(Random.Range(-angle, angle), 0f, Random.Range(-angle, angle));
+                backgroundTreeNew.transform.SetPositionAndRotation(new Vector3(-9, 0, 40), rotation);
                 backgroundTreeNew.SetActive(true);
                 ObstacleController obstacleControllerBackground = backgroundTreeNew.GetComponent<ObstacleController>();
                 dependancyManager.InjectObstacleControllerDependencies(obstacleControllerBackground);
@@ -280,7 +282,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
             if (_uiManager.TimeRemaining > 10)
             {
-                Invoke("SpawnBackground", 1);
+                Invoke("SpawnBackground", 0.7f);
             }
         }
     }
@@ -301,7 +303,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
     private void SpawnStraySheep()
     {
-        if (_uiManager.IsGameActive)
+        if (_uiManager.IsGameActive && _uiManager.TimeRemaining > 10)
         {
             if (CheckTimeSinceLostSheep(spawnInterval))
             {
@@ -371,7 +373,10 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 dependancyManager.InjectObstacleControllerDependencies(obstacleController);
             }
 
-            InvokeEncounter(8);
+            if (_uiManager.TimeRemaining > 10)
+            {
+                InvokeEncounter(4);
+            }
         }
     }
 
@@ -399,7 +404,10 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 }
             }
 
-            InvokeEncounter(8);
+            if (_uiManager.TimeRemaining > 10)
+            {
+                InvokeEncounter(4);
+            }
         }
     }
 
