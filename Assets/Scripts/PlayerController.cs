@@ -102,6 +102,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     [SerializeField] private Vector3 indicatorPositionOffset;
     private List<Collider> trackedCollidedList;
     private List<Collider> removeCollidedList;
+    private List<Collider> historicalTrackedCollidedList;
+    private List<Collider> removeOutlineList;
 
     [SerializeField] private Vector3 targetDirection;
     [SerializeField] private float repositionSpeed;
@@ -162,6 +164,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         playerInteractivityIndicator = InteractivityUtility.CreateInteractivityIndicator(PlayerTransform, interactivityIndicator, indicatorMaterial, indicatorPositionOffset, interactionRange);
         trackedCollidedList = new List<Collider>();
         removeCollidedList = new List<Collider>();
+        historicalTrackedCollidedList = new List<Collider>();
+        removeOutlineList = new List<Collider>();
     }
 
     void Update()
@@ -193,6 +197,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
             previousInteractionRange = interactionRange;
 
             trackedCollidedList = InteractivityUtility.CastRadius(PlayerTransform, playerInteractivityIndicator.transform.position, trackedCollidedList, removeCollidedList, interactionRange);
+
+            OutlineInteractiveCharacters();
         }
     }
 
@@ -266,7 +272,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
     public void OnCollision(GameObject collidingObject)
     {
-        if (collidingObject.CompareTag("Wolf") || collidingObject.CompareTag("Obstacle"))
+        if (collidingObject.CompareTag("WolfHuntingSheep") || collidingObject.CompareTag("WolfHuntingDog") || collidingObject.CompareTag("Obstacle"))
         {
             _audioManager.HasDetectedCollision = true;
             PlaySheepdogCollisionEffect();
@@ -318,6 +324,30 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         {
             BaseCharacterController interactiveCharacterController = collidedCharacter.GetComponent<BaseCharacterController>();
             interactiveCharacterController.Interact();
+        }
+    }
+
+    private void OutlineInteractiveCharacters()
+    {
+        foreach (Collider collidedCharacter in trackedCollidedList)
+        {
+            BaseCharacterController interactiveCharacterController = collidedCharacter.GetComponent<BaseCharacterController>();
+            interactiveCharacterController.AddOutline();
+        }
+
+        foreach (Collider historicalCollidedCharacter in historicalTrackedCollidedList)
+        {
+            if (!trackedCollidedList.Contains(historicalCollidedCharacter))
+            {
+                BaseCharacterController interactiveCharacterController = historicalCollidedCharacter.GetComponent<BaseCharacterController>();
+                interactiveCharacterController.RemoveOutline();
+            }
+        }
+
+        if(historicalTrackedCollidedList.Count != trackedCollidedList.Count)
+        {
+            historicalTrackedCollidedList.Clear();
+            historicalTrackedCollidedList.AddRange(trackedCollidedList);
         }
     }
 

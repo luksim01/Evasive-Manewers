@@ -5330,6 +5330,14 @@ PrefabInstance:
       value: Sheepdog
       objectReference: {fileID: 0}
     - target: {fileID: 3563461813198268385, guid: d20db969a8199482facd55099cae0961, type: 3}
+      propertyPath: jumpHeight
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3563461813198268385, guid: d20db969a8199482facd55099cae0961, type: 3}
+      propertyPath: riseGravityScale
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3563461813198268385, guid: d20db969a8199482facd55099cae0961, type: 3}
       propertyPath: dependancyManager
       value: 
       objectReference: {fileID: 825577882}

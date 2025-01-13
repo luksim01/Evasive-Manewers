@@ -88,10 +88,13 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
     private GameObject sheepInteractivityIndicator;
     public GameObject interactivityIndicator;
     public Material indicatorMaterial;
-    [SerializeField] private Vector3 indicatorPositionOffset;
+    [SerializeField] private Vector3 indicatorPositionOffset = new Vector3(0, 0, 0.5f);
     private Ray ray;
     private List<Collider> trackedCollidedList;
     private List<Collider> removeCollidedList;
+    private bool isOutlined = false;
+    private Vector3 sheepInteractivityIndicatorPosition;
+    private Vector3 castPosition;
 
     Vector3 targetDirection;
     bool disableAvoidance;
@@ -102,6 +105,9 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
 
         // interactivity
         sheepInteractivityIndicator = InteractivityUtility.CreateInteractivityIndicator(SheepTransform, interactivityIndicator, indicatorMaterial, indicatorPositionOffset, interactionRange);
+        sheepInteractivityIndicatorPosition = sheepInteractivityIndicator.transform.localPosition;
+        sheepInteractivityIndicator.SetActive(false);
+
         trackedCollidedList = new List<Collider>();
         removeCollidedList = new List<Collider>();
     }
@@ -125,13 +131,8 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
                 isJumping = false;
             }
 
-            if (interactionRange != previousInteractionRange)
-            {
-                InteractivityUtility.UpdateInteractivityIndicator(sheepInteractivityIndicator, interactionRange);
-            }
-            previousInteractionRange = interactionRange;
-
-            trackedCollidedList = InteractivityUtility.CastRadius(SheepTransform, sheepInteractivityIndicator.transform.position, trackedCollidedList, removeCollidedList, interactionRange);
+            castPosition = this.transform.position + indicatorPositionOffset + sheepInteractivityIndicatorPosition;
+            trackedCollidedList = InteractivityUtility.CastRadius(SheepTransform, castPosition, trackedCollidedList, removeCollidedList, interactionRange);
         }
     }
 
@@ -146,6 +147,9 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
         elapsedFleeTime = 0f;
         isFleeing = false;
         isJumping = false;
+        isOutlined = false;
+
+        //sheepInteractivityIndicator.SetActive(false);
 
         hasInitialisedSheep = true;
     }
@@ -153,6 +157,10 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
     void ReturnToPoolAndReset(GameObject gameObject)
     {
         gameObject.tag = "Stray";
+
+        trackedCollidedList.Clear();
+        removeCollidedList.Clear();
+
         _spawnManager.RemoveSheepFromHerd(gameObject);
         ObjectPoolUtility.Return(gameObject);
     }
@@ -165,6 +173,30 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
     public void InteractJump()
     {
         isBarkedJumpAt = true;
+    }
+
+    public override void AddOutline()
+    {
+        if (!isOutlined)
+        {
+            if(CompareTag("Sheep") || CompareTag("Stray"))
+            {
+                sheepInteractivityIndicator.SetActive(true);
+                isOutlined = true;
+            }
+        }
+    }
+
+    public override void RemoveOutline()
+    {
+        if (isOutlined)
+        {
+            if (CompareTag("Sheep") || CompareTag("Stray") || CompareTag("Hunted"))
+            {
+                sheepInteractivityIndicator.SetActive(false);
+                isOutlined = false;
+            }
+        }
     }
 
     private void DetermineSheepBehaviour()
@@ -306,6 +338,7 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
         {
             if (sheepRb.isKinematic)
             {
+                RemoveOutline();
                 sheepRb.isKinematic = false;
             }
         }

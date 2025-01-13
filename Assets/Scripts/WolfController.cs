@@ -49,13 +49,15 @@ public class WolfController : BaseCharacterController, ICollidable
     private GameObject wolfInteractivityIndicator;
     public GameObject interactivityIndicator;
     public Material indicatorMaterial;
-    [SerializeField] private Vector3 indicatorPositionOffset;
+    [SerializeField] private Vector3 indicatorPositionOffset = Vector3.zero;
     private Ray ray;
     private List<Collider> trackedCollidedList;
     private List<Collider> removeCollidedList;
+    private bool isOutlined = false;
+    private Vector3 wolfInteractivityIndicatorPosition;
+    private Vector3 castPosition;
 
     // player proximity
-    //[SerializeField] private Vector3 travelDirection;
     [SerializeField] private Vector3 targetDirection;
     bool hasEngaged;
 
@@ -64,7 +66,10 @@ public class WolfController : BaseCharacterController, ICollidable
         wolfRb = GetComponent<Rigidbody>();
 
         // interactivity
-        wolfInteractivityIndicator = InteractivityUtility.CreateInteractivityIndicator(WolfTransform, interactivityIndicator, indicatorMaterial, indicatorPositionOffset, interactionRange);
+        wolfInteractivityIndicator = InteractivityUtility.CreateInteractivityIndicator(WolfTransform, interactivityIndicator, indicatorMaterial, indicatorPositionOffset, 3f);
+        wolfInteractivityIndicatorPosition = wolfInteractivityIndicator.transform.localPosition;
+        wolfInteractivityIndicator.SetActive(false);
+
         trackedCollidedList = new List<Collider>();
         removeCollidedList = new List<Collider>();
     }
@@ -78,13 +83,9 @@ public class WolfController : BaseCharacterController, ICollidable
     {
         if (_uiManager.IsGameActive && hasInitialisedWolf)
         {
-            if (interactionRange != previousInteractionRange)
-            {
-                InteractivityUtility.UpdateInteractivityIndicator(wolfInteractivityIndicator, interactionRange);
-            }
-            previousInteractionRange = interactionRange;
 
-            trackedCollidedList = InteractivityUtility.CastRadius(WolfTransform, wolfInteractivityIndicator.transform.position, trackedCollidedList, removeCollidedList, interactionRange);
+            castPosition = this.transform.position + indicatorPositionOffset + wolfInteractivityIndicatorPosition;
+            trackedCollidedList = InteractivityUtility.CastRadius(WolfTransform, castPosition, trackedCollidedList, removeCollidedList, interactionRange);
 
 
             if (hasTargetedSheepdog)
@@ -105,6 +106,16 @@ public class WolfController : BaseCharacterController, ICollidable
             wolfSpawnPositionX = _spawnManager.WolfSpawnPosition.x;
             hasTargetedSheepdog = _spawnManager.HasTargetedSheepdog;
             hasTargetedHerd = _spawnManager.HasTargetedHerd;
+
+            if (hasTargetedSheepdog)
+            {
+                this.gameObject.tag = "WolfHuntingDog";
+            }
+
+            if (hasTargetedHerd)
+            {
+                this.gameObject.tag = "WolfHuntingSheep";
+            }
         }
 
         hasEngaged = false;
@@ -125,12 +136,37 @@ public class WolfController : BaseCharacterController, ICollidable
         isCharging = false;
         hasBitten = false;
         isBarkedAt = false;
+        isOutlined = false;
         ObjectPoolUtility.Return(gameObject);
     }
 
     public override void Interact()
     {
         isBarkedAt = true;
+    }
+
+    public override void AddOutline()
+    {
+        if (!isOutlined)
+        {
+            if (CompareTag("WolfHuntingSheep"))
+            {
+                wolfInteractivityIndicator.SetActive(true);
+                isOutlined = true;
+            }
+        }
+    }
+
+    public override void RemoveOutline()
+    {
+        if (isOutlined)
+        {
+            if (CompareTag("WolfHuntingSheep"))
+            {
+                wolfInteractivityIndicator.SetActive(false);
+                isOutlined = false;
+            }
+        }
     }
 
     private void DestroyBoundaries(float xBoundaryRight, float xBoundaryLeft, float zBoundaryForward, float zBoundaryBackward)
@@ -199,7 +235,6 @@ public class WolfController : BaseCharacterController, ICollidable
             {
                 MovementUtility.MoveSmooth(wolfRb, targetDirection, 5f, 0.9f);
             }
-            
 
             // wolf hunt sequence can be interrupted
             if (isBarkedAt && WolfTransform.position.x < 6.2 && WolfTransform.position.x > -6.2)
