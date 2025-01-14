@@ -543,6 +543,7 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
             _audioManager.HasDetectedLostSheep = true;
             _spawnManager.TimeSinceLostSheep = 0;
             PlayCollisionEffect();
+            _spawnManager.RemoveSheepFromHerd(gameObject);
             ReturnToPoolAndReset(gameObject);
         }
 
