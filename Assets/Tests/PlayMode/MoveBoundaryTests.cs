@@ -99,6 +99,7 @@ public class MoveBoundaryTests
         sheepdog.name = "Sheepdog";
         tearDownList.Add(sheepdog);
         PlayerController playerController = sheepdog.GetComponent<PlayerController>();
+        Rigidbody playerRigidbody = sheepdog.GetComponent<Rigidbody>();
 
         // mock up of dependancies
         MockAudioManager mockAudioManager = new MockAudioManager();
@@ -111,7 +112,7 @@ public class MoveBoundaryTests
         // Act
         for (int frame = 0; frame < 1000; frame++)
         {
-            //playerController.Move(new Vector3(x, 0, z), direction, 100f);
+            MovementUtility.Move(playerRigidbody, new Vector3(x, 0, z) * direction, 100f);
             yield return null;
         }
 
