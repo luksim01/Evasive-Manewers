@@ -87,7 +87,6 @@ public class WolfController : BaseCharacterController, ICollidable
             castPosition = this.transform.position + indicatorPositionOffset + wolfInteractivityIndicatorPosition;
             trackedCollidedList = InteractivityUtility.CastRadius(WolfTransform, castPosition, trackedCollidedList, removeCollidedList, interactionRange);
 
-
             if (hasTargetedSheepdog)
             {
                 HuntPlayer();
@@ -119,6 +118,7 @@ public class WolfController : BaseCharacterController, ICollidable
         }
 
         hasEngaged = false;
+        isBarkedAt = false;
 
         WolfTransform = this.transform;
         wolfHeadAnim = WolfTransform.Find("wolf_head").GetComponent<Animator>();
@@ -137,6 +137,7 @@ public class WolfController : BaseCharacterController, ICollidable
         hasBitten = false;
         isBarkedAt = false;
         isOutlined = false;
+        RemoveOutline();
         ObjectPoolUtility.Return(gameObject);
     }
 
@@ -197,9 +198,11 @@ public class WolfController : BaseCharacterController, ICollidable
 
         for (int i = 0; i < _spawnManager.Herd.Count; i++)
         {
-            if (Mathf.Abs(_spawnManager.Herd[i].transform.position.x - WolfTransform.position.x) < closestSheep)
+            GameObject sheep = _spawnManager.Herd[i];
+
+            if (Mathf.Abs(sheep.transform.position.x - WolfTransform.position.x) < closestSheep)
             {
-                closestSheep = Mathf.Abs(_spawnManager.Herd[i].transform.position.x - WolfTransform.position.x);
+                closestSheep = Mathf.Abs(sheep.transform.position.x - WolfTransform.position.x);
                 targetIndex = i;
             }
         }
@@ -214,9 +217,12 @@ public class WolfController : BaseCharacterController, ICollidable
             targetSheep = _spawnManager.Herd[IdentifyClosestSheepIndex()];
             hasTargetedSheep = true;
             targetSheep.tag = "Hunted";
+            _spawnManager.RemoveSheepFromHerd(targetSheep);
+            _spawnManager.AddSheepToHunted(targetSheep);
+
         }
 
-        if (targetSheep)
+        if (targetSheep && targetSheep.transform.position.y <= 0)
         {
             // move towards target sheep
             targetDirection = InteractivityUtility.GetTowardDirection(wolfRb.position, targetSheep.transform.position);
@@ -239,8 +245,12 @@ public class WolfController : BaseCharacterController, ICollidable
             // wolf hunt sequence can be interrupted
             if (isBarkedAt && WolfTransform.position.x < 6.2 && WolfTransform.position.x > -6.2)
             {
+                isBarkedAt = false;
                 wolfHeadAnim.SetTrigger("isBiting");
                 targetSheep.tag = "Sheep";
+                _spawnManager.AddSheepToHerd(targetSheep);
+                _spawnManager.RemoveSheepFromHunted(targetSheep);
+
                 isCharging = true;
             }
         }

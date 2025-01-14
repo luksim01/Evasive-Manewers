@@ -55,7 +55,7 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
 
     // spawn manager
     private ISpawnManager _spawnManager;
-    private bool hasInitialisedSheep = false;
+    [SerializeField] private bool hasInitialisedSheep = false;
 
     // player
     private IPlayerController _sheepdog;
@@ -98,6 +98,8 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
 
     Vector3 targetDirection;
     bool disableAvoidance;
+    [SerializeField] Vector3 straySheepTargetDirection;
+    bool hasInitialisedStraySheep;
 
     void Start()
     {
@@ -148,14 +150,29 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
         isFleeing = false;
         isJumping = false;
         isOutlined = false;
+        isBarkedAt = false;
+        isBarkedJumpAt = false;
+        RemoveOutline();
+
+        if (_spawnManager != null && CompareTag("Stray"))
+        {
+            straySheepTargetDirection = _spawnManager.StraySheepTargetPosition;
+        }
 
         hasInitialisedSheep = true;
+    }
+
+    void InitialiseStraySheep()
+    {
+        InitialiseSheep();
+        hasInitialisedStraySheep = true;
     }
 
     void ReturnToPoolAndReset(GameObject gameObject)
     {
         gameObject.tag = "Stray";
-        _spawnManager.RemoveSheepFromHerd(gameObject);
+        hasInitialisedSheep = false;
+        hasInitialisedStraySheep = false;
         trackedCollidedList.Clear();
         removeCollidedList.Clear();
         ObjectPoolUtility.Return(gameObject);
@@ -276,6 +293,7 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
             PlayCollisionEffect();
             _audioManager.HasDetectedLostSheep = true;
             _spawnManager.TimeSinceLostSheep = 0;
+            _spawnManager.RemoveSheepFromHerd(gameObject);
             ReturnToPoolAndReset(gameObject);
         }
     }
@@ -289,26 +307,27 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
             {
                 sheepRb.isKinematic = false;
             }
-            Jump(Vector3.up);
+            else
+            {
+                // avoid player, other sheep, wolves
+                AvoidOthers();
+                Jump(Vector3.up);
+            }
         }
         else
         {
-            // avoid player, other sheep, wolves
-            AvoidOthers();
-
             if (!sheepRb.isKinematic)
             {
                 sheepRb.isKinematic = true;
             }
+
+            if (!hasInitialisedStraySheep)
+            {
+                InitialiseStraySheep();
+            }
         }
 
-        // movement across trail - revisit tidy up StraySheepTargetDirection OnEnable
-        Vector3 spawnPosition = _spawnManager.StraySheepSpawnPosition;
-        Vector3 targetPosition = _spawnManager.StraySheepTargetPosition;
-
-        Vector3 targetDirection = targetPosition - spawnPosition;
-
-        MovementUtility.Move(sheepRb, targetDirection, 3f);
+        MovementUtility.Move(sheepRb, straySheepTargetDirection, 3f);
 
         // stray sheep added to herd with close proximity bark within trail
         if (isBarkedAt && SheepTransform.position.x < 6.2 && SheepTransform.position.x > -6.2)
@@ -320,7 +339,7 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
         }
 
         // stray sheep is gone once beyond the forest boundary
-        if (Mathf.Abs(targetPosition.x - SheepTransform.position.x) <= 0.2)
+        if (Mathf.Abs(straySheepTargetDirection.x - SheepTransform.position.x) <= 0.2)
         {
             _spawnManager.RemoveSheepFromStrays(gameObject);
             ReturnToPoolAndReset(gameObject);
@@ -330,11 +349,13 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
     void HuntedSheepBehaviour()
     {
         //unaffected by physics while outside of trail
-        if (SheepTransform.position.x < 10.8f && SheepTransform.position.x > -10.8f)
+        if (SheepTransform.position.x < 10.8f && SheepTransform.position.x > -10.8f &&
+            SheepTransform.position.z < 35f && SheepTransform.position.z > -13f)
         {
+            RemoveOutline();
             if (sheepRb.isKinematic)
             {
-                RemoveOutline();
+                StopAllCoroutines();
                 sheepRb.isKinematic = false;
             }
         }
@@ -342,6 +363,7 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
         {
             if (!sheepRb.isKinematic)
             {
+                _spawnManager.RemoveSheepFromHunted(gameObject);
                 sheepRb.isKinematic = true;
             }
         }

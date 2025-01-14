@@ -91,7 +91,7 @@ public class UIManager : MonoBehaviour, IUIManager
                 healthBarText.text = new string('O', sheepdogHealth) + new string('-', 5 - sheepdogHealth); ;
             }
 
-            herdCount = _spawnManager.Herd.Count;
+            herdCount = _spawnManager.Herd.Count + _spawnManager.Hunted.Count;
             strayCount = _spawnManager.Strays.Count;
 
             if (herdCount != previousHerdCount)

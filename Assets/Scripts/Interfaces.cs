@@ -32,6 +32,7 @@ public interface ISpawnManager
     Vector3 WolfSpawnPosition { get; set; }
 
     List<GameObject> Herd { get; set; }
+    List<GameObject> Hunted { get; set; }
     List<GameObject> Pack { get; set; }
     List<GameObject> Strays { get; set; }
 
@@ -45,6 +46,8 @@ public interface ISpawnManager
 
     void AddSheepToHerd(GameObject gameObject);
     void RemoveSheepFromHerd(GameObject gameObject);
+    void AddSheepToHunted(GameObject gameObject);
+    void RemoveSheepFromHunted(GameObject gameObject);
     void AddSheepToStrays(GameObject gameObject);
     void RemoveSheepFromStrays(GameObject gameObject);
     void AddWolfToPack(GameObject gameObject);

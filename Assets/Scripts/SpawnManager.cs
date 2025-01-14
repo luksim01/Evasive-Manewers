@@ -25,6 +25,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     // sheep spawning
     public GameObject straySheep;
     public List<GameObject> Herd { get; set; }
+    public List<GameObject> Hunted { get; set; }
     public List<GameObject> Strays { get; set; }
     public int TimeSinceLostSheep { get; set; }
     public Vector3 StraySheepSpawnPosition { get; set; }
@@ -98,6 +99,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
         // creating a pool of sheep
         Herd = new List<GameObject>();
+        Hunted = new List<GameObject>();
         Strays = new List<GameObject>();
         sheepPool = ObjectPoolUtility.Create("SheepPool", gameObject.transform, straySheep, sheepAmountToPool);
         // spawning initial herd
@@ -145,6 +147,16 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     public void RemoveSheepFromHerd(GameObject gameObject)
     {
         Herd.Remove(gameObject);
+    }
+
+    public void AddSheepToHunted(GameObject gameObject)
+    {
+        Hunted.Add(gameObject);
+    }
+
+    public void RemoveSheepFromHunted(GameObject gameObject)
+    {
+        Hunted.Remove(gameObject);
     }
 
     public void AddSheepToStrays(GameObject gameObject)
@@ -482,6 +494,7 @@ public class MockSpawnManager : ISpawnManager
     public bool HasTargetedHerd { get; set; }
     public Vector3 WolfSpawnPosition { get; set; }
     public List<GameObject> Herd { get; set; }
+    public List<GameObject> Hunted { get; set; }
     public List<GameObject> Pack { get; set; }
     public List<GameObject> Strays { get; set; }
     public int TimeSinceLostSheep { get; set; }
@@ -504,6 +517,8 @@ public class MockSpawnManager : ISpawnManager
 
     public void AddSheepToHerd(GameObject gameObject) { }
     public void RemoveSheepFromHerd(GameObject gameObject) { }
+    public void AddSheepToHunted(GameObject gameObject) { }
+    public void RemoveSheepFromHunted(GameObject gameObject) { }
     public void AddSheepToStrays(GameObject gameObject) { }
     public void RemoveSheepFromStrays(GameObject gameObject) { }
     public void AddWolfToPack(GameObject gameObject) { }
