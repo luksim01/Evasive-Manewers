@@ -1,34 +1,42 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 {
     // self
     public Transform PlayerTransform { get; set; }
+    public Rigidbody PlayerRigidbody { get; set; }
+    public Collider PlayerCollider { get; set; }
     public int Health { get; set; }
 
     // inputs
-    private float horizontalInput;
-    private float forwardInput;
-    private float backwardInput;
-    private bool jumpInput;
-    private bool barkMoveInput;
-    private bool barkJumpInput;
+    public PlayerInputActions playerControls;
+    public InputAction Move { get; set; }
+    public InputAction Jump { get; set; }
+    public InputAction BarkMove { get; set; }
+    public InputAction BarkJump { get; set; }
+    private InputAction pause;
+    Vector2 moveInput = Vector2.zero;
+    Vector3 moveDirection;
+    float verticalMoveSpeed;
+    float horizontalMoveSpeed;
 
     // boundary control
     private readonly float xBoundary = 7.0f;
     private readonly float zBoundary = 15.0f;
 
     // movement settings : ground
-    private readonly float forwardSpeed = 9.0f;
-    private readonly float backwardSpeed = 6.0f;
-    public readonly float sidewardSpeed = 7.0f;
+    private readonly float speed = 10f;
+
     // movement settings : jump
-    private Rigidbody sheepdogRb;
-    private readonly float jumpForce = 9.0f;
+    //private Rigidbody sheepdogRb;
     private readonly float jumpMovementSpeed = 0.4f;
     [SerializeField] private bool isGrounded = false;
+    [SerializeField] private float jumpHeight = 6f;
+    [SerializeField] private float riseGravityScale = 1f;
+    [SerializeField] private float fallGravityScale = 2.5f;
 
     // bark control
     public bool HasBarkedMove { get; set; }
@@ -36,10 +44,6 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
     // bark particle 
     public ParticleSystem barkEffect;
-
-    // collision with top of sheep
-    [SerializeField] private float thrownSpeed = 6.0f;
-    [SerializeField] private float heightTrigger = 2f;
 
     // animation
     private Animator sheepdogBodyAnim;
@@ -89,114 +93,123 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     // collision
     public bool HasCollided { get; set; }
 
+    // interactivity
+    [SerializeField] private float interactionRange;
+    private float previousInteractionRange;
+    private GameObject playerInteractivityIndicator;
+    public GameObject interactivityIndicator;
+    public Material indicatorMaterial;
+    [SerializeField] private Vector3 indicatorPositionOffset;
+    private List<Collider> trackedCollidedList;
+    private List<Collider> removeCollidedList;
+    private List<Collider> historicalTrackedCollidedList;
+    private List<Collider> removeOutlineList;
+
+    [SerializeField] private Vector3 targetDirection;
+    [SerializeField] private float repositionSpeed;
+
+    private Vector3 playerInteractivityIndicatorPosition;
+    private Vector3 castPosition;
+
     private void Awake()
     {
         PlayerTransform = this.transform;
         Health = 5;
+        playerControls = new PlayerInputActions();
+    }
+
+    void OnEnable()
+    {
+        Move = playerControls.Player.Move;
+        Move.Enable();
+
+        Jump = playerControls.Player.Jump;
+        Jump.Enable();
+        Jump.performed += DoJump;
+
+        BarkMove = playerControls.Player.BarkMove;
+        BarkMove.Enable();
+        BarkMove.performed += DoBarkMove;
+
+        BarkJump = playerControls.Player.BarkJump;
+        BarkJump.Enable();
+        BarkJump.performed += DoBarkJump;
+
+        pause = playerControls.Player.Pause;
+        pause.Enable();
+        pause.performed += Pause;
+    }
+
+    void OnDisable()
+    {
+        Move.Disable();
+        Jump.Disable();
+        BarkMove.Disable();
+        BarkJump.Disable();
+        pause.Disable();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        sheepdogRb = GetComponent<Rigidbody>();
+        PlayerRigidbody = GetComponent<Rigidbody>();
+        PlayerRigidbody.useGravity = false;
+
+        PlayerCollider = GetComponent<Collider>();
 
         sheepdogBodyAnim = PlayerTransform.Find("sheepdog_body").GetComponent<Animator>();
         sheepdogHeadAnim = PlayerTransform.Find("sheepdog_head").GetComponent<Animator>();
 
         // creating a pool of collision effects
         collisionEffectPool = ObjectPoolUtility.Create("DogCollisionPool", PlayerTransform, sheepdogCollisionEffect, collisionEffectAmountToPool);
+
+        // interactivity
+        playerInteractivityIndicator = InteractivityUtility.CreateInteractivityIndicator(PlayerTransform, interactivityIndicator, indicatorMaterial, indicatorPositionOffset, interactionRange);
+        playerInteractivityIndicatorPosition = playerInteractivityIndicator.transform.localPosition;
+        playerInteractivityIndicator.SetActive(false);
+        trackedCollidedList = new List<Collider>();
+        removeCollidedList = new List<Collider>();
+        historicalTrackedCollidedList = new List<Collider>();
+        removeOutlineList = new List<Collider>();
+    }
+
+    void Update()
+    {
+        MovementMonitor();
+        if (PlayerTransform.position.z > zBoundary || PlayerTransform.position.z < -zBoundary ||
+            PlayerTransform.position.x > xBoundary || PlayerTransform.position.x < -xBoundary)
+        {
+            PlayerTransform.position = MovementUtility.MovementConstraints(PlayerTransform.position, zBoundary, -zBoundary, xBoundary, -xBoundary);
+        }
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (_uiManager.IsGameActive)
         {
-            MovementBoundaries(xBoundary, zBoundary);
-
-            MovementControl(forwardSpeed, backwardSpeed, sidewardSpeed, jumpForce, jumpMovementSpeed);
-
-            CheckBarkCommand();
+            //CheckWithinBounds(zBoundary, -zBoundary, xBoundary, -xBoundary);
+            MovementControl(speed);
 
             CheckPlayerDeath();
+
+            MovementUtility.Fall(PlayerRigidbody, riseGravityScale, fallGravityScale);
+
+            castPosition = this.transform.position + indicatorPositionOffset + playerInteractivityIndicatorPosition;
+            trackedCollidedList = InteractivityUtility.CastRadius(PlayerTransform, castPosition, trackedCollidedList, removeCollidedList, interactionRange);
+
+            OutlineInteractiveCharacters();
         }
     }
 
-    private void MovementControl(float forwardSpeed, float backwardSpeed, float sidewardSpeed, float jumpForce, float jumpMovementSpeed)
+    private void MovementMonitor()
     {
-        // horizontal movement, slower movement while jumping
-        horizontalInput = Input.GetAxis("Horizontal");
-        Move(Vector3.right, horizontalInput, sidewardSpeed);
-
-        // forwards movement, slower movement while jumping
-        forwardInput = Input.GetAxis("Forward");
-        Move(Vector3.forward, forwardInput, forwardSpeed);
-
-        // backwards movement, slower movement while jumping
-        backwardInput = Input.GetAxis("Backward");
-        Move(Vector3.forward, backwardInput, backwardSpeed);
-
-        // jump
-        jumpInput = Input.GetKeyDown(KeyCode.LeftShift);
-        if (jumpInput && isGrounded)
-        {
-            Jump(jumpForce);
-        }
+        moveInput = Move.ReadValue<Vector2>();
     }
 
-    public void Move(Vector3 direction, float input, float speed)
+    private void MovementControl(float speed)
     {
-        PlayerTransform.Translate(direction * input * Time.deltaTime * speed * (isGrounded ? 1 : jumpMovementSpeed));
-    }
-
-    private void MovementBoundaries(float xBoundary, float zBoundary)
-    {
-        // player movement boundaries - left/right
-        if (PlayerTransform.position.x < -xBoundary)
-        {
-            PlayerTransform.position = new Vector3(-xBoundary, PlayerTransform.position.y, PlayerTransform.position.z);
-        }
-        if (PlayerTransform.position.x > xBoundary)
-        {
-            PlayerTransform.position = new Vector3(xBoundary, PlayerTransform.position.y, PlayerTransform.position.z);
-        }
-        // player movement boundaries - forwards/backwards
-        if (PlayerTransform.position.z < -zBoundary)
-        {
-            PlayerTransform.position = new Vector3(PlayerTransform.position.x, PlayerTransform.position.y, -zBoundary);
-        }
-        if (PlayerTransform.position.z > zBoundary)
-        {
-            PlayerTransform.position = new Vector3(PlayerTransform.position.x, PlayerTransform.position.y, zBoundary);
-        }
-    }
-
-    private void CheckBarkCommand()
-    {
-        // player bark move command
-        barkMoveInput = Input.GetKeyDown(KeyCode.Space);
-
-        if (barkMoveInput && !HasBarkedMove)
-        {
-            HasBarkedMove = true;
-            sheepdogHeadAnim.SetTrigger("isBarkingMove");
-            barkEffect.Play();
-            _audioManager.HasDetectedBarkMove = true;
-            StartCoroutine(BarkMoveCooldown(1.0f));
-        }
-
-        // player bark jump command
-        barkJumpInput = Input.GetKeyDown(KeyCode.Tab);
-
-        // keep track of herd to check they're grounded to trigger jump
-        if (barkJumpInput && !HasBarkedJump && _spawnManager.CheckSheepGrounded())
-        {
-            sheepdogHeadAnim.SetTrigger("isBarkingJump");
-            HasBarkedJump = true;
-            barkEffect.Play();
-            _audioManager.HasDetectedBarkJump = true;
-            StartCoroutine(BarkJumpCooldown(1.0f));
-        }
+        MovementUtility.Move(PlayerRigidbody, new Vector3(moveInput.x, 0, moveInput.y), speed * (isGrounded ? 1 : jumpMovementSpeed));
     }
 
     private void CheckPlayerDeath()
@@ -208,12 +221,15 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         }
     }
 
-    private void Jump(float jumpForce)
+    private void DoJump(InputAction.CallbackContext context)
     {
-        isGrounded = false;
-        sheepdogBodyAnim.SetTrigger("isJumping");
-        sheepdogHeadAnim.SetTrigger("isJumping");
-        sheepdogRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        if (isGrounded)
+        {
+            isGrounded = false;
+            sheepdogBodyAnim.SetTrigger("isJumping");
+            sheepdogHeadAnim.SetTrigger("isJumping");
+            MovementUtility.Jump(PlayerRigidbody, Vector3.up, riseGravityScale, jumpHeight);
+        }
     }
 
     // Coroutine to wait for bark to cool down
@@ -256,7 +272,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
     public void OnCollision(GameObject collidingObject)
     {
-        if (collidingObject.CompareTag("Wolf") || collidingObject.CompareTag("Obstacle"))
+        if (collidingObject.CompareTag("WolfHuntingSheep") || collidingObject.CompareTag("WolfHuntingDog") || collidingObject.CompareTag("Obstacle"))
         {
             _audioManager.HasDetectedCollision = true;
             PlaySheepdogCollisionEffect();
@@ -269,16 +285,6 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         {
             isGrounded = true;
         }
-
-        if (collidingObject.CompareTag("Sheep"))
-        {
-            SheepController sheepController = collidingObject.gameObject.GetComponent<SheepController>();
-            dependancyManager.InjectSheepControllerDependancyIntoPlayerController(sheepController);
-            if (PlayerTransform.position.y - _sheepController.SheepTransform.position.y > heightTrigger)
-            {
-                sheepdogRb.AddForce(Vector3.up * thrownSpeed, ForceMode.Impulse);
-            }
-        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -288,5 +294,84 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         {
             collidable.OnCollision(this.gameObject);
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        ICollidable collidable = other.gameObject.GetComponent<ICollidable>();
+        if (collidable != null && !collidable.HasCollided)
+        {
+            collidable.OnCollision(this.gameObject);
+        }
+    }
+
+    private void DoBarkMove(InputAction.CallbackContext context)
+    {
+        if (!HasBarkedMove)
+        {
+            HasBarkedMove = true;
+            sheepdogHeadAnim.SetTrigger("isBarkingMove");
+            barkEffect.Play();
+            _audioManager.HasDetectedBarkMove = true;
+            InteractInZone();
+            StartCoroutine(BarkMoveCooldown(0.5f));
+        }
+    }
+
+    private void InteractInZone()
+    {
+        foreach (Collider collidedCharacter in trackedCollidedList)
+        {
+            BaseCharacterController interactiveCharacterController = collidedCharacter.GetComponent<BaseCharacterController>();
+            interactiveCharacterController.Interact();
+        }
+    }
+
+    private void OutlineInteractiveCharacters()
+    {
+        foreach (Collider collidedCharacter in trackedCollidedList)
+        {
+            BaseCharacterController interactiveCharacterController = collidedCharacter.GetComponent<BaseCharacterController>();
+            interactiveCharacterController.AddOutline();
+        }
+
+        foreach (Collider historicalCollidedCharacter in historicalTrackedCollidedList)
+        {
+            if (!trackedCollidedList.Contains(historicalCollidedCharacter))
+            {
+                BaseCharacterController interactiveCharacterController = historicalCollidedCharacter.GetComponent<BaseCharacterController>();
+                interactiveCharacterController.RemoveOutline();
+            }
+        }
+
+        if(historicalTrackedCollidedList.Count != trackedCollidedList.Count)
+        {
+            historicalTrackedCollidedList.Clear();
+            historicalTrackedCollidedList.AddRange(trackedCollidedList);
+        }
+    }
+
+    private void DoBarkJump(InputAction.CallbackContext context)
+    {
+        // keep track of herd to check they're grounded to trigger jump
+        sheepdogHeadAnim.SetTrigger("isBarkingJump");
+        barkEffect.Play();
+        _audioManager.HasDetectedBarkJump = true;
+        StaggeredJump();
+        StartCoroutine(BarkJumpCooldown(0.5f));
+    }
+
+    private void StaggeredJump()
+    {
+        foreach (GameObject sheep in _spawnManager.Herd)
+        {
+            SheepController sheepController = sheep.GetComponent<SheepController>();
+            sheepController.InteractJump();
+        }
+    }
+
+    private void Pause(InputAction.CallbackContext context)
+    {
+        _uiManager.PauseResume();
     }
 }

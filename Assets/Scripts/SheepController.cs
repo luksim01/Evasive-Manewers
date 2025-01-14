@@ -2,14 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SheepController : MonoBehaviour, ISheepController, ICollidable
+public class SheepController : BaseCharacterController, ISheepController, ICollidable
 {
     public Transform SheepTransform { get; set; }
 
     // bark interaction
     private bool isBarkedAt;
     private bool isBarkedJumpAt;
-    private bool pastBarkJumpState;
     private Rigidbody sheepRb;
 
     public bool isSlowingDown = true;
@@ -18,48 +17,35 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     private float xBoundary = 7.3f;
     private float xAvoidDistance = 1.2f;
     private int zForwardBoundary = 15;
-    private int zAvoidDistance = 5;
-    private int zBackwardBoundary = -32;
+    private int zBackwardBoundary = -13;
 
-    // escape controls
-    private Vector3 fleeDirection;
-    private float speedBurst = 4.0f;
-    private float jumpForce = 8.0f;
-    private float throwForce = 8.0f;
-
-    private float sheepSlowdownSpeed = 0.5f;
-    private float boundaryAvoidSpeed = 0.3f;
-    private int avoidSpeed = 2;
-
-    private float heightBoundary = 2.0f;
+    [SerializeField] private int avoidSpeed;
 
     private float hopDirectionX;
     private float hopDirectionY = 0.5f;
     private float hopDirectionZ = -0.2f;
-    private Vector3 jumpDirection = new Vector3(0, 1.2f, 0.1f);
-    private float heightTrigger = 2.2f;
+    private Vector3 jumpDirection = Vector3.up;
+    private float heightTrigger;
 
     // staggered jump
     public bool IsGrounded { get; set; }
-    private float jumpDelayModifier = 7.5f;
+    public bool isJumping;
+    private float jumpDelayModifier = 3.2f;
 
     // player proximity
-    private Vector3 sheepDogProximity;
-    private float sheepDogProximityX;
-    private float sheepDogProximityZ;
+    [SerializeField] private Vector3 sheepDogProximity;
     
     // stray sheep
     public bool isHerdSheep;
-    private float xDistanceFromBoundary = 1.5f;
+    //private float xDistanceFromBoundary = 1.5f;
+
+    [SerializeField] private float jumpHeight = 6f;
+    [SerializeField] private float riseGravityScale = 2.8f;
+    [SerializeField] private float fallGravityScale = 0.9f;
 
     // animation
     private Animator sheepBodyAnim;
     private Animator sheepHeadAnim;
-
-    //// particle
-    //public GameObject sheepCollisionEffect;
-    //private List<GameObject> collisionEffectPool;
-    //private int collisionEffectAmountToPool = 8;
 
     // audio
     private IAudioManager _audioManager;
@@ -69,13 +55,13 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
 
     // spawn manager
     private ISpawnManager _spawnManager;
-    private bool hasInitialisedSheep = false;
+    [SerializeField] private bool hasInitialisedSheep = false;
 
     // player
     private IPlayerController _sheepdog;
 
     // dependancies
-    public void SetDependencies(IAudioManager audioManager, IUIManager uiManager, ISpawnManager spawnManager, IPlayerController playerController)
+    public override void SetDependencies(IAudioManager audioManager, IUIManager uiManager, ISpawnManager spawnManager, IPlayerController playerController)
     {
         _audioManager = audioManager;
         _uiManager = uiManager;
@@ -86,27 +72,69 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     // collision
     public bool HasCollided { get; set; }
 
-    // Start is called before the first frame update
+    // interactivity
+    [SerializeField] private float targetFleeTime;
+    [SerializeField] private float targetFleeDistance;
+    [SerializeField] private float elapsedFleeTime;
+    [SerializeField] private bool isFleeing;
+    [SerializeField] private Vector3 startFleePosition;
+    [SerializeField] private Vector3 targetFleePosition;
+
+    [SerializeField] private float smoothTime;
+
+    // interactivity
+    [SerializeField] private float interactionRange;
+    private float previousInteractionRange;
+    private GameObject sheepInteractivityIndicator;
+    public GameObject interactivityIndicator;
+    public Material indicatorMaterial;
+    [SerializeField] private Vector3 indicatorPositionOffset = new Vector3(0, 0, 0.5f);
+    private Ray ray;
+    private List<Collider> trackedCollidedList;
+    private List<Collider> removeCollidedList;
+    private bool isOutlined = false;
+    private Vector3 sheepInteractivityIndicatorPosition;
+    private Vector3 castPosition;
+
+    Vector3 targetDirection;
+    bool disableAvoidance;
+    [SerializeField] Vector3 straySheepTargetDirection;
+    bool hasInitialisedStraySheep;
+
     void Start()
     {
         sheepRb = GetComponent<Rigidbody>();
-        pastBarkJumpState = isBarkedJumpAt;
+
+        // interactivity
+        sheepInteractivityIndicator = InteractivityUtility.CreateInteractivityIndicator(SheepTransform, interactivityIndicator, indicatorMaterial, indicatorPositionOffset, interactionRange);
+        sheepInteractivityIndicatorPosition = sheepInteractivityIndicator.transform.localPosition;
+        sheepInteractivityIndicator.SetActive(false);
+
+        trackedCollidedList = new List<Collider>();
+        removeCollidedList = new List<Collider>();
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnEnable()
     {
-        if (!hasInitialisedSheep)
-        {
-            InitialiseSheep();
-        }
+        InitialiseSheep();
+    }
 
+    void FixedUpdate()
+    {
         if (_uiManager.IsGameActive && hasInitialisedSheep)
         {
-            CheckPlayerActivity();
-
             // sheep behaviour based on tag
             DetermineSheepBehaviour();
+
+            MovementUtility.Fall(sheepRb, riseGravityScale, fallGravityScale);
+
+            if (sheepRb.velocity.y < 0)
+            {
+                isJumping = false;
+            }
+
+            castPosition = this.transform.position + indicatorPositionOffset + sheepInteractivityIndicatorPosition;
+            trackedCollidedList = InteractivityUtility.CastRadius(SheepTransform, castPosition, trackedCollidedList, removeCollidedList, interactionRange);
         }
     }
 
@@ -115,26 +143,73 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
         SheepTransform = this.transform;
         sheepBodyAnim = SheepTransform.Find("sheep_body").GetComponent<Animator>();
         sheepHeadAnim = SheepTransform.Find("sheep_head").GetComponent<Animator>();
+
+        targetFleeTime = 0.2f;
+        targetFleeDistance = 3f;
+        elapsedFleeTime = 0f;
+        isFleeing = false;
+        isJumping = false;
+        isOutlined = false;
+        isBarkedAt = false;
+        isBarkedJumpAt = false;
+        RemoveOutline();
+
+        if (_spawnManager != null && CompareTag("Stray"))
+        {
+            straySheepTargetDirection = _spawnManager.StraySheepTargetPosition;
+        }
+
         hasInitialisedSheep = true;
+    }
+
+    void InitialiseStraySheep()
+    {
+        InitialiseSheep();
+        hasInitialisedStraySheep = true;
     }
 
     void ReturnToPoolAndReset(GameObject gameObject)
     {
         gameObject.tag = "Stray";
-        _spawnManager.RemoveSheepFromHerd(gameObject);
+        hasInitialisedSheep = false;
+        hasInitialisedStraySheep = false;
+        trackedCollidedList.Clear();
+        removeCollidedList.Clear();
         ObjectPoolUtility.Return(gameObject);
     }
 
-    private void CheckPlayerActivity()
+    public override void Interact()
     {
-        // keep track of barks
-        isBarkedAt = _sheepdog.HasBarkedMove;
-        isBarkedJumpAt = _sheepdog.HasBarkedJump;
+        isBarkedAt = true;
+    }
 
-        // player proximity
-        sheepDogProximityX = SheepTransform.position.x - _sheepdog.PlayerTransform.position.x;
-        sheepDogProximityZ = SheepTransform.position.z - _sheepdog.PlayerTransform.position.z;
-        sheepDogProximity = new Vector3(sheepDogProximityX, 0, sheepDogProximityZ);
+    public void InteractJump()
+    {
+        isBarkedJumpAt = true;
+    }
+
+    public override void AddOutline()
+    {
+        if (!isOutlined)
+        {
+            if(CompareTag("Sheep") || CompareTag("Stray"))
+            {
+                sheepInteractivityIndicator.SetActive(true);
+                isOutlined = true;
+            }
+        }
+    }
+
+    public override void RemoveOutline()
+    {
+        if (isOutlined)
+        {
+            if (CompareTag("Sheep") || CompareTag("Stray") || CompareTag("Hunted"))
+            {
+                sheepInteractivityIndicator.SetActive(false);
+                isOutlined = false;
+            }
+        }
     }
 
     private void DetermineSheepBehaviour()
@@ -155,205 +230,151 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
         }
     }
 
+    private void Update()
+    {
+        if (CompareTag("Sheep"))
+        {
+            if (SheepTransform.position.z > zForwardBoundary - xAvoidDistance || SheepTransform.position.z < zBackwardBoundary ||
+                SheepTransform.position.x > xBoundary - xAvoidDistance || SheepTransform.position.x < -xBoundary + xAvoidDistance)
+            {
+                disableAvoidance = true;
+            }
+            else
+            {
+                if (disableAvoidance)
+                {
+                    disableAvoidance = false;
+                }
+            }
+        }
+    }
+
     void HerdSheepBehaviour()
-    {     
-        // avoid player
-        if (Mathf.Abs(sheepDogProximityX) < 2.5f && Mathf.Abs(sheepDogProximityZ) < 7.0f)
-        {
-            Avoid(sheepDogProximity, avoidSpeed);
-        }
-        else if (isSlowingDown)
-        {
-            // sheep gradually falls behind
-            SheepTransform.Translate(Vector3.back * sheepSlowdownSpeed * Time.deltaTime);
-        }
+    {
+        // avoid player, other sheep, wolves
+        AvoidOthers();
+
+        // avoid being near boundary
+        AvoidBoundary();
 
         // sheep flee bark if within certain distance of it
-        if (isBarkedAt && Mathf.Abs(sheepDogProximityX) < 6.0f && Mathf.Abs(sheepDogProximityZ) < 10.0f)
+        if (isBarkedAt)
         {
-            FleeBark(sheepDogProximity);
+            isBarkedAt = false;
+            isFleeing = true;
+            startFleePosition = SheepTransform.position;
+            targetDirection = InteractivityUtility.GetAwayDirection(sheepRb.position, _sheepdog.PlayerRigidbody.position);
+            targetFleePosition = startFleePosition + targetDirection.normalized * targetFleeDistance;
+        }
+
+        if (isFleeing)
+        {
+            targetDirection = InteractivityUtility.GetAwayDirection(sheepRb.position, _sheepdog.PlayerRigidbody.position);
+            elapsedFleeTime = MovementUtility.Flee(sheepRb, startFleePosition, targetDirection, targetFleeDistance, targetFleeTime, targetFleePosition, elapsedFleeTime);
+
+            if(SheepTransform.position == targetFleePosition || elapsedFleeTime >= targetFleeTime)
+            {
+                isFleeing = false;
+                elapsedFleeTime = 0f;
+            }
         }
 
         // stagger jump of herd
-        if (isBarkedJumpAt != pastBarkJumpState && !pastBarkJumpState)
+        if (isBarkedJumpAt)
         {
+            isBarkedJumpAt = false;
             float jumpDelay = CalculateDelay(_spawnManager.Herd);
             StartCoroutine(StaggeredJump(jumpDelay));
         }
 
-        // track change of state of bark low to high
-        pastBarkJumpState = isBarkedJumpAt;
-
-
-        // sheep try to keep a small distance from each other
-        foreach (GameObject sheep in _spawnManager.Herd)
-        {
-            float sheepProximityX = SheepTransform.position.x - sheep.transform.position.x;
-            float sheepProximityZ = SheepTransform.position.z - sheep.transform.position.z;
-
-            Vector3 sheepProximity = new Vector3(sheepProximityX, 0, sheepProximityZ);
-
-            if (Mathf.Abs(sheepProximityX) < 2.0f && Mathf.Abs(sheepProximityZ) < 3.0f)
-            {
-                Avoid(sheepProximity, avoidSpeed);
-            }
-        }
-
-        // sheep act frantic when there's a nearby wolf
-        foreach (GameObject wolf in _spawnManager.Pack)
-        {
-            float wolfProximityX = SheepTransform.position.x - wolf.transform.position.x;
-            float wolfProximityZ = SheepTransform.position.z - wolf.transform.position.z;
-
-            Vector3 wolfProximity = new Vector3(wolfProximityX, 0, 0);
-
-            if (Mathf.Abs(wolfProximityX) < 5.0f && Mathf.Abs(wolfProximityZ) < 7.0f)
-            {
-                if (IsGrounded)
-                {
-                    Jump(jumpDirection, jumpForce);
-                }
-                Avoid(wolfProximity, avoidSpeed);
-            }
-        }
-
-        MovementBoundaries();
-
         // sheep is lost if allowed to drift back too far
         if (SheepTransform.position.z < zBackwardBoundary)
         {
+            PlayCollisionEffect();
             _audioManager.HasDetectedLostSheep = true;
             _spawnManager.TimeSinceLostSheep = 0;
+            _spawnManager.RemoveSheepFromHerd(gameObject);
             ReturnToPoolAndReset(gameObject);
-        }
-    }
-
-    private void MovementBoundaries()
-    {
-        // sheep remains within forest trail, and tries to move away from the forest trail boundary
-        if (SheepTransform.position.x > xBoundary - xAvoidDistance && SheepTransform.position.y < heightBoundary)
-        {
-            sheepRb.AddForce(Vector3.left * boundaryAvoidSpeed, ForceMode.Impulse);
-        }
-        if (SheepTransform.position.x > xBoundary)
-        {
-            SheepTransform.position = new Vector3(xBoundary, SheepTransform.position.y, SheepTransform.position.z);
-        }
-
-        if (SheepTransform.position.x < -xBoundary + xAvoidDistance && SheepTransform.position.y < heightBoundary)
-        {
-            sheepRb.AddForce(Vector3.right * boundaryAvoidSpeed, ForceMode.Impulse);
-        }
-        if (SheepTransform.position.x < -xBoundary)
-        {
-            SheepTransform.position = new Vector3(-xBoundary, SheepTransform.position.y, SheepTransform.position.z);
-        }
-
-        // sheep doesn't move too far forward on the trail and flees backwards if forced to
-        if (SheepTransform.position.z > zForwardBoundary - zAvoidDistance && SheepTransform.position.y < heightBoundary)
-        {
-            sheepRb.AddForce(Vector3.back * boundaryAvoidSpeed, ForceMode.Impulse);
-        }
-        if (SheepTransform.position.z > zForwardBoundary)
-        {
-            SheepTransform.position = new Vector3(SheepTransform.position.x, SheepTransform.position.y, zForwardBoundary);
         }
     }
 
     void StraySheepBehaviour()
     {
         //unaffected by physics while outside of trail
-        if (SheepTransform.position.x < xBoundary + xDistanceFromBoundary && SheepTransform.position.x > -xBoundary - xDistanceFromBoundary)
+        if (SheepTransform.position.x < 10.8f && SheepTransform.position.x > -10.8f)
         {
-            sheepRb.isKinematic = false;
-            if (IsGrounded)
+            if (sheepRb.isKinematic)
             {
-                Jump(jumpDirection, jumpForce);
+                sheepRb.isKinematic = false;
+            }
+            else
+            {
+                // avoid player, other sheep, wolves
+                AvoidOthers();
+                Jump(Vector3.up);
             }
         }
         else
         {
-            sheepRb.isKinematic = true;
-        }
-
-        // movement across trail
-        Vector3 spawnPosition = _spawnManager.StraySheepSpawnPosition;
-        Vector3 targetPosition = _spawnManager.StraySheepTargetPosition;
-
-        Vector3 targetDirection = targetPosition - spawnPosition;
-        MoveAcrossTrail(targetDirection);
-
-        // stray sheep avoids herd sheep
-        foreach (GameObject sheep in _spawnManager.Herd)
-        {
-            float sheepProximityX = SheepTransform.position.x - sheep.transform.position.x;
-            float sheepProximityZ = SheepTransform.position.z - sheep.transform.position.z;
-
-            Vector3 sheepProximity = new Vector3(sheepProximityX, 0, sheepProximityZ);
-
-            if (Mathf.Abs(sheepProximityX) < 2.7f && Mathf.Abs(sheepProximityZ) < 3.7f)
+            if (!sheepRb.isKinematic)
             {
-                Avoid(sheepProximity, avoidSpeed);
+                sheepRb.isKinematic = true;
+            }
+
+            if (!hasInitialisedStraySheep)
+            {
+                InitialiseStraySheep();
             }
         }
 
-        // stray sheep avoid player
-        if (Mathf.Abs(sheepDogProximityX) < 2.7f && Mathf.Abs(sheepDogProximityZ) < 3.7f)
-        {
-            Avoid(sheepDogProximity, avoidSpeed);
-        }
+        MovementUtility.Move(sheepRb, straySheepTargetDirection, 3f);
 
         // stray sheep added to herd with close proximity bark within trail
-        if (isBarkedAt &&
-            Mathf.Abs(sheepDogProximityX) < 3.0f &&
-            Mathf.Abs(sheepDogProximityZ) < 5.0f &&
-            SheepTransform.position.x < xBoundary - xAvoidDistance &&
-            SheepTransform.position.x > -xBoundary + xAvoidDistance)
+        if (isBarkedAt && SheepTransform.position.x < 6.2 && SheepTransform.position.x > -6.2)
         {
+            isBarkedAt = false;
             _spawnManager.AddSheepToHerd(gameObject);
             _spawnManager.RemoveSheepFromStrays(gameObject);
             gameObject.tag = "Sheep";
         }
 
         // stray sheep is gone once beyond the forest boundary
-        if (Mathf.Abs(targetPosition.x - SheepTransform.position.x) <= 0.2)
+        if (Mathf.Abs(straySheepTargetDirection.x - SheepTransform.position.x) <= 0.2)
         {
             _spawnManager.RemoveSheepFromStrays(gameObject);
             ReturnToPoolAndReset(gameObject);
         }
     }
 
-    void MoveAcrossTrail(Vector3 direction)
-    {
-        Vector3 alignDirection = (direction).normalized;
-        SheepTransform.Translate(alignDirection * 3 * Time.deltaTime);
-    }
-
-
     void HuntedSheepBehaviour()
     {
         //unaffected by physics while outside of trail
-        if (SheepTransform.position.x < xBoundary + xDistanceFromBoundary && SheepTransform.position.x > -xBoundary - xDistanceFromBoundary)
+        if (SheepTransform.position.x < 10.8f && SheepTransform.position.x > -10.8f &&
+            SheepTransform.position.z < 35f && SheepTransform.position.z > -13f)
         {
-            sheepRb.isKinematic = false;
+            RemoveOutline();
+            if (sheepRb.isKinematic)
+            {
+                StopAllCoroutines();
+                sheepRb.isKinematic = false;
+            }
         }
         else
         {
-            sheepRb.isKinematic = true;
+            if (!sheepRb.isKinematic)
+            {
+                _spawnManager.RemoveSheepFromHunted(gameObject);
+                sheepRb.isKinematic = true;
+            }
         }
 
-        // keep track of wolf
-        foreach (GameObject wolf in _spawnManager.Pack)
+        // keep track of wolves
+        foreach (Collider collidedCharacter in trackedCollidedList)
         {
-            float wolfProximityX = SheepTransform.position.x - wolf.transform.position.x;
-            float wolfProximityZ = SheepTransform.position.z - wolf.transform.position.z;
-
-            Vector3 wolfProximity = new Vector3(wolfProximityX, 0, wolfProximityZ);
-
-            // flee wolf
-            if (Mathf.Abs(wolfProximityX) < 4.5f && Mathf.Abs(wolfProximityZ) < 9.0f)
+            if (_spawnManager.Pack.Contains(collidedCharacter.gameObject))
             {
-                Avoid(wolfProximity, avoidSpeed*2);
+                targetDirection = InteractivityUtility.GetAwayDirection(sheepRb.position, collidedCharacter.attachedRigidbody.position);
+                MovementUtility.MoveSmooth(sheepRb, targetDirection * 1.2f, 5f * 1.2f, 0.8f);
             }
         }
 
@@ -407,32 +428,99 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     IEnumerator StaggeredJump(float delay)
     {
         yield return new WaitForSeconds(delay);
-        sheepBodyAnim.SetTrigger("isJumping");
-        sheepHeadAnim.SetTrigger("isJumping");
-        sheepRb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
-        IsGrounded = false;
+        Jump(jumpDirection);
     }
 
-    void Jump(Vector3 direction, float force)
+    void Jump(Vector3 direction)
     {
-        sheepBodyAnim.SetTrigger("isJumping");
-        sheepHeadAnim.SetTrigger("isJumping");
-        sheepRb.AddForce(direction * force, ForceMode.Impulse);
-        IsGrounded = false;
+        if (IsGrounded)
+        {
+            IsGrounded = false;
+            isJumping = true;
+            sheepBodyAnim.SetTrigger("isJumping");
+            sheepHeadAnim.SetTrigger("isJumping");
+            MovementUtility.Jump(sheepRb, direction, riseGravityScale, jumpHeight);
+        }
     }
 
-    void Avoid(Vector3 direction, float speed)
+    void AvoidBoundary()
     {
-        Vector3 alignDirection = (direction).normalized;
-        SheepTransform.Translate(alignDirection * speed * Time.deltaTime);
+        if (SheepTransform.position.z > zForwardBoundary - xAvoidDistance)
+        {
+            Jump(new Vector3(0, 1, -0.1f));
+        }
+        if (SheepTransform.position.x > xBoundary - xAvoidDistance)
+        {
+            Jump(new Vector3(-0.1f, 1, 0));
+        }
+        if (SheepTransform.position.x < -xBoundary + xAvoidDistance)
+        {
+            Jump(new Vector3(0.1f, 1, 0));
+        }
     }
 
-    void FleeBark(Vector3 direction)
+    void AvoidOthers()
     {
-        fleeDirection = (direction).normalized;
-        float fleeDirectionX = fleeDirection.x;
-        float fleeDirectionZ = fleeDirection.z;
-        SheepTransform.Translate(new Vector3(fleeDirectionX, 0, fleeDirectionZ) * speedBurst * Time.deltaTime);
+        // avoid sheep dog, avoidance takes priority
+        if (trackedCollidedList.Contains(_sheepdog.PlayerCollider))
+        {
+            isSlowingDown = false;
+
+            targetDirection = InteractivityUtility.GetAwayDirection(sheepRb.position, _sheepdog.PlayerRigidbody.position);
+            MovementUtility.MoveSmooth(sheepRb, targetDirection, avoidSpeed, 1f);
+
+            // bounce 
+            if(_sheepdog.PlayerTransform.position.y > heightTrigger)
+            {
+                Jump(new Vector3(0, 0.5f, 0));
+            }
+
+            //Debug.DrawRay(sheepRb.position, targetDirection, Color.red, 1f);
+        }
+        // if fleeing, won't be avoiding others
+        else if (!isFleeing && !disableAvoidance)
+        {
+            isSlowingDown = true;
+
+            // all characters in interactive area
+            foreach (Collider collidedCharacter in trackedCollidedList)
+            {
+                // if wolf, jumping and won't be avoiding others
+                if (_spawnManager.Pack.Contains(collidedCharacter.gameObject))
+                {
+                    Jump(Vector3.up);
+                }
+                else
+                {
+                    if (collidedCharacter)
+                    {
+                        targetDirection = InteractivityUtility.GetAwayDirection(sheepRb.position, collidedCharacter.attachedRigidbody.position);
+                        MovementUtility.MoveSmooth(sheepRb, targetDirection * 1.2f, 5f * 1.2f, 0.8f);
+
+                        // check for interactive characters in direction of movement
+                        ray = new Ray(sheepRb.position, targetDirection);
+                        if (Physics.Raycast(ray, interactionRange * 1.5f, InteractivityUtility.mask))
+                        {
+                            // if interactive characters ahead, move faster and further than usual
+                            MovementUtility.MoveSmooth(sheepRb, targetDirection * 1.1f, avoidSpeed * 1.1f, 0.8f);
+                        }
+                        else
+                        {
+                            // if no interactive characters ahead, move even fast and further than usual
+                            MovementUtility.MoveSmooth(sheepRb, targetDirection * 1.2f, avoidSpeed * 1.2f, 0.5f);
+                        }
+                        //Debug.DrawRay(sheepRb.position, targetDirection, Color.red, 1f);
+                    }
+                }
+            }
+        }
+
+        // sheep gradually falls behind
+        if (isSlowingDown)
+        {
+            targetDirection = InteractivityUtility.GetTowardDirection(sheepRb.position, sheepRb.position + Vector3.back);
+            MovementUtility.MoveSmooth(sheepRb, targetDirection, 2f, 0.1f);
+        }
     }
 
     void PlayCollisionEffect()
@@ -455,29 +543,15 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
             _audioManager.HasDetectedLostSheep = true;
             _spawnManager.TimeSinceLostSheep = 0;
             PlayCollisionEffect();
+            _spawnManager.RemoveSheepFromHerd(gameObject);
             ReturnToPoolAndReset(gameObject);
         }
 
-        if (collidingObject.CompareTag("Trail Lane") || collidingObject.CompareTag("Boundary Lane"))
+        if (!isJumping)
         {
-            IsGrounded = true;
-        }
-
-        // hop away if landed on top of another sheep or player
-        if (collidingObject.CompareTag("Sheep") || collidingObject.CompareTag("Player"))
-        {
-            if ((SheepTransform.position.y - collidingObject.transform.position.y) > heightTrigger)
+            if (collidingObject.CompareTag("Trail Lane") || collidingObject.CompareTag("Boundary Lane"))
             {
-                Hop(jumpForce);
-            }
-        }
-
-        // hop away if player lands ontop of sheep
-        if (collidingObject.CompareTag("Player"))
-        {
-            if ((_sheepdog.PlayerTransform.position.y - SheepTransform.position.y) > heightTrigger && IsGrounded)
-            {
-                Hop(throwForce);
+                IsGrounded = true;
             }
         }
     }
@@ -485,6 +559,15 @@ public class SheepController : MonoBehaviour, ISheepController, ICollidable
     private void OnCollisionEnter(Collision collision)
     {
         ICollidable collidable = collision.gameObject.GetComponent<ICollidable>();
+        if (collidable != null && !collidable.HasCollided)
+        {
+            collidable.OnCollision(this.gameObject);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        ICollidable collidable = other.gameObject.GetComponent<ICollidable>();
         if (collidable != null && !collidable.HasCollided)
         {
             collidable.OnCollision(this.gameObject);

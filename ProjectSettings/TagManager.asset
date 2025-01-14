@@ -14,6 +14,8 @@ TagManager:
   - Stray
   - Boundary Lane
   - Hunted
+  - WolfHuntingDog
+  - WolfHuntingSheep
   layers:
   - Default
   - TransparentFX
@@ -23,7 +25,7 @@ TagManager:
   - UI
   - SheepLayer
   - PostProcess
-  - 
+  - Interactive
   - 
   - 
   - 

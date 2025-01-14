@@ -13,6 +13,7 @@ public class AudioManager : MonoBehaviour, IAudioManager
     [SerializeField] private AudioClip sheepLostSound;
     [SerializeField] private AudioClip laneWarnSingleSound;
     [SerializeField] private AudioClip laneWarnAllSound;
+    [SerializeField] private AudioClip spawnWolfSound;
 
     private bool hasDetectedBarkMove;
     private bool hasDetectedBarkJump;
@@ -20,6 +21,7 @@ public class AudioManager : MonoBehaviour, IAudioManager
     private bool hasDetectedLostSheep;
     private bool hasDetectedWarnSingle;
     private bool hasDetectedWarnAll;
+    private bool hasDetectedSpawnWolf;
 
     // interface properties
     public bool HasDetectedBarkMove
@@ -56,6 +58,12 @@ public class AudioManager : MonoBehaviour, IAudioManager
     {
         get { return hasDetectedWarnAll; }
         set { hasDetectedWarnAll = value; }
+    }
+
+    public bool HasDetectedSpawnWolf
+    {
+        get { return hasDetectedSpawnWolf; }
+        set { hasDetectedSpawnWolf = value; }
     }
 
     void Start()
@@ -100,6 +108,12 @@ public class AudioManager : MonoBehaviour, IAudioManager
             PlaySound(laneWarnAllSound);
             hasDetectedWarnAll = false;
         }
+
+        if (HasDetectedSpawnWolf)
+        {
+            PlaySound(spawnWolfSound);
+            hasDetectedSpawnWolf = false;
+        }
     }
 
     public void PlaySound(AudioClip clip)
@@ -116,6 +130,7 @@ public class MockAudioManager : IAudioManager
     public bool HasDetectedLostSheep { get; set; }
     public bool HasDetectedWarnSingle { get; set; }
     public bool HasDetectedWarnAll { get; set; }
+    public bool HasDetectedSpawnWolf { get; set; }
 
     public void PlaySound(AudioClip clip)
     {

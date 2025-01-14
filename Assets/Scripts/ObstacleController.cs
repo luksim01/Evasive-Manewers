@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ObstacleController : MonoBehaviour
 {
-    private int speed = 5;
+    private int speed = 7;
     private int bounds = 35;
     public bool hasHitPlayer = false;
     private Transform ObstacleTransform;
@@ -21,24 +21,24 @@ public class ObstacleController : MonoBehaviour
         _spawnManager = spawnManager;
     }
 
-    void FixedUpdate()
+    private void OnEnable()
     {
-        if (!hasInitialisedObstacle)
-        {
-            InitialiseObstacle();
-        }
+        InitialiseObstacle();
+    }
 
+    void Update()
+    {
         if (_uiManager.IsGameActive && hasInitialisedObstacle)
         {
-            ObstacleTransform.Translate(Vector3.back * Time.deltaTime * speed);
+            ObstacleTransform.Translate(Vector3.back * Time.deltaTime * speed, Space.World);
 
-            if (gameObject.CompareTag("Obstacle") && ObstacleTransform.position.z < -bounds)
+            if (ObstacleTransform.position.z < -bounds)
             {
-                _uiManager.Score += 100;
-                ObjectPoolUtility.Return(gameObject);
-            }
-            if (gameObject.CompareTag("Background Tree") && ObstacleTransform.position.z < -bounds)
-            {
+                if (gameObject.CompareTag("Obstacle"))
+                {
+                    ObstacleTransform.rotation = Quaternion.Euler(0, 0, 0);
+                    _uiManager.Score += 100;
+                }
                 ObjectPoolUtility.Return(gameObject);
             }
         }
@@ -53,6 +53,15 @@ public class ObstacleController : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         ICollidable collidable = collision.gameObject.GetComponent<ICollidable>();
+        if (collidable != null && !collidable.HasCollided)
+        {
+            collidable.OnCollision(this.gameObject);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        ICollidable collidable = other.gameObject.GetComponent<ICollidable>();
         if (collidable != null && !collidable.HasCollided)
         {
             collidable.OnCollision(this.gameObject);

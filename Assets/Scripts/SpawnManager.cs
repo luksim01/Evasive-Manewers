@@ -25,6 +25,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     // sheep spawning
     public GameObject straySheep;
     public List<GameObject> Herd { get; set; }
+    public List<GameObject> Hunted { get; set; }
     public List<GameObject> Strays { get; set; }
     public int TimeSinceLostSheep { get; set; }
     public Vector3 StraySheepSpawnPosition { get; set; }
@@ -98,6 +99,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
         // creating a pool of sheep
         Herd = new List<GameObject>();
+        Hunted = new List<GameObject>();
         Strays = new List<GameObject>();
         sheepPool = ObjectPoolUtility.Create("SheepPool", gameObject.transform, straySheep, sheepAmountToPool);
         // spawning initial herd
@@ -131,9 +133,8 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         Pack = new List<GameObject>();
         wolfPool = ObjectPoolUtility.Create("WolfPool", gameObject.transform, wolf, wolfAmountToPool);
 
-
         InvokeEncounter(8);
-        Invoke("SpawnBackground", 1);
+        Invoke("SpawnBackground", 0.7f);
         TimeSinceLostSheep = 0;
         Invoke("SpawnStraySheep", 3);
     }
@@ -146,6 +147,16 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     public void RemoveSheepFromHerd(GameObject gameObject)
     {
         Herd.Remove(gameObject);
+    }
+
+    public void AddSheepToHunted(GameObject gameObject)
+    {
+        Hunted.Add(gameObject);
+    }
+
+    public void RemoveSheepFromHunted(GameObject gameObject)
+    {
+        Hunted.Remove(gameObject);
     }
 
     public void AddSheepToStrays(GameObject gameObject)
@@ -180,7 +191,6 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         return allGrounded;
     }
 
-
     private void InvokeEncounter(float encounterInterval)
     {
         switch (Random.Range(0, 2))
@@ -211,12 +221,9 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 warningPromptNew.transform.SetPositionAndRotation(warningPromptNewPosition, warningPromptNew.transform.rotation);
                 warningPromptNew.SetActive(true);
             }
-            //laneWarningsText[singleLaneIndex].SetActive(true);
             yield return new WaitForSeconds(2);
 
             ObjectPoolUtility.Return(warningPromptNew);
-
-            //laneWarningsText[singleLaneIndex].SetActive(false);
         }
         else if (noOfLanes == "All")
         {
@@ -238,17 +245,13 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 }
 
                 warningPromptArray[laneIndex] = warningPromptNew;
-
-                //laneWarningsText[laneIndex].SetActive(true);
             }
 
             yield return new WaitForSeconds(2);
 
             for (int laneIndex = 0; laneIndex < laneWarningsText.Length; laneIndex++)
             {
-
                 ObjectPoolUtility.Return(warningPromptArray[laneIndex]);
-                //laneWarningsText[laneIndex].SetActive(false);
             }
         }
     }
@@ -268,10 +271,12 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     {
         if (_uiManager.IsGameActive)
         {
+            float angle = 8f;
             GameObject foregroundTreeNew = ObjectPoolUtility.Get(treeAmountToPool, backgroundTreePool);
             if(foregroundTreeNew != null)
             {
-                foregroundTreeNew.transform.SetPositionAndRotation(new Vector3(14, 0, 40), foregroundTreeNew.transform.rotation);
+                Quaternion rotation = Quaternion.Euler(Random.Range(-angle, angle), 0f, Random.Range(-angle, angle));
+                foregroundTreeNew.transform.SetPositionAndRotation(new Vector3(14, 0, 40), rotation);
                 foregroundTreeNew.SetActive(true);
                 ObstacleController obstacleControllerForeground = foregroundTreeNew.GetComponent<ObstacleController>();
                 dependancyManager.InjectObstacleControllerDependencies(obstacleControllerForeground);
@@ -280,7 +285,8 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
             GameObject backgroundTreeNew = ObjectPoolUtility.Get(treeAmountToPool, backgroundTreePool);
             if (backgroundTreeNew != null)
             {
-                backgroundTreeNew.transform.SetPositionAndRotation(new Vector3(-9, 0, 40), backgroundTreeNew.transform.rotation);
+                Quaternion rotation = Quaternion.Euler(Random.Range(-angle, angle), 0f, Random.Range(-angle, angle));
+                backgroundTreeNew.transform.SetPositionAndRotation(new Vector3(-9, 0, 40), rotation);
                 backgroundTreeNew.SetActive(true);
                 ObstacleController obstacleControllerBackground = backgroundTreeNew.GetComponent<ObstacleController>();
                 dependancyManager.InjectObstacleControllerDependencies(obstacleControllerBackground);
@@ -288,7 +294,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
             if (_uiManager.TimeRemaining > 10)
             {
-                Invoke("SpawnBackground", 1);
+                Invoke("SpawnBackground", 0.7f);
             }
         }
     }
@@ -309,7 +315,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
     private void SpawnStraySheep()
     {
-        if (_uiManager.IsGameActive)
+        if (_uiManager.IsGameActive && _uiManager.TimeRemaining > 10)
         {
             if (CheckTimeSinceLostSheep(spawnInterval))
             {
@@ -325,14 +331,14 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
                 if (spawnSide[sideIndex] == "left")
                 {
-                    StraySheepSpawnPosition = new Vector3(-12, 1, straySheepSpawnPositionZ);
-                    StraySheepTargetPosition = new Vector3(11, 1, straySheepTargetPositionZ);
+                    StraySheepSpawnPosition = new Vector3(-12, 0, straySheepSpawnPositionZ);
+                    StraySheepTargetPosition = new Vector3(11, 0, straySheepTargetPositionZ);
 
                 }
                 else if (spawnSide[sideIndex] == "right")
                 {
-                    StraySheepSpawnPosition = new Vector3(12, 1, straySheepSpawnPositionZ);
-                    StraySheepTargetPosition = new Vector3(-11, 1, straySheepTargetPositionZ);
+                    StraySheepSpawnPosition = new Vector3(12, 0, straySheepSpawnPositionZ);
+                    StraySheepTargetPosition = new Vector3(-11, 0, straySheepTargetPositionZ);
                 }
 
                 if (straySheepNew != null)
@@ -379,7 +385,10 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 dependancyManager.InjectObstacleControllerDependencies(obstacleController);
             }
 
-            InvokeEncounter(8);
+            if (_uiManager.TimeRemaining > 10)
+            {
+                InvokeEncounter(4);
+            }
         }
     }
 
@@ -398,16 +407,21 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 {
                     wolfNew.transform.SetPositionAndRotation(WolfSpawnPosition = ChooseSpawnPosition(), transform.rotation);
 
+                    WolfController wolfController = wolfNew.GetComponent<WolfController>();
+                    dependancyManager.InjectWolfControllerDependencies(wolfController);
+
+                    _audioManager.HasDetectedSpawnWolf = true;
+
                     wolfNew.SetActive(true);
 
                     AddWolfToPack(wolfNew);
-
-                    WolfController wolfController = wolfNew.GetComponent<WolfController>();
-                    dependancyManager.InjectWolfControllerDependencies(wolfController);
                 }
             }
 
-            InvokeEncounter(8);
+            if (_uiManager.TimeRemaining > 10)
+            {
+                InvokeEncounter(4);
+            }
         }
     }
 
@@ -452,22 +466,22 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         {
             if (HasTargetedSheepdog)
             {
-                wolfSpawnPos = new Vector3(30.0f, 0, sheepDogPosZ + Random.Range(-15, -5));
+                wolfSpawnPos = new Vector3(11.0f, 0, sheepDogPosZ + Random.Range(-8, -8));
             }
             else if (HasTargetedHerd)
             {
-                wolfSpawnPos = new Vector3(11.0f, 0, Random.Range(-4, 1));
+                wolfSpawnPos = new Vector3(11.0f, 0, Random.Range(-15, -5));
             }
         }
         if (wolfOrigin[wolfOriginIndex] == "left")
         {
             if (HasTargetedSheepdog)
             {
-                wolfSpawnPos = new Vector3(-30.0f, 0, sheepDogPosZ + Random.Range(-15, -5));
+                wolfSpawnPos = new Vector3(-12.0f, 0, sheepDogPosZ + Random.Range(-8, -8));
             }
             else if (HasTargetedHerd)
             {
-                wolfSpawnPos = new Vector3(-12.0f, 0, Random.Range(-4, 1));
+                wolfSpawnPos = new Vector3(-12.0f, 0, Random.Range(-15, -5));
             }
         }
         return wolfSpawnPos;
@@ -480,6 +494,7 @@ public class MockSpawnManager : ISpawnManager
     public bool HasTargetedHerd { get; set; }
     public Vector3 WolfSpawnPosition { get; set; }
     public List<GameObject> Herd { get; set; }
+    public List<GameObject> Hunted { get; set; }
     public List<GameObject> Pack { get; set; }
     public List<GameObject> Strays { get; set; }
     public int TimeSinceLostSheep { get; set; }
@@ -502,6 +517,8 @@ public class MockSpawnManager : ISpawnManager
 
     public void AddSheepToHerd(GameObject gameObject) { }
     public void RemoveSheepFromHerd(GameObject gameObject) { }
+    public void AddSheepToHunted(GameObject gameObject) { }
+    public void RemoveSheepFromHunted(GameObject gameObject) { }
     public void AddSheepToStrays(GameObject gameObject) { }
     public void RemoveSheepFromStrays(GameObject gameObject) { }
     public void AddWolfToPack(GameObject gameObject) { }

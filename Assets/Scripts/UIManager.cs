@@ -3,7 +3,6 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.Profiling;
-using UnityEngine.Rendering.PostProcessing;
 
 public class UIManager : MonoBehaviour, IUIManager
 {
@@ -22,6 +21,8 @@ public class UIManager : MonoBehaviour, IUIManager
 
     public GameObject gameOverScreen;
     public GameObject hudScreen;
+    public GameObject pauseScreen;
+    public GameObject instructionScreen;
 
     public bool IsGameActive { get; set; }
     public int TimeRemaining { get; set; }
@@ -40,6 +41,9 @@ public class UIManager : MonoBehaviour, IUIManager
     // spawn manager
     private ISpawnManager _spawnManager;
 
+    // post processing
+    public GameObject postprocessingVolume;
+
     // dependancies
     public void SetDependencies(IPlayerController playerController, SpawnManager spawnManager)
     {
@@ -50,15 +54,9 @@ public class UIManager : MonoBehaviour, IUIManager
     // pause
     [SerializeField] private bool isPaused = false;
 
-    // camera
-    PostProcessVolume postprocessVolume;
-    PostProcessLayer postprocessLayer;
-
     private void Awake()
     {
         IsGameActive = true;
-        postprocessVolume = Camera.main.gameObject.GetComponent<PostProcessVolume>();
-        postprocessLayer = Camera.main.gameObject.GetComponent<PostProcessLayer>();
     }
 
     void Start()
@@ -84,20 +82,6 @@ public class UIManager : MonoBehaviour, IUIManager
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            if (!isPaused)
-            {
-                PauseGame();
-                PauseProfiler();
-            }
-            else
-            {
-                ResumeGame();
-                ResumeProfiler();
-            }
-        }
-
         if (IsGameActive)
         {
             sheepdogHealth = _sheepdog.Health;
@@ -107,7 +91,7 @@ public class UIManager : MonoBehaviour, IUIManager
                 healthBarText.text = new string('O', sheepdogHealth) + new string('-', 5 - sheepdogHealth); ;
             }
 
-            herdCount = _spawnManager.Herd.Count;
+            herdCount = _spawnManager.Herd.Count + _spawnManager.Hunted.Count;
             strayCount = _spawnManager.Strays.Count;
 
             if (herdCount != previousHerdCount)
@@ -137,21 +121,39 @@ public class UIManager : MonoBehaviour, IUIManager
         }
     }
 
+    public void PauseResume()
+    {
+        if (!isPaused)
+        {
+            PauseGame();
+            PauseProfiler();
+            EnablePauseScreen();
+        }
+        else
+        {
+            ResumeGame();
+            ResumeProfiler();
+            DisablePauseScreen();
+        }
+    }
+
     public void EnablePostProcessing()
     {
-        postprocessLayer.enabled = true;
-        postprocessVolume.enabled = true;
+        postprocessingVolume.SetActive(true);
     }
 
     public void DisablePostProcessing()
     {
-        postprocessLayer.enabled = false;
-        postprocessVolume.enabled = false;
+        postprocessingVolume.SetActive(false);
     }
 
     void PauseGame()
     {
         isPaused = true;
+        _sheepdog.Move.Disable();
+        _sheepdog.Jump.Disable();
+        _sheepdog.BarkMove.Disable();
+        _sheepdog.BarkJump.Disable();
         Time.timeScale = 0f;
         EnablePostProcessing();
     }
@@ -164,8 +166,32 @@ public class UIManager : MonoBehaviour, IUIManager
     void ResumeGame()
     {
         isPaused = false;
+        _sheepdog.Move.Enable();
+        _sheepdog.Jump.Enable();
+        _sheepdog.BarkMove.Enable();
+        _sheepdog.BarkJump.Enable();
         Time.timeScale = 1f;
         DisablePostProcessing();
+    }
+
+    void EnablePauseScreen()
+    {
+        _sheepdog.Move.Disable();
+        _sheepdog.Jump.Disable();
+        _sheepdog.BarkMove.Disable();
+        _sheepdog.BarkJump.Disable();
+        pauseScreen.SetActive(true);
+        instructionScreen.SetActive(true);
+    }
+
+    void DisablePauseScreen()
+    {
+        _sheepdog.Move.Enable();
+        _sheepdog.Jump.Enable();
+        _sheepdog.BarkMove.Enable();
+        _sheepdog.BarkJump.Enable();
+        pauseScreen.SetActive(false);
+        instructionScreen.SetActive(false);
     }
 
     void ResumeProfiler()
@@ -250,4 +276,5 @@ public class MockUIManager : IUIManager
     public bool IsGameActive { get; set; }
     public int TimeRemaining { get; set; }
     public int Score { get; set; }
+    public void PauseResume() { }
 }
