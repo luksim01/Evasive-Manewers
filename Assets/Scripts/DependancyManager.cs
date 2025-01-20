@@ -47,6 +47,22 @@ public class DependancyManager : MonoBehaviour
         }
     }
 
+    public void InjectBackBoundaryControllerDependencies(BackBoundaryController backBoundaryController)
+    {
+        if(backBoundaryController != null)
+        {
+            backBoundaryController.SetDependencies(uiManager);
+        }
+    }
+
+    public void InjectBackWolfControllerDependencies(BackWolfController backWolfController)
+    {
+        if (backWolfController != null)
+        {
+            backWolfController.SetDependencies(uiManager);
+        }
+    }
+
     public void InjectSheepControllerDependencies(SheepController sheepController)
     {
         if (sheepController != null)

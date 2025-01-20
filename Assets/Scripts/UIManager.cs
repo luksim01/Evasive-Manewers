@@ -241,7 +241,7 @@ public class UIManager : MonoBehaviour, IUIManager
 
         if (TimeRemaining < 0)
         {
-            reasonText.text = "You have escaped the forest!";
+            reasonText.text = "You have escaped!";
             IsGameActive = false;
             GameOver();
         }   

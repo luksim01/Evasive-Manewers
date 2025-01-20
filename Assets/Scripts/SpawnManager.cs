@@ -12,7 +12,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     public bool HasTargetedHerd { get; set; }
     public Vector3 WolfSpawnPosition { get; set; }
     private List<GameObject> wolfPool;
-    private int wolfAmountToPool = 3;
+    private int wolfAmountToPool = 5;
 
 
     // obstacle spawning
@@ -20,7 +20,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     private float[] trailLanesPos;
     public GameObject[] laneWarningsText;
     private List<GameObject>[] obstaclePool;
-    private int obstacleAmountToPool = 3;
+    private int obstacleAmountToPool = 5;
 
     // sheep spawning
     public GameObject straySheep;
@@ -35,7 +35,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     private int sheepAmountToPool = 8;
     public GameObject warningPrompt;
     private List<GameObject> warningPromptPool;
-    private int warningPromptAmountToPool = 5;
+    private int warningPromptAmountToPool = 10;
 
     // particle
     public GameObject sheepCollisionEffect;
@@ -193,16 +193,30 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
     private void InvokeEncounter(float encounterInterval)
     {
-        switch (Random.Range(0, 2))
+        if(_uiManager != null)
         {
-            case 0:
-                Invoke("SpawnWolf", encounterInterval);
-                break;
-            case 1:
+            if (_uiManager.TimeRemaining > 12)
+            {
+                switch (Random.Range(0, 2))
+                {
+                    case 0:
+                        Invoke("SpawnWolf", encounterInterval);
+                        break;
+                    case 1:
+                        Invoke("SpawnObstacle", encounterInterval);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (_uiManager.TimeRemaining > 12)
+            {
                 Invoke("SpawnObstacle", encounterInterval);
-                break;
-            default:
-                break;
+            }
+        }
+        else
+        {
+            Invoke("SpawnObstacle", encounterInterval);
         }
     }
 
@@ -385,10 +399,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 dependancyManager.InjectObstacleControllerDependencies(obstacleController);
             }
 
-            if (_uiManager.TimeRemaining > 10)
-            {
-                InvokeEncounter(4);
-            }
+            InvokeEncounter(3);
         }
     }
 
@@ -418,16 +429,15 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 }
             }
 
-            if (_uiManager.TimeRemaining > 10)
-            {
-                InvokeEncounter(4);
-            }
+
+            InvokeEncounter(3);
         }
     }
 
     private void ChooseTarget()
     {
         int targetIndex;
+        //string[] huntTarget = { "sheep" };
         string[] huntTarget = { "player", "sheep" };
 
         if (Herd.Count > 0)

@@ -61,6 +61,15 @@ public class WolfController : BaseCharacterController, ICollidable
     [SerializeField] private Vector3 targetDirection;
     bool hasEngaged;
 
+    // jumping
+    [SerializeField] private bool isGrounded = true;
+    [SerializeField] private bool isJumping = false;
+    [SerializeField] private float jumpHeight = 6f;
+    [SerializeField] private float riseGravityScale = 2.8f;
+    [SerializeField] private float fallGravityScale = 2.8f;
+    [SerializeField] private bool isTargetSheepGrounded = false;
+    private List<RigidbodyConstraints> wolfMovementConstraints;
+
     void Start()
     {
         wolfRb = GetComponent<Rigidbody>();
@@ -72,6 +81,7 @@ public class WolfController : BaseCharacterController, ICollidable
 
         trackedCollidedList = new List<Collider>();
         removeCollidedList = new List<Collider>();
+        wolfMovementConstraints = new List<RigidbodyConstraints>();
     }
 
     void OnEnable()
@@ -86,6 +96,13 @@ public class WolfController : BaseCharacterController, ICollidable
 
             castPosition = this.transform.position + indicatorPositionOffset + wolfInteractivityIndicatorPosition;
             trackedCollidedList = InteractivityUtility.CastRadius(WolfTransform, castPosition, trackedCollidedList, removeCollidedList, interactionRange);
+
+            MovementUtility.Fall(wolfRb, riseGravityScale, fallGravityScale);
+
+            if (wolfRb.velocity.y < 0)
+            {
+                isJumping = false;
+            }
 
             if (hasTargetedSheepdog)
             {
@@ -102,6 +119,8 @@ public class WolfController : BaseCharacterController, ICollidable
     {
         if(_spawnManager != null)
         {
+            RemoveOutline();
+
             wolfSpawnPositionX = _spawnManager.WolfSpawnPosition.x;
             hasTargetedSheepdog = _spawnManager.HasTargetedSheepdog;
             hasTargetedHerd = _spawnManager.HasTargetedHerd;
@@ -115,14 +134,30 @@ public class WolfController : BaseCharacterController, ICollidable
             {
                 this.gameObject.tag = "WolfHuntingSheep";
             }
+
+            //wolfMovementConstraints.Add(RigidbodyConstraints.FreezeRotationX);
+            //wolfMovementConstraints.Add(RigidbodyConstraints.FreezeRotationZ);
+            //UpdateWolfMovementConstraints();
         }
 
         hasEngaged = false;
         isBarkedAt = false;
+        isGrounded = true;
+        isJumping = false;
+        isTargetSheepGrounded = false;
 
         WolfTransform = this.transform;
         wolfHeadAnim = WolfTransform.Find("wolf_head").GetComponent<Animator>();
         hasInitialisedWolf = true;
+    }
+
+    void UpdateWolfMovementConstraints()
+    {
+        wolfRb.constraints = RigidbodyConstraints.None;
+        foreach (RigidbodyConstraints constraint in wolfMovementConstraints)
+        {
+            wolfRb.constraints |= constraint;
+        }
     }
 
     void ReturnToPoolAndReset(GameObject gameObject)
@@ -137,6 +172,7 @@ public class WolfController : BaseCharacterController, ICollidable
         hasBitten = false;
         isBarkedAt = false;
         isOutlined = false;
+        wolfMovementConstraints.Clear();
         RemoveOutline();
         ObjectPoolUtility.Return(gameObject);
     }
@@ -211,6 +247,40 @@ public class WolfController : BaseCharacterController, ICollidable
 
     private void HuntSheep()
     {
+        if (!wolfMovementConstraints.Contains(RigidbodyConstraints.FreezeRotationX))
+        {
+            wolfMovementConstraints.Add(RigidbodyConstraints.FreezeRotationX);
+            UpdateWolfMovementConstraints();
+        }
+
+        if (!wolfMovementConstraints.Contains(RigidbodyConstraints.FreezeRotationY))
+        {
+            wolfMovementConstraints.Add(RigidbodyConstraints.FreezeRotationY);
+            UpdateWolfMovementConstraints();
+        }
+
+        if (!wolfMovementConstraints.Contains(RigidbodyConstraints.FreezeRotationZ))
+        {
+            wolfMovementConstraints.Add(RigidbodyConstraints.FreezeRotationZ);
+            UpdateWolfMovementConstraints();
+        }
+
+        //unaffected by physics while outside of trail
+        if (WolfTransform.position.x < 10.8f && WolfTransform.position.x > -10.8f)
+        {
+            if (wolfRb.isKinematic)
+            {
+                wolfRb.isKinematic = false;
+            }
+        }
+        else
+        {
+            if (!wolfRb.isKinematic)
+            {
+                wolfRb.isKinematic = true;
+            }
+        }
+
         // target one sheep
         if (!hasTargetedSheep)
         {
@@ -222,36 +292,49 @@ public class WolfController : BaseCharacterController, ICollidable
 
         }
 
-        if (targetSheep && targetSheep.transform.position.y <= 0)
+        if (targetSheep)
         {
-            // move towards target sheep
-            targetDirection = InteractivityUtility.GetTowardDirection(wolfRb.position, targetSheep.transform.position);
-
-            if (trackedCollidedList.Contains(targetSheep.GetComponent<Collider>()))
+            if (targetSheep.transform.position.y <= 0)
             {
-                hasEngaged = true;
+                isTargetSheepGrounded = true;
             }
 
-            if (!hasEngaged)
+            if (isTargetSheepGrounded)
             {
-                
-                MovementUtility.MoveSmooth(wolfRb, targetDirection, 10f, 0.9f);
-            }
-            else
-            {
-                MovementUtility.MoveSmooth(wolfRb, targetDirection, 5f, 0.9f);
-            }
+                // move towards target sheep
+                targetDirection = InteractivityUtility.GetTowardDirection(wolfRb.position, targetSheep.transform.position);
 
-            // wolf hunt sequence can be interrupted
-            if (isBarkedAt && WolfTransform.position.x < 6.2 && WolfTransform.position.x > -6.2)
-            {
-                isBarkedAt = false;
-                wolfHeadAnim.SetTrigger("isBiting");
-                targetSheep.tag = "Sheep";
-                _spawnManager.AddSheepToHerd(targetSheep);
-                _spawnManager.RemoveSheepFromHunted(targetSheep);
+                if (trackedCollidedList.Contains(targetSheep.GetComponent<Collider>()))
+                {
+                    hasEngaged = true;
+                }
 
-                isCharging = true;
+                if (!hasEngaged)
+                {
+
+                    MovementUtility.MoveSmooth(wolfRb, targetDirection, 10f, 0.9f);
+                }
+                else
+                {
+                    Vector3 wolfPosition = new Vector3(wolfRb.position.x, 0, wolfRb.position.z);
+                    Vector3 sheepPosition = new Vector3(targetSheep.transform.position.x, 0, targetSheep.transform.position.z);
+                    if (Vector3.Distance(wolfPosition, sheepPosition) > 2f)
+                    {
+                        MovementUtility.MoveSmooth(wolfRb, targetDirection, isGrounded ? 5f : 0.5f, 0.9f);
+                    }
+                }
+
+                // wolf hunt sequence can be interrupted
+                if (isBarkedAt && WolfTransform.position.x < 6.2 && WolfTransform.position.x > -6.2)
+                {
+                    isBarkedAt = false;
+                    wolfHeadAnim.SetTrigger("isBiting");
+                    targetSheep.tag = "Sheep";
+                    _spawnManager.AddSheepToHerd(targetSheep);
+                    _spawnManager.RemoveSheepFromHunted(targetSheep);
+
+                    isCharging = true;
+                }
             }
         }
 
@@ -270,11 +353,31 @@ public class WolfController : BaseCharacterController, ICollidable
             isCharging = true;
         }
 
+        AvoidObstacles();
+
         DestroyBoundaries(xBoundaryLeft, xBoundaryRight, zBoundary, -zBoundary);
     }
 
     private void HuntPlayer()
     {
+        if (!wolfMovementConstraints.Contains(RigidbodyConstraints.FreezeRotationX))
+        {
+            wolfMovementConstraints.Add(RigidbodyConstraints.FreezeRotationX);
+            UpdateWolfMovementConstraints();
+        }
+
+        if (wolfMovementConstraints.Contains(RigidbodyConstraints.FreezeRotationY))
+        {
+            wolfMovementConstraints.Remove(RigidbodyConstraints.FreezeRotationY);
+            UpdateWolfMovementConstraints();
+        }
+
+        if (!wolfMovementConstraints.Contains(RigidbodyConstraints.FreezeRotationZ))
+        {
+            wolfMovementConstraints.Add(RigidbodyConstraints.FreezeRotationZ);
+            UpdateWolfMovementConstraints();
+        }
+
         // track player position
         if (!isCharging)
         {
@@ -296,11 +399,54 @@ public class WolfController : BaseCharacterController, ICollidable
             MovementUtility.LookAt(wolfRb, targetDirection);
         }
 
+        AvoidObstacles();
+
         float xBoundaryLeft = 12.0f;
         float xBoundaryRight = -13.0f;
         float zBoundary = 40.0f;
 
         DestroyBoundaries(xBoundaryLeft, xBoundaryRight, zBoundary, -zBoundary);
+    }
+
+    void AvoidObstacles()
+    {
+
+        Vector3 raySource = new Vector3(wolfRb.position.x, 1f, wolfRb.position.z + 1f);
+        Vector3 rayTarget = new Vector3(0, -0.2f, 1f);
+
+        // check for obstacles in direction of movement
+        ray = new Ray(raySource, rayTarget);
+        float rangeMultiplier = 5f;
+
+        if (Physics.Raycast(ray, rangeMultiplier, InteractivityUtility.obstacleMask))
+        {
+            // if obstacle ahead, jump
+            Jump(Vector3.up);
+        }
+
+        //Debug.DrawRay(raySource, rayTarget * rangeMultiplier, Color.red, 1f);
+    }
+
+    void Jump(Vector3 direction)
+    {
+        if (isGrounded)
+        {
+            isGrounded = false;
+            isJumping = true;
+            MovementUtility.Jump(wolfRb, direction, riseGravityScale, jumpHeight);
+
+            //if (!wolfMovementConstraints.Contains(RigidbodyConstraints.FreezePositionX))
+            //{
+            //    wolfMovementConstraints.Add(RigidbodyConstraints.FreezePositionX);
+            //    UpdateWolfMovementConstraints();
+            //}
+
+            //if (!wolfMovementConstraints.Contains(RigidbodyConstraints.FreezePositionZ))
+            //{
+            //    wolfMovementConstraints.Add(RigidbodyConstraints.FreezePositionZ);
+            //    UpdateWolfMovementConstraints();
+            //}
+        }
     }
 
     public void OnCollision(GameObject collidingObject)
@@ -309,6 +455,26 @@ public class WolfController : BaseCharacterController, ICollidable
         {
             HasCollided = true;
             hasBitten = true;
+        }
+
+        if (!isJumping)
+        {
+            if (collidingObject.CompareTag("Trail Lane") || collidingObject.CompareTag("Boundary Lane"))
+            {
+                isGrounded = true;
+
+                //if (wolfMovementConstraints.Contains(RigidbodyConstraints.FreezePositionX))
+                //{
+                //    wolfMovementConstraints.Remove(RigidbodyConstraints.FreezePositionX);
+                //    UpdateWolfMovementConstraints();
+                //}
+
+                //if (wolfMovementConstraints.Contains(RigidbodyConstraints.FreezePositionZ))
+                //{
+                //    wolfMovementConstraints.Remove(RigidbodyConstraints.FreezePositionZ);
+                //    UpdateWolfMovementConstraints();
+                //}
+            }
         }
     }
 

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8375239366924447496}
   - component: {fileID: 9151182699416625350}
   - component: {fileID: 2734946602504131737}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Obstacle Shuck Long
   m_TagString: Obstacle
   m_Icon: {fileID: 0}

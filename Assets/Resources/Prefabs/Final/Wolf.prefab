@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1613475040679095198}
   - component: {fileID: 9205828477710063172}
+  - component: {fileID: -1723990865801519016}
   - component: {fileID: 7749028405238713883}
   - component: {fileID: 7964132763429636560}
   m_Layer: 8
@@ -49,14 +50,35 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.6664782, y: 2.72342, z: 3.8529658}
-  m_Center: {x: -0.012543201, y: 1.8446923, z: 0.7851412}
+  m_Size: {x: 1.6664782, y: 2.7, z: 3.8529658}
+  m_Center: {x: -0.012543201, y: 1.745666, z: 0.7851412}
+--- !u!65 &-1723990865801519016
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4327218632907328745}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 1024
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 1023
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.6664782, y: 2.9, z: 3.8529658}
+  m_Center: {x: -0.012543201, y: 1.8529445, z: 0.7851412}
 --- !u!54 &7749028405238713883
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -82,7 +104,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &7964132763429636560
 MonoBehaviour:
@@ -101,6 +123,12 @@ MonoBehaviour:
   indicatorMaterial: {fileID: 2100000, guid: 0d3005a98c6ad41d4a06665ce1cebcea, type: 2}
   indicatorPositionOffset: {x: 0, y: 0, z: 0}
   targetDirection: {x: 0, y: 0, z: 0}
+  isGrounded: 1
+  isJumping: 0
+  jumpHeight: 4
+  riseGravityScale: 2
+  fallGravityScale: 2
+  isTargetSheepGrounded: 0
 --- !u!1001 &3743661574775535673
 PrefabInstance:
   m_ObjectHideFlags: 0

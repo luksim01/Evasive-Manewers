@@ -26,14 +26,18 @@ public static class InteractivityUtility
         interactivityIndicator.transform.localScale = Vector3.one * range * 2;
     }
 
+    // obstacle avoidance
+    public static readonly int includeObstacleLayer = LayerMask.NameToLayer("Obstacle");
+    public static readonly int obstacleMask = (1 << includeObstacleLayer);
+
     // interactivity layer
-    public static readonly int includeLayer = LayerMask.NameToLayer("Interactive");
-    public static readonly int mask = (1 << includeLayer);
+    public static readonly int includeInteractiveLayer = LayerMask.NameToLayer("Interactive");
+    public static readonly int interactiveMask = (1 << includeInteractiveLayer);
 
     public static List<Collider> CastRadius(Transform selfTransform, Vector3 interactivityIndicatorPosition, List<Collider> trackedCollidedList, List<Collider> removeCollidedList, float range)
     {
         // only look for interactive characters
-        Collider[] collidedCharacterArray = Physics.OverlapSphere(interactivityIndicatorPosition, range, mask);
+        Collider[] collidedCharacterArray = Physics.OverlapSphere(interactivityIndicatorPosition, range, interactiveMask);
 
         foreach (Collider collidedCharacter in collidedCharacterArray)
         {
