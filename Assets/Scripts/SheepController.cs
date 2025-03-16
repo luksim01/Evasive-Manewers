@@ -374,9 +374,11 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
             if (_spawnManager.Pack.Contains(collidedCharacter.gameObject))
             {
                 targetDirection = InteractivityUtility.GetAwayDirection(sheepRb.position, collidedCharacter.attachedRigidbody.position);
-                MovementUtility.MoveSmooth(sheepRb, targetDirection * 1.2f, 5f * 1.2f, 0.8f);
+                MovementUtility.MoveSmooth(sheepRb, targetDirection * 2f, 5f * 1.2f, 0.4f);
             }
         }
+
+        AvoidObstacles();
 
         DestroyBoundaries(12, -13, 40, -40);
     }
@@ -459,6 +461,25 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
         }
     }
 
+    void AvoidObstacles()
+    {
+
+        Vector3 raySource = new Vector3(sheepRb.position.x, 1f, sheepRb.position.z + 1f);
+        Vector3 rayTarget = new Vector3(0, -0.2f, 1f);
+
+        // check for obstacles in direction of movement
+        ray = new Ray(raySource, rayTarget);
+        float rangeMultiplier = 5f;
+
+        if (Physics.Raycast(ray, rangeMultiplier, InteractivityUtility.obstacleMask))
+        {
+            // if obstacle ahead, jump
+            Jump(Vector3.up);
+        }
+
+        //Debug.DrawRay(raySource, rayTarget * rangeMultiplier, Color.red, 1f);
+    }
+
     void AvoidOthers()
     {
         // avoid sheep dog, avoidance takes priority
@@ -499,7 +520,7 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
 
                         // check for interactive characters in direction of movement
                         ray = new Ray(sheepRb.position, targetDirection);
-                        if (Physics.Raycast(ray, interactionRange * 1.5f, InteractivityUtility.mask))
+                        if (Physics.Raycast(ray, interactionRange * 1.5f, InteractivityUtility.interactiveMask))
                         {
                             // if interactive characters ahead, move faster and further than usual
                             MovementUtility.MoveSmooth(sheepRb, targetDirection * 1.1f, avoidSpeed * 1.1f, 0.8f);

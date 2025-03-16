@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6154040043717978524}
   - component: {fileID: 2859810060090958387}
   - component: {fileID: 5740712200558487144}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Obstacle Fence
   m_TagString: Obstacle
   m_Icon: {fileID: 0}

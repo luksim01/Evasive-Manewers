@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     public InputAction BarkMove { get; set; }
     public InputAction BarkJump { get; set; }
     private InputAction pause;
-    Vector2 moveInput = Vector2.zero;
+    [SerializeField] private Vector2 moveInput = Vector2.zero;
     Vector3 moveDirection;
     float verticalMoveSpeed;
     float horizontalMoveSpeed;
@@ -111,6 +111,12 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     private Vector3 playerInteractivityIndicatorPosition;
     private Vector3 castPosition;
 
+    private bool disableForwardMovement = false;
+    private bool disableBackwardMovement = false;
+    private bool disableRightMovement = false;
+    private bool disableLeftMovement = false;
+    private float moveTolerance = 0.3f;
+
     private void Awake()
     {
         PlayerTransform = this.transform;
@@ -176,10 +182,58 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     void Update()
     {
         MovementMonitor();
-        if (PlayerTransform.position.z > zBoundary || PlayerTransform.position.z < -zBoundary ||
-            PlayerTransform.position.x > xBoundary || PlayerTransform.position.x < -xBoundary)
+        //if (PlayerTransform.position.z > zBoundary || PlayerTransform.position.z < -zBoundary ||
+        //    PlayerTransform.position.x > xBoundary || PlayerTransform.position.x < -xBoundary)
+        //{
+        //    PlayerTransform.position = MovementUtility.MovementConstraints(PlayerTransform.position, zBoundary, -zBoundary, xBoundary, -xBoundary);
+        //}
+
+        if(PlayerTransform.position.z > zBoundary)
         {
-            PlayerTransform.position = MovementUtility.MovementConstraints(PlayerTransform.position, zBoundary, -zBoundary, xBoundary, -xBoundary);
+            disableForwardMovement = true;
+        }
+        else
+        {
+            if (disableForwardMovement)
+            {
+                disableForwardMovement = false;
+            }
+        }
+
+        if (PlayerTransform.position.z < -zBoundary)
+        {
+            disableBackwardMovement = true;
+        }
+        else
+        {
+            if (disableBackwardMovement)
+            {
+                disableBackwardMovement = false;
+            }
+        }
+
+        if (PlayerTransform.position.x > xBoundary)
+        {
+            disableRightMovement = true;
+        }
+        else
+        {
+            if (disableRightMovement)
+            {
+                disableRightMovement = false;
+            }
+        }
+
+        if (PlayerTransform.position.x < -xBoundary)
+        {
+            disableLeftMovement = true;
+        }
+        else
+        {
+            if (disableLeftMovement)
+            {
+                disableLeftMovement = false;
+            }
         }
     }
 
@@ -205,6 +259,42 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     private void MovementMonitor()
     {
         moveInput = Move.ReadValue<Vector2>();
+        
+        if (disableBackwardMovement && moveInput.y < 0)
+        {
+            moveInput.y = 0f;
+            if (moveInput.x < moveTolerance && moveInput.x > -moveTolerance)
+            {
+                moveInput.x = 0f;
+            }
+        }
+
+        if (disableForwardMovement && moveInput.y > 0)
+        {
+            moveInput.y = 0f;
+            if (moveInput.x < moveTolerance && moveInput.x > -moveTolerance)
+            {
+                moveInput.x = 0f;
+            }
+        }
+
+        if (disableLeftMovement && moveInput.x < 0)
+        {
+            moveInput.x = 0f;
+            if (moveInput.y < moveTolerance && moveInput.y > -moveTolerance)
+            {
+                moveInput.y = 0f;
+            }
+        }
+
+        if (disableRightMovement && moveInput.x > 0)
+        {
+            moveInput.x = 0f;
+            if (moveInput.y < moveTolerance && moveInput.y > -moveTolerance)
+            {
+                moveInput.y = 0f;
+            }
+        }
     }
 
     private void MovementControl(float speed)

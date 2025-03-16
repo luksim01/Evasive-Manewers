@@ -104,6 +104,7 @@ MonoBehaviour:
   jumpHeight: 6
   riseGravityScale: 2.8
   fallGravityScale: 0.9
+  hasInitialisedSheep: 0
   targetFleeTime: 0.2
   targetFleeDistance: 3
   elapsedFleeTime: 0
@@ -115,6 +116,7 @@ MonoBehaviour:
   interactivityIndicator: {fileID: 828274026707722583, guid: b036a800df6ee4966a4e797d03256cad, type: 3}
   indicatorMaterial: {fileID: 2100000, guid: 2fad663703a5c4e15b367fd430ffd198, type: 2}
   indicatorPositionOffset: {x: 0, y: 0, z: 0.5}
+  straySheepTargetDirection: {x: 0, y: 0, z: 0}
 --- !u!1001 &5382863644890653774
 PrefabInstance:
   m_ObjectHideFlags: 0
