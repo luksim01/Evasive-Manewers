@@ -178,6 +178,6 @@ public class UIManagerLeaderboard : MonoBehaviour
 
     public void BeginGame()
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene("Alpha");
     }
 }

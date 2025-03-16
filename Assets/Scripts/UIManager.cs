@@ -267,7 +267,7 @@ public class UIManager : MonoBehaviour, IUIManager
     public void SubmitScore()
     {
         ResumeGame();
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene("Highscore");
     }
 }
 
