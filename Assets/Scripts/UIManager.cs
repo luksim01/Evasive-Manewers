@@ -15,6 +15,8 @@ public class UIManager : MonoBehaviour, IUIManager
     public TextMeshProUGUI herdMultiplierText;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI scoreValueText;
+    public TextMeshProUGUI gameText;
+    public TextMeshProUGUI gameCountValueText;
 
     public TextMeshProUGUI finalScoreText;
     public TextMeshProUGUI reasonText;
@@ -28,6 +30,7 @@ public class UIManager : MonoBehaviour, IUIManager
     public int TimeRemaining { get; set; }
     public int Score { get; set; }
     private int previousScore;
+    private int previousGameCount;
 
     private int herdCount;
     private int previousHerdCount;
@@ -76,6 +79,8 @@ public class UIManager : MonoBehaviour, IUIManager
         herdMultiplierText.CrossFadeAlpha(0.0f, 0.0f, false);
         scoreText.CrossFadeAlpha(0.0f, 0.0f, false);
         scoreValueText.CrossFadeAlpha(0.0f, 0.0f, false);
+        gameText.CrossFadeAlpha(0.0f, 0.0f, false);
+        gameCountValueText.CrossFadeAlpha(0.0f, 0.0f, false);
 
         StartCoroutine(FadeInHUD());
     }
@@ -104,13 +109,20 @@ public class UIManager : MonoBehaviour, IUIManager
                 scoreValueText.text = Score.ToString();
             }
 
+            if (UserTestManager.instance.gameCount != previousGameCount)
+            {
+                gameCountValueText.text = UserTestManager.instance.gameCount.ToString();
+            }
+
             if (herdCount == 0 && strayCount == 0)
             {
+                UserTestManager.instance.SaveUserEventData("Herd Lost");
                 reasonText.text = "The herd was lost...";
                 GameOver();
             }
             if(sheepdogHealth == 0)
             {
+                UserTestManager.instance.SaveUserEventData("Player Lost");
                 reasonText.text = "The dog is too weak to continue...";
                 GameOver();
             }
@@ -118,6 +130,7 @@ public class UIManager : MonoBehaviour, IUIManager
             previousSheepdogHealth = sheepdogHealth;
             previousHerdCount = herdCount;
             previousScore = Score;
+            previousGameCount = UserTestManager.instance.gameCount;
         }
     }
 
@@ -217,6 +230,8 @@ public class UIManager : MonoBehaviour, IUIManager
         herdMultiplierText.CrossFadeAlpha(1.0f, 1.0f, false);
         scoreText.CrossFadeAlpha(1.0f, 1.0f, false);
         scoreValueText.CrossFadeAlpha(1.0f, 1.0f, false);
+        gameText.CrossFadeAlpha(1.0f, 1.0f, false);
+        gameCountValueText.CrossFadeAlpha(1.0f, 1.0f, false);
 
         StartCoroutine(TimeCountdown());
     }
@@ -261,6 +276,7 @@ public class UIManager : MonoBehaviour, IUIManager
     public void BeginGame()
     {
         ResumeGame();
+        UserTestManager.instance.IncrementGameCount();
         SceneManager.LoadScene(0);
     }
 
