@@ -3,6 +3,10 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using System.IO;
 using System;
+using System.Text;
+using UnityEngine.Networking;
+using System.Collections;
+
 
 public class UserTestManager : MonoBehaviour
 {
@@ -52,6 +56,7 @@ public class UserTestManager : MonoBehaviour
 
         //File.WriteAllText(Application.persistentDataPath + "/userEventData.json", json);
         File.AppendAllText(Application.persistentDataPath + "/userEventData.json", json);
+        StartCoroutine(SendDataToServer(json));
     }
 
     public void ReadNameInput(string name)
@@ -72,5 +77,20 @@ public class UserTestManager : MonoBehaviour
     {
         IncrementGameCount();
         SceneManager.LoadScene("Alpha");
+    }
+
+    public IEnumerator SendDataToServer(string json)
+    {
+        string url = "https://evasive-manewers-backend.onrender.com/saveEvent";
+
+        using (UnityWebRequest request = UnityWebRequest.Post(url, json, "application/json"))
+        {
+            yield return request.SendWebRequest();
+
+            //if (request.result == UnityWebRequest.Result.Success)
+            //    Debug.Log("Data sent successfully: " + request.downloadHandler.text);
+            //else
+            //    Debug.LogError("Error sending data: " + request.error);
+        }
     }
 }
