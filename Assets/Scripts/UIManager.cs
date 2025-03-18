@@ -277,7 +277,7 @@ public class UIManager : MonoBehaviour, IUIManager
     {
         ResumeGame();
         UserTestManager.instance.IncrementGameCount();
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene("Alpha");
     }
 
     public void SubmitScore()
