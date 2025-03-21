@@ -272,6 +272,7 @@ public class UIManager : MonoBehaviour, IUIManager
         IsGameActive = false;
         EnablePostProcessing();
         //Debug.Log("Begin upload: " + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        UserTestManager.instance.SaveUserEventData("Score Achieved " + Score.ToString());
         StartCoroutine(UserTestManager.instance.SendQueuedDataToServer(PauseGame));
     }
 
