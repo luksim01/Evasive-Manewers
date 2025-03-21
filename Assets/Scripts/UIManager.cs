@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.Profiling;
+using System;
 
 public class UIManager : MonoBehaviour, IUIManager
 {
@@ -160,7 +161,7 @@ public class UIManager : MonoBehaviour, IUIManager
         postprocessingVolume.SetActive(false);
     }
 
-    void PauseGame()
+    public void PauseGame()
     {
         isPaused = true;
         _sheepdog.Move.Disable();
@@ -270,7 +271,8 @@ public class UIManager : MonoBehaviour, IUIManager
         gameOverScreen.SetActive(true);
         IsGameActive = false;
         EnablePostProcessing();
-        PauseGame();
+        //Debug.Log("Begin upload: " + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        StartCoroutine(UserTestManager.instance.SendQueuedDataToServer(PauseGame));
     }
 
     public void BeginGame()
