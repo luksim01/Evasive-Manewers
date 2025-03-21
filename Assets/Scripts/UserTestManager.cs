@@ -15,6 +15,7 @@ public class UserTestManager : MonoBehaviour
     public GameObject nameInputField;
     public GameObject nameArea;
     public TextMeshProUGUI nameText;
+    public GameObject nameInputInstruction;
     public GameObject playButton;
     public string userName;
     public int gameCount = 0;
@@ -65,7 +66,9 @@ public class UserTestManager : MonoBehaviour
         userName = name;
         nameInputField.SetActive(false);
         nameArea.SetActive(true);
-        playButton.SetActive(true);
+        nameInputInstruction.SetActive(false);
+        BeginGame();
+        //playButton.SetActive(true);
     }
 
     public void IncrementGameCount()
