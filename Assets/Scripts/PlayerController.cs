@@ -367,6 +367,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
             _audioManager.HasDetectedCollision = true;
             PlaySheepdogCollisionEffect();
             Health -= 1;
+            UserTestManager.instance.SaveUserEventData("Health Lost");
             HasCollided = true;
             StartCoroutine(DamageCooldown(1f));
         }

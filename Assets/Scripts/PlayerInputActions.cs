@@ -209,7 +209,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""1651e7fd-e57c-4d30-9f76-768f02985b00"",
-                    ""path"": ""<Keyboard>/tab"",
+                    ""path"": ""<Keyboard>/enter"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
