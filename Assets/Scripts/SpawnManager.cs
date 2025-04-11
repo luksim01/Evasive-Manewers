@@ -359,7 +359,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 {
                     straySheepNew.transform.SetPositionAndRotation(StraySheepSpawnPosition, straySheepNew.transform.rotation);
                     straySheepNew.SetActive(true);
-                    UserTestManager.instance.SaveUserEventData(straySheepNew.name + " spawned");
+                    //UserTestManager.instance.SaveUserEventData(straySheepNew.name + " spawned");
 
                     SheepController sheepStrayController = straySheepNew.GetComponent<SheepController>();
                     dependancyManager.InjectSheepControllerDependencies(sheepStrayController);
@@ -397,7 +397,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
             {
                 obstacleNew.transform.SetPositionAndRotation(obstacleSpawnPos, obstacleNew.transform.rotation);
                 obstacleNew.SetActive(true);
-                UserTestManager.instance.SaveUserEventData(obstacleNew.name + " spawned");
+                //UserTestManager.instance.SaveUserEventData(obstacleNew.name + " spawned");
                 ObstacleController obstacleController = obstacleNew.GetComponent<ObstacleController>();
                 dependancyManager.InjectObstacleControllerDependencies(obstacleController);
             }
@@ -428,7 +428,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
                     wolfNew.SetActive(true);
                     string targetCharacter = HasTargetedSheepdog ? "Player" : "Sheep";
-                    UserTestManager.instance.SaveUserEventData(wolfNew.name + " spawned, targeting " + targetCharacter);
+                    //UserTestManager.instance.SaveUserEventData(wolfNew.name + " spawned, targeting " + targetCharacter);
 
                     AddWolfToPack(wolfNew);
                 }

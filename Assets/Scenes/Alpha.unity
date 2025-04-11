@@ -8422,25 +8422,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 994967483104251912, guid: d20db969a8199482facd55099cae0961, type: 3}
-      propertyPath: m_Size.y
-      value: 2.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 994967483104251912, guid: d20db969a8199482facd55099cae0961, type: 3}
-      propertyPath: m_Center.y
-      value: 1.55
-      objectReference: {fileID: 0}
     - target: {fileID: 1060159473986803630, guid: d20db969a8199482facd55099cae0961, type: 3}
       propertyPath: m_Name
       value: Sheepdog
-      objectReference: {fileID: 0}
-    - target: {fileID: 3563461813198268385, guid: d20db969a8199482facd55099cae0961, type: 3}
-      propertyPath: jumpHeight
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 3563461813198268385, guid: d20db969a8199482facd55099cae0961, type: 3}
-      propertyPath: riseGravityScale
-      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3563461813198268385, guid: d20db969a8199482facd55099cae0961, type: 3}
       propertyPath: dependancyManager
@@ -8485,34 +8469,6 @@ PrefabInstance:
     - target: {fileID: 3581904086150010942, guid: d20db969a8199482facd55099cae0961, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6302828205648754458, guid: d20db969a8199482facd55099cae0961, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.75
-      objectReference: {fileID: 0}
-    - target: {fileID: 6302828205648754458, guid: d20db969a8199482facd55099cae0961, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 2.43
-      objectReference: {fileID: 0}
-    - target: {fileID: 7625671809417698372, guid: d20db969a8199482facd55099cae0961, type: 3}
-      propertyPath: m_Mesh
-      value: 
-      objectReference: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-    - target: {fileID: 7625671809417698372, guid: d20db969a8199482facd55099cae0961, type: 3}
-      propertyPath: m_RenderMode
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7625671809417698372, guid: d20db969a8199482facd55099cae0961, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 6aab8edefaf4b431aadc4a3217c808ac, type: 2}
-    - target: {fileID: 8167083343983946080, guid: d20db969a8199482facd55099cae0961, type: 3}
-      propertyPath: InitialModule.startSize.scalar
-      value: 0.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 8167083343983946080, guid: d20db969a8199482facd55099cae0961, type: 3}
-      propertyPath: EmissionModule.rateOverTime.scalar
-      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

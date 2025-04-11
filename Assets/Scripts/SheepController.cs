@@ -546,7 +546,7 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
 
     void PlayCollisionEffect()
     {
-        UserTestManager.instance.SaveUserEventData("Sheep Lost");
+        //UserTestManager.instance.SaveUserEventData("Sheep Lost");
 
         GameObject sheepCollisionEffect = ObjectPoolUtility.Get(_spawnManager.SheepCollisionEffectAmountToPool, _spawnManager.SheepCollisionEffectPool);
         if (sheepCollisionEffect != null)

@@ -110,20 +110,20 @@ public class UIManager : MonoBehaviour, IUIManager
                 scoreValueText.text = Score.ToString();
             }
 
-            if (UserTestManager.instance.gameCount != previousGameCount)
-            {
-                gameCountValueText.text = UserTestManager.instance.gameCount.ToString();
-            }
+            //if (UserTestManager.instance.gameCount != previousGameCount)
+            //{
+            //    gameCountValueText.text = UserTestManager.instance.gameCount.ToString();
+            //}
 
             if (herdCount == 0 && strayCount == 0)
             {
-                UserTestManager.instance.SaveUserEventData("Herd Lost");
+                //UserTestManager.instance.SaveUserEventData("Herd Lost");
                 reasonText.text = "The herd was lost...";
                 GameOver();
             }
             if(sheepdogHealth == 0)
             {
-                UserTestManager.instance.SaveUserEventData("Player Lost");
+                //UserTestManager.instance.SaveUserEventData("Player Lost");
                 reasonText.text = "The dog is too weak to continue...";
                 GameOver();
             }
@@ -131,7 +131,7 @@ public class UIManager : MonoBehaviour, IUIManager
             previousSheepdogHealth = sheepdogHealth;
             previousHerdCount = herdCount;
             previousScore = Score;
-            previousGameCount = UserTestManager.instance.gameCount;
+            //previousGameCount = UserTestManager.instance.gameCount;
         }
     }
 
@@ -272,14 +272,14 @@ public class UIManager : MonoBehaviour, IUIManager
         IsGameActive = false;
         EnablePostProcessing();
         //Debug.Log("Begin upload: " + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
-        UserTestManager.instance.SaveUserEventData("Score Achieved " + Score.ToString());
-        StartCoroutine(UserTestManager.instance.SendQueuedDataToServer(PauseGame));
+        //UserTestManager.instance.SaveUserEventData("Score Achieved " + Score.ToString());
+        //StartCoroutine(UserTestManager.instance.SendQueuedDataToServer(PauseGame));
     }
 
     public void BeginGame()
     {
         ResumeGame();
-        UserTestManager.instance.IncrementGameCount();
+        //UserTestManager.instance.IncrementGameCount();
         SceneManager.LoadScene("Alpha");
     }
 
