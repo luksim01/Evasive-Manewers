@@ -127,7 +127,7 @@ MonoBehaviour:
   barkEffect: {fileID: 8167083343983946080}
   sheepdogCollisionEffect: {fileID: 2395051611644406233, guid: d5207754cf43c44e4a3a12ee85bf2cb8, type: 3}
   dependancyManager: {fileID: 0}
-  interactionRange: 4
+  interactionRange: 5
   interactivityIndicator: {fileID: 828274026707722583, guid: b036a800df6ee4966a4e797d03256cad, type: 3}
   indicatorMaterial: {fileID: 2100000, guid: b014047aae379405b84fe13830ebf1bb, type: 2}
   indicatorPositionOffset: {x: 0, y: 0, z: 0}

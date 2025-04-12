@@ -16,7 +16,7 @@ public static class InteractivityUtility
             renderer.material = indicatorMaterial;
         }
 
-        newInteractivityIndicator.transform.localScale = Vector3.one * range * 2;
+        newInteractivityIndicator.transform.localScale = Vector3.one * 2 * 2; // range * 2;
         newInteractivityIndicator.gameObject.transform.parent = interactiveCharacterTransform;
         return newInteractivityIndicator;
     }

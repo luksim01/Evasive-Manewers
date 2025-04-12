@@ -75,7 +75,7 @@ public class WolfController : BaseCharacterController, ICollidable
         wolfRb = GetComponent<Rigidbody>();
 
         // interactivity
-        wolfInteractivityIndicator = InteractivityUtility.CreateInteractivityIndicator(WolfTransform, interactivityIndicator, indicatorMaterial, indicatorPositionOffset, 3f);
+        wolfInteractivityIndicator = InteractivityUtility.CreateInteractivityIndicator(WolfTransform, interactivityIndicator, indicatorMaterial, indicatorPositionOffset, interactionRange);
         wolfInteractivityIndicatorPosition = wolfInteractivityIndicator.transform.localPosition;
         wolfInteractivityIndicator.SetActive(false);
 
@@ -117,7 +117,9 @@ public class WolfController : BaseCharacterController, ICollidable
 
     void InitialiseWolf()
     {
-        if(_spawnManager != null)
+        this.gameObject.tag = "Wolf";
+
+        if (_spawnManager != null)
         {
             RemoveOutline();
 

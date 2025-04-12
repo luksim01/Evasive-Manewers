@@ -118,7 +118,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af75feeaf1fa240c5887113062d249ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactionRange: 6
+  interactionRange: 7
   interactivityIndicator: {fileID: 828274026707722583, guid: b036a800df6ee4966a4e797d03256cad, type: 3}
   indicatorMaterial: {fileID: 2100000, guid: 2fad663703a5c4e15b367fd430ffd198, type: 2}
   indicatorPositionOffset: {x: 0, y: 0, z: 0}
