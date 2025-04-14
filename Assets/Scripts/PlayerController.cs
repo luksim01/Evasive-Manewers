@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     // movement settings : jump
     //private Rigidbody sheepdogRb;
     private readonly float jumpMovementSpeed = 0.4f;
-    [SerializeField] private bool isGrounded = false;
+    public bool IsGrounded { get; set; }
     [SerializeField] private float jumpHeight = 6f;
     [SerializeField] private float riseGravityScale = 1f;
     [SerializeField] private float fallGravityScale = 2.5f;
@@ -299,7 +299,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
     private void MovementControl(float speed)
     {
-        MovementUtility.Move(PlayerRigidbody, new Vector3(moveInput.x, 0, moveInput.y), speed * (isGrounded ? 1 : jumpMovementSpeed));
+        MovementUtility.Move(PlayerRigidbody, new Vector3(moveInput.x, 0, moveInput.y), speed * (IsGrounded ? 1 : jumpMovementSpeed));
     }
 
     private void CheckPlayerDeath()
@@ -313,9 +313,9 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
     private void DoJump(InputAction.CallbackContext context)
     {
-        if (isGrounded)
+        if (IsGrounded)
         {
-            isGrounded = false;
+            IsGrounded = false;
             sheepdogBodyAnim.SetTrigger("isJumping");
             sheepdogHeadAnim.SetTrigger("isJumping");
             MovementUtility.Jump(PlayerRigidbody, Vector3.up, riseGravityScale, jumpHeight);
@@ -374,7 +374,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
         if (collidingObject.CompareTag("Trail Lane"))
         {
-            isGrounded = true;
+            IsGrounded = true;
         }
     }
 

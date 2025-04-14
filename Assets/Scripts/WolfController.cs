@@ -62,7 +62,7 @@ public class WolfController : BaseCharacterController, ICollidable
     bool hasEngaged;
 
     // jumping
-    [SerializeField] private bool isGrounded = true;
+    public bool IsGrounded { get; set; }
     [SerializeField] private bool isJumping = false;
     [SerializeField] private float jumpHeight = 6f;
     [SerializeField] private float riseGravityScale = 2.8f;
@@ -144,7 +144,7 @@ public class WolfController : BaseCharacterController, ICollidable
 
         hasEngaged = false;
         isBarkedAt = false;
-        isGrounded = true;
+        IsGrounded = true;
         isJumping = false;
         isTargetSheepGrounded = false;
 
@@ -322,7 +322,7 @@ public class WolfController : BaseCharacterController, ICollidable
                     Vector3 sheepPosition = new Vector3(targetSheep.transform.position.x, 0, targetSheep.transform.position.z);
                     if (Vector3.Distance(wolfPosition, sheepPosition) > 2f)
                     {
-                        MovementUtility.MoveSmooth(wolfRb, targetDirection, isGrounded ? 5f : 0.5f, 0.9f);
+                        MovementUtility.MoveSmooth(wolfRb, targetDirection, IsGrounded ? 5f : 0.5f, 0.9f);
                     }
                 }
 
@@ -431,9 +431,9 @@ public class WolfController : BaseCharacterController, ICollidable
 
     void Jump(Vector3 direction)
     {
-        if (isGrounded)
+        if (IsGrounded)
         {
-            isGrounded = false;
+            IsGrounded = false;
             isJumping = true;
             MovementUtility.Jump(wolfRb, direction, riseGravityScale, jumpHeight);
 
@@ -463,7 +463,7 @@ public class WolfController : BaseCharacterController, ICollidable
         {
             if (collidingObject.CompareTag("Trail Lane") || collidingObject.CompareTag("Boundary Lane"))
             {
-                isGrounded = true;
+                IsGrounded = true;
 
                 //if (wolfMovementConstraints.Contains(RigidbodyConstraints.FreezePositionX))
                 //{

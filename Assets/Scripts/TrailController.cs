@@ -6,7 +6,7 @@ public class TrailController : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         ICollidable collidable = collision.gameObject.GetComponent<ICollidable>();
-        if (collidable != null && !collidable.HasCollided)
+        if (collidable != null && (!collidable.HasCollided || !collidable.IsGrounded))
         {
             collidable.OnCollision(this.gameObject);
         }

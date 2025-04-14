@@ -77,6 +77,7 @@ public interface ISheepController
 public interface ICollidable
 {
     bool HasCollided { get; set; }
+    bool IsGrounded { get; set; }
     void OnCollision(GameObject collidingObject);
 }
 
