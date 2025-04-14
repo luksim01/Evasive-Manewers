@@ -384,7 +384,7 @@ public class WolfController : BaseCharacterController, ICollidable
         if (!isCharging)
         {
             targetDirection = InteractivityUtility.GetTowardDirection(wolfRb.position, _sheepdog.PlayerRigidbody.position);
-            MovementUtility.MoveSmooth(wolfRb, targetDirection, 10f, 0.9f);
+            MovementUtility.MoveSmooth(wolfRb, targetDirection, 8f, 0.9f);
             MovementUtility.LookAt(wolfRb, targetDirection);
         }
 
@@ -397,7 +397,7 @@ public class WolfController : BaseCharacterController, ICollidable
         if (isCharging)
         {
             wolfHeadAnim.SetTrigger("isBiting");
-            MovementUtility.MoveSmooth(wolfRb, targetDirection, 10f, 0.9f);
+            MovementUtility.MoveSmooth(wolfRb, targetDirection, 9f, 0.9f);
             MovementUtility.LookAt(wolfRb, targetDirection);
         }
 
