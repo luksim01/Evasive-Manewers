@@ -21,6 +21,27 @@ public static class InteractivityUtility
         return newInteractivityIndicator;
     }
 
+    public static GameObject CreateLeaderIndicator(GameObject leaderIndicator, Material indicatorMaterial)
+    {
+        GameObject newLeaderIndicator = Object.Instantiate(leaderIndicator, leaderIndicator.transform.position, leaderIndicator.transform.rotation);
+
+        // add material to indicator
+        Renderer[] renderers = newLeaderIndicator.GetComponentsInChildren<Renderer>();
+        foreach (Renderer renderer in renderers)
+        {
+            renderer.material = indicatorMaterial;
+        }
+
+        newLeaderIndicator.transform.localScale = Vector3.one * 2 * 2; // range * 2;
+        return newLeaderIndicator;
+    }
+
+    public static void UpdateLeaderIndicator(GameObject leaderIndicator, Vector3 newLeaderPosition)
+    {
+        Vector3 updatedLeaderPosition = new Vector3(newLeaderPosition.x, leaderIndicator.transform.position.y, newLeaderPosition.z);
+        leaderIndicator.transform.position = updatedLeaderPosition;
+    }
+
     public static void UpdateInteractivityIndicator(GameObject interactivityIndicator, float range)
     {
         interactivityIndicator.transform.localScale = Vector3.one * range * 2;

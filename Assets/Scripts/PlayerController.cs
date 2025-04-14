@@ -44,6 +44,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
 
     // bark particle 
     public ParticleSystem barkEffect;
+    public ParticleSystem barkJumpEffect;
 
     // animation
     private Animator sheepdogBodyAnim;
@@ -446,7 +447,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     {
         // keep track of herd to check they're grounded to trigger jump
         sheepdogHeadAnim.SetTrigger("isBarkingJump");
-        barkEffect.Play();
+        barkJumpEffect.Play();
         _audioManager.HasDetectedBarkJump = true;
         StaggeredJump();
         StartCoroutine(BarkJumpCooldown(0.5f));

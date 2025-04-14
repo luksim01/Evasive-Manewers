@@ -47,6 +47,13 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     private List<GameObject> backgroundTreePool;
     private int treeAmountToPool = 32;
 
+    // herd leader indicator
+    public GameObject leaderIndicator;
+    public Material indicatorMaterial;
+    private GameObject sheepLeaderIndicator;
+    private Vector3 sheepLeaderIndicatorPosition;
+
+
     // lanes
     [SerializeField] private GameObject[] trailLanes;
 
@@ -133,10 +140,17 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         Pack = new List<GameObject>();
         wolfPool = ObjectPoolUtility.Create("WolfPool", gameObject.transform, wolf, wolfAmountToPool);
 
+        // herd leader indicator
+        sheepLeaderIndicator = InteractivityUtility.CreateLeaderIndicator(leaderIndicator, indicatorMaterial);
+
+        //InteractivityUtility.UpdateLeaderIndicator(sheepLeaderIndicator, Vector3.forward * 15f);
+        //sheepLeaderIndicator.SetActive(false);
+
         InvokeEncounter(8);
         Invoke("SpawnBackground", 0.7f);
         TimeSinceLostSheep = 0;
         Invoke("SpawnStraySheep", 3);
+        Invoke("CheckHerdLeader", 0.1f);
     }
 
     public void AddSheepToHerd(GameObject gameObject)
@@ -189,6 +203,26 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
             allGrounded &= _sheepController.IsGrounded;
         }
         return allGrounded;
+    }
+
+    private void CheckHerdLeader()
+    {
+        float leaderPositionZ = -40f;
+        Vector3 leaderPosition = new Vector3(0, 0, leaderPositionZ);
+
+        foreach (GameObject sheep in Herd)
+        {
+            SheepController sheepController = sheep.GetComponent<SheepController>();
+            if (sheepController.SheepTransform.position.z > leaderPositionZ)
+            {
+                leaderPosition = sheepController.SheepTransform.position;
+                leaderPositionZ = leaderPosition.z;
+            }
+        }
+
+        InteractivityUtility.UpdateLeaderIndicator(sheepLeaderIndicator, leaderPosition);
+
+        Invoke("CheckHerdLeader", 0.1f);
     }
 
     private void InvokeEncounter(float encounterInterval)
