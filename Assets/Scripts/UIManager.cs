@@ -172,6 +172,15 @@ public class UIManager : MonoBehaviour, IUIManager
         EnablePostProcessing();
     }
 
+    public void Exit()
+    {
+        if (isPaused)
+        {
+            ResumeGame();
+            SceneManager.LoadScene("Title");
+        }
+    }
+
     void PauseProfiler()
     {
         Profiler.enabled = false;
@@ -296,4 +305,5 @@ public class MockUIManager : IUIManager
     public int TimeRemaining { get; set; }
     public int Score { get; set; }
     public void PauseResume() { }
+    public void Exit() { }
 }

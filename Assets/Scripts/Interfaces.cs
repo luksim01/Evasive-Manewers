@@ -21,6 +21,7 @@ public interface IUIManager
     int TimeRemaining { get; set; }
     int Score { get; set; }
     void PauseResume();
+    void Exit();
 }
 
 public interface ISpawnManager

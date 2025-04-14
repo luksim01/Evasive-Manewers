@@ -17,7 +17,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     public InputAction Jump { get; set; }
     public InputAction BarkMove { get; set; }
     public InputAction BarkJump { get; set; }
-    private InputAction pause;
+    private InputAction pause { get; set; }
+    private InputAction exit { get; set; }
     [SerializeField] private Vector2 moveInput = Vector2.zero;
     Vector3 moveDirection;
     float verticalMoveSpeed;
@@ -145,6 +146,10 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         pause = playerControls.Player.Pause;
         pause.Enable();
         pause.performed += Pause;
+
+        exit = playerControls.Player.Exit;
+        exit.Enable();
+        exit.performed += Exit;
     }
 
     void OnDisable()
@@ -154,6 +159,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
         BarkMove.Disable();
         BarkJump.Disable();
         pause.Disable();
+        exit.Disable();
     }
 
     // Start is called before the first frame update
@@ -465,5 +471,10 @@ public class PlayerController : MonoBehaviour, IPlayerController, ICollidable
     private void Pause(InputAction.CallbackContext context)
     {
         _uiManager.PauseResume();
+    }
+
+    private void Exit(InputAction.CallbackContext context)
+    {
+        _uiManager.Exit();
     }
 }
