@@ -34,8 +34,8 @@ public class UIManagerLeaderboard : MonoBehaviour
         finalScoreText.text = "Final Score " + newScore;
 
         DisplayScoreboard(5);
-        //nameInputField.SetActive(true);
-        ReadNameInput();
+        nameInputField.SetActive(true);
+        //ReadNameInput();
     }
 
     private void DisplayScoreboard(int length)
@@ -61,13 +61,14 @@ public class UIManagerLeaderboard : MonoBehaviour
         }
     }
 
-    public void ReadNameInput()
+    public void ReadNameInput(string nameInput)
     {
-        topNames[5] = UserTestManager.instance.userName;
+        //topNames[5] = UserTestManager.instance.userName;
+        topNames[5] = nameInput;
         topScores[5] = newScore;
         PopulateScoreboard(6);
         ReorderScoreboard(6);
-        //nameInputField.SetActive(false);
+        nameInputField.SetActive(false);
     }
 
     private void PopulateScoreboard(int length)
@@ -179,7 +180,7 @@ public class UIManagerLeaderboard : MonoBehaviour
 
     public void BeginGame()
     {
-        UserTestManager.instance.IncrementGameCount();
+        //UserTestManager.instance.IncrementGameCount();
         SceneManager.LoadScene("Alpha");
     }
 }

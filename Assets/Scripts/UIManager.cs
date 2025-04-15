@@ -177,7 +177,7 @@ public class UIManager : MonoBehaviour, IUIManager
         if (isPaused)
         {
             ResumeGame();
-            SceneManager.LoadScene("Title");
+            SceneManager.LoadScene("Alpha");
         }
     }
 
