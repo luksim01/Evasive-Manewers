@@ -123,12 +123,13 @@ MonoBehaviour:
   indicatorMaterial: {fileID: 2100000, guid: 2fad663703a5c4e15b367fd430ffd198, type: 2}
   indicatorPositionOffset: {x: 0, y: 0, z: 0}
   targetDirection: {x: 0, y: 0, z: 0}
-  isGrounded: 1
   isJumping: 0
   jumpHeight: 4
   riseGravityScale: 2
   fallGravityScale: 2
   isTargetSheepGrounded: 0
+  wolfHuntingDogMaterial: {fileID: 2100000, guid: f02bd974649c64573b644deaea99a77a, type: 2}
+  wolfHuntingSheepMaterial: {fileID: 2100000, guid: 21a1ca7b106b045b19301914ee04b8fd, type: 2}
 --- !u!1001 &3743661574775535673
 PrefabInstance:
   m_ObjectHideFlags: 0

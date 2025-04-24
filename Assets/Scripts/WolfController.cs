@@ -70,6 +70,9 @@ public class WolfController : BaseCharacterController, ICollidable
     [SerializeField] private bool isTargetSheepGrounded = false;
     private List<RigidbodyConstraints> wolfMovementConstraints;
 
+    public Material wolfHuntingDogMaterial;
+    public Material wolfHuntingSheepMaterial;
+
     void Start()
     {
         wolfRb = GetComponent<Rigidbody>();
@@ -115,6 +118,15 @@ public class WolfController : BaseCharacterController, ICollidable
         }
     }
 
+    void UpdateMaterial(Material material)
+    {
+        Renderer[] renderers = this.gameObject.GetComponentsInChildren<Renderer>();
+        foreach (Renderer renderer in renderers)
+        {
+            renderer.material = material;
+        }
+    }
+
     void InitialiseWolf()
     {
         this.gameObject.tag = "Wolf";
@@ -130,11 +142,13 @@ public class WolfController : BaseCharacterController, ICollidable
             if (hasTargetedSheepdog)
             {
                 this.gameObject.tag = "WolfHuntingDog";
+                UpdateMaterial(wolfHuntingDogMaterial);
             }
 
             if (hasTargetedHerd)
             {
                 this.gameObject.tag = "WolfHuntingSheep";
+                UpdateMaterial(wolfHuntingSheepMaterial);
             }
 
             //wolfMovementConstraints.Add(RigidbodyConstraints.FreezeRotationX);
@@ -216,6 +230,7 @@ public class WolfController : BaseCharacterController, ICollidable
             if (!hasBitten && hasTargetedSheepdog)
             {
                 _uiManager.Score += 100;
+                _spawnManager.IncreaseGameSpeed();
             }
             ReturnToPoolAndReset(gameObject);
         }
@@ -224,6 +239,7 @@ public class WolfController : BaseCharacterController, ICollidable
             if (!hasBitten && hasTargetedSheepdog)
             {
                 _uiManager.Score += 100;
+                _spawnManager.IncreaseGameSpeed();
             }
             ReturnToPoolAndReset(gameObject);
         }
@@ -332,6 +348,8 @@ public class WolfController : BaseCharacterController, ICollidable
                     isBarkedAt = false;
                     wolfHeadAnim.SetTrigger("isBiting");
                     targetSheep.tag = "Sheep";
+                    _uiManager.Score += 100;
+                    _spawnManager.IncreaseGameSpeed();
                     _spawnManager.AddSheepToHerd(targetSheep);
                     _spawnManager.RemoveSheepFromHunted(targetSheep);
 
@@ -384,7 +402,7 @@ public class WolfController : BaseCharacterController, ICollidable
         if (!isCharging)
         {
             targetDirection = InteractivityUtility.GetTowardDirection(wolfRb.position, _sheepdog.PlayerRigidbody.position);
-            MovementUtility.MoveSmooth(wolfRb, targetDirection, 8f, 0.9f);
+            MovementUtility.MoveSmooth(wolfRb, targetDirection, 7.5f, 0.9f);
             MovementUtility.LookAt(wolfRb, targetDirection);
         }
 

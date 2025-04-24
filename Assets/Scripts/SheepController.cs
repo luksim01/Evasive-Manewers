@@ -336,6 +336,8 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
             _spawnManager.AddSheepToHerd(gameObject);
             _spawnManager.RemoveSheepFromStrays(gameObject);
             gameObject.tag = "Sheep";
+            _uiManager.Score += 100;
+            _spawnManager.IncreaseGameSpeed();
         }
 
         // stray sheep is gone once beyond the forest boundary
@@ -567,6 +569,7 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
             _spawnManager.TimeSinceLostSheep = 0;
             PlayCollisionEffect();
             _spawnManager.RemoveSheepFromHerd(gameObject);
+            _spawnManager.DecreaseGameSpeed();
             ReturnToPoolAndReset(gameObject);
         }
 

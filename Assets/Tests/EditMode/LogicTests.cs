@@ -17,7 +17,7 @@ public class LogicTests
         bool expectedStatus = false;
 
         // Act
-        bool spawnStatus = spawnManager.GetComponent<SpawnManager>().CheckTimeSinceLostSheep(targetSeconds);
+        bool spawnStatus = spawnManager.GetComponent<SpawnManager>().CheckTimeSinceLastSheep(targetSeconds);
 
         // Assert
         Assert.That(spawnStatus, Is.EqualTo(expectedStatus));
@@ -37,7 +37,7 @@ public class LogicTests
         bool expectedStatus = true;
         
         // Act
-        bool spawnStatus = spawnManager.GetComponent<SpawnManager>().CheckTimeSinceLostSheep(targetSeconds);
+        bool spawnStatus = spawnManager.GetComponent<SpawnManager>().CheckTimeSinceLastSheep(targetSeconds);
 
         // Assert
         Assert.That(spawnStatus, Is.EqualTo(expectedStatus));

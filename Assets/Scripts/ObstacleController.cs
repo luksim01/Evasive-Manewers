@@ -38,6 +38,7 @@ public class ObstacleController : MonoBehaviour
                 {
                     ObstacleTransform.rotation = Quaternion.Euler(0, 0, 0);
                     _uiManager.Score += 100;
+                    _spawnManager.IncreaseGameSpeed();
                 }
                 ObjectPoolUtility.Return(gameObject);
             }

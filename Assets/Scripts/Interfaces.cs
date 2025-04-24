@@ -53,6 +53,8 @@ public interface ISpawnManager
     void RemoveSheepFromStrays(GameObject gameObject);
     void AddWolfToPack(GameObject gameObject);
     void RemoveWolfFromPack(GameObject gameObject);
+    void IncreaseGameSpeed();
+    void DecreaseGameSpeed();
 }
 
 public interface IPlayerController

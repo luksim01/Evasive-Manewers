@@ -53,7 +53,6 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     private GameObject sheepLeaderIndicator;
     private Vector3 sheepLeaderIndicatorPosition;
 
-
     // lanes
     [SerializeField] private GameObject[] trailLanes;
 
@@ -71,6 +70,9 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
 
     // spawn manager
     private SpawnManager _spawnManager;
+    public float encounterInterval = 5f;
+    private float encounterIntervalMin = 3f;
+    private float encounterIntervalMax = 5f;
 
     // dependancies
     public void SetDependencies(IAudioManager audioManager, IUIManager uiManager, IPlayerController playerController, SpawnManager spawnManager)
@@ -191,6 +193,30 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     public void RemoveWolfFromPack(GameObject gameObject)
     {
         Pack.Remove(gameObject);
+    }
+
+    public void IncreaseGameSpeed()
+    {
+        if (encounterInterval > encounterIntervalMin)
+        {
+            encounterInterval -= 0.1f;
+        }
+        else
+        {
+            encounterInterval = encounterIntervalMin;
+        }
+    }
+
+    public void DecreaseGameSpeed()
+    {
+        if (encounterInterval < encounterIntervalMax)
+        {
+            encounterInterval += 0.2f;
+        }
+        else
+        {
+            encounterInterval = encounterIntervalMax;
+        }
     }
 
     public bool CheckSheepGrounded()
@@ -347,7 +373,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
         }
     }
 
-    public bool CheckTimeSinceLostSheep(int targetSeconds)
+    public bool CheckTimeSinceLastSheep(int targetSeconds)
     {
         TimeSinceLostSheep += 1;
         if (TimeSinceLostSheep >= targetSeconds)
@@ -365,7 +391,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
     {
         if (_uiManager.IsGameActive && _uiManager.TimeRemaining > 10)
         {
-            if (CheckTimeSinceLostSheep(spawnInterval))
+            if (CheckTimeSinceLastSheep(spawnInterval))
             {
                 string[] spawnSide = { "left", "right" };
                 int sideIndex = Random.Range(0, spawnSide.Length);
@@ -436,7 +462,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
                 dependancyManager.InjectObstacleControllerDependencies(obstacleController);
             }
 
-            InvokeEncounter(3);
+            InvokeEncounter(encounterInterval);
         }
     }
 
@@ -469,7 +495,7 @@ public class SpawnManager : MonoBehaviour, ISpawnManager
             }
 
 
-            InvokeEncounter(3);
+            InvokeEncounter(encounterInterval);
         }
     }
 
@@ -572,4 +598,6 @@ public class MockSpawnManager : ISpawnManager
     public void RemoveSheepFromStrays(GameObject gameObject) { }
     public void AddWolfToPack(GameObject gameObject) { }
     public void RemoveWolfFromPack(GameObject gameObject) { }
+    public void IncreaseGameSpeed() { }
+    public void DecreaseGameSpeed() { }
 }
