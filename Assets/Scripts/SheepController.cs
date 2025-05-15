@@ -340,11 +340,21 @@ public class SheepController : BaseCharacterController, ISheepController, IColli
             _spawnManager.IncreaseGameSpeed();
         }
 
-        // stray sheep is gone once beyond the forest boundary
-        if (Mathf.Abs(straySheepTargetDirection.x - SheepTransform.position.x) <= 0.2)
+        //// stray sheep is gone once beyond the forest boundary
+        //if (Mathf.Abs(straySheepTargetDirection.x - SheepTransform.position.x) <= 0.2)
+        //{
+        //    _spawnManager.RemoveSheepFromStrays(gameObject);
+        //    ReturnToPoolAndReset(gameObject);
+        //}
+
+        // stray sheep automatically joins herd
+        if (!isBarkedAt && Mathf.Abs(straySheepTargetDirection.x - SheepTransform.position.x) <= 8)
         {
+            _spawnManager.AddSheepToHerd(gameObject);
             _spawnManager.RemoveSheepFromStrays(gameObject);
-            ReturnToPoolAndReset(gameObject);
+            gameObject.tag = "Sheep";
+            _uiManager.Score += 100;
+            _spawnManager.IncreaseGameSpeed();
         }
     }
 

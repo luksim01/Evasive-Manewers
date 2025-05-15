@@ -136,7 +136,6 @@ MonoBehaviour:
   smoothTime: 0.01
   interactionRange: 2
   interactivityIndicator: {fileID: 828274026707722583, guid: b036a800df6ee4966a4e797d03256cad, type: 3}
-  leaderIndicator: {fileID: 828274026707722583, guid: 13f101e2221bd49029bf9d223bfd2604, type: 3}
   indicatorMaterial: {fileID: 2100000, guid: 2fad663703a5c4e15b367fd430ffd198, type: 2}
   indicatorPositionOffset: {x: 0, y: 0, z: 0.5}
   straySheepTargetDirection: {x: 0, y: 0, z: 0}

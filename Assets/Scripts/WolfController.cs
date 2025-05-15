@@ -124,6 +124,10 @@ public class WolfController : BaseCharacterController, ICollidable
         foreach (Renderer renderer in renderers)
         {
             renderer.material = material;
+            //foreach(Material rendererMaterial in renderer.materials)
+            //{
+            //    Debug.Log(this.gameObject.name + ": " + rendererMaterial.name);
+            //}
         }
     }
 
